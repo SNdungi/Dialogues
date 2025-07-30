@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dialogues of Light - Welcome</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/splash.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- The transparent sidebar remains -->
+<div class="sidebar">
+    <div class="header-accent-dots"></div>
+    <a href="{{ url_for('main.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
+    <a href="#" class="tag-item tag-purple">Liturgy</a>
+    <a href="#" class="tag-item tag-green">Academy</a>  
+    <a href="#" class="tag-item tag-blue">Charity</a>
+    <a href="#" class="tag-item tag-pink">Resources</a>
+    <a href="#" class="tag-item tag-orange">Contact</a>
+</div>
+
+<!-- The hero carousel remains -->
+<section class="hero-carousel">
+    <ul class="carousel-slides">
+
+        <!-- Slide 1 -->
+        <li class="carousel-slide">
+            <div class="carousel-image-bg" style="background-image:url({{ url_for('static', filename='images/1.webp') }})"></div>
+            <div class="carousel-caption">
+                <div class="caption-box">
+                    <h1 class="slide-text"><strong>DIALOGUES</strong> of light</h1>
+                    <hr class="animated-hr">
+                    <p class="slide-desc">Building The Body of Knowledge in the Body of CHRIST</p>
+                    <a href="{{ url_for('main.dialogues') }}" class="enter-btn">Enter the Dialogues</a>
+                </div>
+            </div>
+        </li>
+        <!-- ... other slides ... -->
+        <li class="carousel-slide">
+            <div class="carousel-image-bg" style="background-image:url({{ url_for('static', filename='images/2.webp') }})"></div>
+            <div class="carousel-caption">
+                 <div class="caption-box"><h1 class="slide-text">The <strong>WORD</strong></h1><hr class="animated-hr"><p class="slide-desc">Daily reflections and insights to deepen your understanding of the Word of God.</p></div>
+            </div>
+        </li>
+        <li class="carousel-slide">
+            <div class="carousel-image-bg" style="background-image:url({{ url_for('static', filename='images/3.webp') }})"></div>
+            <div class="carousel-caption">
+                <div class="caption-box"><h1 class="slide-text">The <strong>PRAYER</strong></h1><hr class="animated-hr"><p class="slide-desc">Prayer resources and community support to uplift your spiritual journey.</p></div>
+            </div>
+        </li>
+        <li class="carousel-slide">
+            <div class="carousel-image-bg" style="background-image:url({{ url_for('static', filename='images/4.webp') }})"></div>
+            <div class="carousel-caption">
+                <div class="caption-box"><h1 class="slide-text">The <strong>ACADEMY</strong></h1><hr class="animated-hr"><p class="slide-desc">Christian academic resources, including libraries, repositories, and study guides.</p></div>
+            </div>
+        </li>
+    </ul>
+</section>
+
+<!-- NEW: Sophisticated Overlay Footer -->
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-column">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="{{ url_for('main.dialogues') }}">Enter Dialogues</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Mission & Vision</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Resources</h4>
+            <ul>
+                <li><a href="#">Featured Articles</a></li>
+                <li><a href="#">Academic Repositories</a></li>
+                <li><a href="#">Scholarly Journals</a></li>
+                <li><a href="#">Papal Newsletters</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Liturgy & Prayer</h4>
+            <ul>
+                <li><a href="#">Daily Commentaries</a></li>
+                <li><a href="#">Book of Prayers</a></li>
+                <li><a href="#">Chaplets & Rosaries</a></li>
+                <li><a href="#">The Litanies</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Partners</h4>
+            <ul>
+                <li><a href="#">Affiliated Schools</a></li>
+                <li><a href="#">Partner Organisations</a></li>
+                <li><a href="#">Supported Charities</a></li>
+                <li><a href="#">Media Affiliates</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p class="tight-p">Temple of Divine Wisdom, Tabernacle of Divine Knowledge</p>
+        <p class="tight-p">&</p>
+        <p class="tight-p">Sunshine of heaven and earth.</p>
+
+        <p>© {{ now().year }} </p>
+    </div>
+</footer>
+
+</body>
+</html>

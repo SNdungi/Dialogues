@@ -1,0 +1,357 @@
+/* ==========================================================================
+   Dialogues of Light - Custom Splash Page Styles
+   ========================================================================== */
+
+/* --- 1. FONTS, VARIABLES & BASIC SETUP --- */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@700&family=Play:wght@400;700&family=Style+Script&display=swap');
+
+:root {
+    --text-color: #ffffff;
+    --bg-color: #0f0f0f;
+    --accent-color: #f5bd04; /* Gold accent from main theme */
+    --illuminate-color: #3cff00; /* Gold accent for illumination */
+    --text-p: orangered;
+    --slide-duration: 6s; /* Control speed here. Total = this * number of slides */
+    
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Play', serif;
+    margin: 0;
+}
+
+  .tight-p {
+    margin: 0;
+    font-size: 8pt;
+    font-weight: lighter;
+    font-family: 'Playfair Display', serif;
+  }
+
+
+/* =============== 2. KEYFRAME ANIMATIONS ========================*/
+
+/* The continuous background panning/zooming (Ken Burns) effect */
+@keyframes kenburns-zoom-pan {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.4) translate(-5%, -5%);
+  }
+}
+
+/* The fading animation for the slides */
+@keyframes carousel-fade {
+    /* A slide is visible for 25% of the total animation time */
+    0%, 25%, 100% { opacity: 0; animation-timing-function: ease; }
+    4% { opacity: 1; } /* Fade in */
+    21% { opacity: 1; } /* Stay visible */
+    25% { opacity: 0; } /* Fade out */
+}
+
+
+/* ============= 3. CAROUSEL STYLES ===================== */
+.hero-carousel {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    overflow: hidden;
+    background-color: #000;
+}
+
+.carousel-slides {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.carousel-slide {
+    position: absolute;
+    inset: 0; /* shorthand for top, right, bottom, left = 0 */
+    opacity: 0; /* Start hidden */
+    animation: carousel-fade calc(var(--slide-duration) * 4) infinite;
+}
+
+/* Apply animation delays to each slide to create the sequence */
+.carousel-slide:nth-child(1) { animation-delay: calc(var(--slide-duration) * 0); }
+.carousel-slide:nth-child(2) { animation-delay: calc(var(--slide-duration) * 1); }
+.carousel-slide:nth-child(3) { animation-delay: calc(var(--slide-duration) * 2); }
+.carousel-slide:nth-child(4) { animation-delay: calc(var(--slide-duration) * 3); }
+
+/* The background image container gets the Ken Burns effect */
+.carousel-image-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+  animation: kenburns-zoom-pan calc(var(--slide-duration) * 4) ease-in-out infinite;
+  transform-origin: center center;
+}
+
+
+/* Caption Styles */
+.carousel-caption {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(26, 26, 26, 0.4); /* Dark overlay for readability */
+    padding: 1rem;
+}
+
+.caption-box {
+    max-width: 800px;
+}
+
+.slide-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 10vw, 5rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    color: var(--text-color);
+}
+
+.slide-text strong { color: var(--accent-color); }
+
+.slide-desc {
+    
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    margin: 1rem auto 0;
+    max-width: 600px;
+}
+
+.animated-hr {
+    border: 0;
+    height: 2px;
+    width: 80px;
+    background: var(--accent-color);
+    margin: 1.5rem auto;
+}
+
+.enter-btn {
+    display: inline-block;
+    background-color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    color: var(--bg-color);
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 12px 30px;
+    margin-top: 2rem;
+    transition: all 0.3s ease;
+}
+.enter-btn:hover {
+    background-color: transparent;
+    color: var(--accent-color);
+    transform: translateY(-3px);
+}
+
+
+
+/* ========= 4. ICONS SECTION STYLES ============== */
+
+.icons-section {
+    padding: 4rem 0;
+    color: #cccccc;
+}
+
+.icons-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.icons-section .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2.5rem;
+}
+
+.grid-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.icons-section .animated-hr {
+    margin: 1rem 0;
+}
+
+.icons-section p {
+    line-height: 1.7;
+}
+
+/* UPDATED: Styles for the new Font Awesome icons */
+.icon-square {
+    height: 60px;
+    width: 60px;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+    /* Use flexbox to perfectly center the icon inside */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-square i {
+    font-size: 55px; /* Control icon size with font-size */
+    color: var(--accent-color); /* Style icon color with our theme's accent */
+}
+
+.grid-item:hover .icon-square {
+    transform: translateY(-10px);
+}
+
+/* --- 5. SITE GRID LAYOUT STYLES --- */
+
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+    font-family: 'Play', serif;
+  }
+
+  /* The accent dots - this is the specific fix */
+.sidebar .header-accent-dots {
+    height: 30px;
+    width: 30px;
+    margin-bottom: 1rem;
+    background-image: radial-gradient(var(--accent-color) 35%, transparent 35%);
+    background-size: 6px 6px;
+}
+
+
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Now aligns content to the left */
+  position: relative;
+  padding: 10px 18px 10px 36px; /* Left padding increased, right reduced */
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1); /* translucent glass */
+  backdrop-filter: blur(6px);           /* frosted blur */
+  -webkit-backdrop-filter: blur(6px);   /* Safari support */
+  clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* subtle depth */
+  transition: background-color 0.3s, color 0.3s;
+  text-align: left;
+  border-left: 4px solid transparent;
+  
+}
+
+
+  .tag-item::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: white;
+  }
+
+.tag-yellow { border-left-color: #d4af37; } /* Gold Accent */
+.tag-purple { border-left-color: #4c2a4c; } /* Royal Violet */
+.tag-green  { border-left-color: #556b2f; } /* Serene Green */
+.tag-blue   { border-left-color: #003366; } /* Deep Blue */
+.tag-pink   { border-left-color: #d8b2d8; } /* Soft Pink */
+.tag-orange { border-left-color: #8c4343; } /* Muted Red (as an orange substitute) */
+
+
+  .tag-item:hover {
+    filter: brightness(1.1);
+  }
+
+  .header-accent-dots {
+
+    width: 20px;
+    height: 20px;
+    background-image: radial-gradient(var(--soft-pink) 35%, transparent 35%);
+    background-size: 5px 5px;
+    z-index: 1001;
+  }
+
+
+/* =================== 6. OVERLAY FOOTER ========================= */
+
+.site-footer {
+    width: 100%;
+    height: var(--footer-height);
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-color);
+}
+
+.footer-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: auto auto 0 auto; /* Pushes content to the bottom of the footer area */
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.footer-column h4 {
+    font-family: 'Playfair Display', serif;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-column ul a {
+    color: #ccc;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.footer-column ul a:hover {
+    color: #fff;
+    padding-left: 5px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: #888;
+    background-color: var(--bg-color); /* Solid background for copyright */
+}

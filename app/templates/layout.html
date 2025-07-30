@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dialogues of Light{% endblock %}</title>
+    
+    <!-- Fonts and Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montez&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Play:wght@400;700&family=Style+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&family=Kalam:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="site-grid">
+        
+        <nav class="main-nav " id="main-nav">
+            <div class="logo-dropdown" >
+                <div class="logo">
+                    <a href="{{ url_for('main.splash') }}">
+                        <h1>Dialogues of Light</h1>
+                    </a>
+                </div>
+                <div class="header-accent-dots" id="logo-dropdown-trigger"></div>
+                <!-- The actual dropdown menu, hidden by default -->
+                <div class="dropdown-menu" id="logo-dropdown-menu">
+                    <ul>
+                        <li><a href="#" data-modal-target="discourse-modal">New Discourse</a></li>
+                        <li><a href="#" data-modal-target="image-modal">Upload Image</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <ul >
+                {% for topic in topics_data %}
+                <li >
+                    <a href="#" class="main-topic-link" data-topic-id="{{ topic.id }}">
+                        <span>{{ topic.name }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+
+        <!-- Sub-topic Navigation (Modal-like column) -->
+        <aside class="sub-nav" id="sub-nav">
+            <div class="sub-nav-header">
+                <h3 id="sub-nav-title"></h3>
+                <button id="close-sub-nav" class="close-btn">×</button>
+            </div>
+            <ul id="sub-nav-list"></ul>
+        </aside>
+
+        <!-- Main Content Area (This will be filled by other templates) -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Right Sidebar (Data now comes from context_processor) -->
+        <aside class="right-sidebar">
+            <div class="daily-content">
+                <section id="daily-reading">
+                    <h4>{{ daily_data.get('reading', {}).get('title', 'Daily Reading') }}</h4>
+                    <p>{{ daily_data.get('reading', {}).get('body', 'Content unavailable.') }}</p>
+                </section>
+                <section id="daily-devotion">
+                    <h4>{{ daily_data.get('devotion', {}).get('title', 'Moment of Devotion') }}</h4>
+                    <p>{{ daily_data.get('devotion', {}).get('body', 'Content unavailable.') }}</p>
+                </section>
+                <section id="daily-prayer">
+                    <h4>{{ daily_data.get('prayer', {}).get('title', 'Prayer') }}</h4>
+                    <p><em>{{ daily_data.get('prayer', {}).get('body', 'Content unavailable.') }}</em></p>
+                </section>
+            </div>
+            <div class="sidebar-links">
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="#"><i class="fas fa-mobile-alt"></i> Useful Apps</a></li>
+                    <li><a href="#"><i class="fas fa-hand-holding-heart"></i> Charities</a></li>
+                    <li><a href="#"><i class="fas fa-book-open"></i> Opensource</a></li>
+                    <li><a href="#"><i class="fas fa-graduation-cap"></i> Study Guides</a></li>
+                    <li><a href="#"><i class="fas fa-pen-nib"></i> Contribution Blog</a></li>
+                    <li><a href="#"><i class="fas fa-puzzle-piece"></i> Leisure & Riddles</a></li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+<!-- NEW: Sophisticated Overlay Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{{ url_for('main.dialogues') }}">Enter Dialogues</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Mission & Vision</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Featured Articles</a></li>
+                    <li><a href="#">Academic Repositories</a></li>
+                    <li><a href="#">Scholarly Journals</a></li>
+                    <li><a href="#">Papal Newsletters</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Liturgy & Prayer</h4>
+                <ul>
+                    <li><a href="#">Daily Commentaries</a></li>
+                    <li><a href="#">Book of Prayers</a></li>
+                    <li><a href="#">Chaplets & Rosaries</a></li>
+                    <li><a href="#">The Litanies</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Partners</h4>
+                <ul>
+                    <li><a href="#">Affiliated Schools</a></li>
+                    <li><a href="#">Partner Organisations</a></li>
+                    <li><a href="#">Supported Charities</a></li>
+                    <li><a href="#">Media Affiliates</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="tight-p">Temple of Divine Wisdom, Tabernacle of Divine Knowledge</p>
+            <p class="tight-p">&</p>
+            <p class="tight-p">Sunshine of heaven and earth.</p>
+
+            <p>© {{ now().year }} </p>
+        </div>
+    </footer>
+
+	 <!-- 1. New Discourse Modal -->
+    <div class="modal-overlay" id="discourse-modal-overlay"></div>
+    <div class="modal" id="discourse-modal">
+        <div class="modal-header">
+            <h3>Add New Discourse</h3>
+            <button class="modal-close">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="discourse-form">
+                <div class="form-group">
+                    <label for="discourse-title">Title</label>
+                    <input type="text" id="discourse-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="discourse-body">Body</label>
+                    <textarea id="discourse-body" name="body" rows="10" required></textarea>
+                </div>
+                <!-- Resource adding can be a future enhancement -->
+                <button type="submit">Submit Discourse</button>
+                <p id="discourse-status" class="status-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Upload Image Modal -->
+    <div class="modal-overlay" id="image-modal-overlay"></div>
+    <div class="modal" id="image-modal">
+        <div class="modal-header">
+            <h3>Upload & Convert Image</h3>
+            <button class="modal-close">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="image-form">
+                <div class="form-group">
+                    <label for="image-file">Select Image File</label>
+                    <input type="file" id="image-file" name="image_file" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="image-filename">Assign Filename (without extension)</label>
+                    <input type="text" id="image-filename" name="filename" required>
+                </div>
+                <div class="image-preview-container">
+                    <p>Image Preview:</p>
+                    <img id="image-preview" src="#" alt="Image Preview" style="display:none;">
+                </div>
+                <button type="submit">Upload & Convert</button>
+                <p id="image-status" class="status-message"></p>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Data Injection & Scripts -->
+    <script>
+        const TOPICS_DATA = {{ topics_data | tojson }};
+        const CONTENT_DATA = {{ content_data | tojson if content_data else '{}' }};
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

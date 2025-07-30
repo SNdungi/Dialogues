@@ -1,0 +1,32 @@
+[
+  {
+    "id": "foundations",
+    "name": "Theology",
+    "icon": "fa-landmark",
+    "subtopics": [
+      { "id": "revelation", "name": "Revelation & Scripture" },
+      { "id": "theodicy", "name": "The Problem of Evil (Theodicy)" },
+      { "id": "trinity", "name": "The Nature of the Trinity" }
+    ]
+  },
+  {
+    "id": "science-faith",
+    "name": "Science",
+    "icon": "fa-atom",
+    "subtopics": [
+      { "id": "cosmology", "name": "Cosmology & Creation" },
+      { "id": "evolution", "name": "Evolution & Intelligent Design" },
+      { "id": "neuroscience", "name": "Neuroscience & the Soul" }
+    ]
+  },
+  {
+    "id": "philosophy",
+    "name": "Philosophy",
+    "icon": "fa-brain",
+    "subtopics": [
+      { "id": "epistemology", "name": "Epistemology: How We Know" },
+      { "id": "ethics", "name": "Moral Arguments for God" },
+      { "id": "metaphysics", "name": "Metaphysics & Being" }
+    ]
+  }
+]

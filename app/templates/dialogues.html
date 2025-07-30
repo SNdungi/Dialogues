@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <!-- Sticky Header within Main Content -->
+<div class="sticky-main-header">
+        <h3>Daily Discourse</h3>
+    </div>
+
+    <!-- This container will be dynamically updated by JavaScript -->
+    <div class="discourse-container">
+        <section id="discourse-section">
+            <div class="discourse-meta">
+                <!-- Use IDs for easy targeting by JavaScript -->
+                <span id="discourse-date">{{ initial_content.get('date_posted', 'N/A') }}</span>
+                <span id="discourse-ref">Reference: {{ initial_content.get('reference', 'N/A') }}</span>
+            </div>
+            <h4 id="discourse-title">{{ initial_content.get('title', 'Welcome') }}</h4>
+            <div id="discourse-body">
+                {{ initial_content.get('body', '<p>Please select a topic from the navigation to begin.</p>') | safe }}
+            </div>
+        </section>
+
+        <section id="resources-section">
+            <h4>Resources & References</h4>
+            <ul id="resource-list">
+                {% for resource in initial_content.get('resources', []) %}
+                <li>
+                    <span class="resource-type {{ resource.type }}">{{ resource.type[0] }}</span>
+                    <strong>{{ resource.text }}:</strong> {{ resource.ref }}
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section id="contribute-section">
+            <h4>Join this Discourse</h4>
+            <p id="contribute-prompt">Share your thoughts on '{{ initial_content.get('title', 'this topic') }}'.</p>
+            <textarea placeholder="Contribute your perspective..."></textarea>
+            <button class="btn btn-sm">Submit Contribution</button>
+            <button class="btn btn-sm"><i class="fa fa-print"></i></button>
+        </section>
+    </div>
+{% endblock %}

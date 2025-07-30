@@ -1,0 +1,545 @@
+/* ==========================================================================
+   Dialogues of Light - Refactored Stylesheet
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@700&family=Play:wght@400;700&family=Style+Script&display=swap');
+
+/* --- 1. ROOT & GENERAL RESET --- */
+:root {
+    /* Royal Colors */
+    --royal-violet: #6b156b;
+    --deep-blue: #221344;
+    --soft-pink: #f5ddf5;
+    --bg-dark: #131313;
+    --luminous-green: #d6ff0a;
+
+    /* Earth Colors */
+    --earth-brown: #5a3d2b;
+    --serene-blue: #7bf5ef;
+    --muted-red: #8c4343;
+
+    /* Accent & Text Colors */
+    --gold-accent: #ffc400;
+    --off-white: #fffcf6;
+    --baige-accent: rgb(253, 245, 234);
+    --dark-text: #2c2c2c;
+    --light-text: #e0e0e0;
+
+    /* Font Stacks */
+    --font-serif: 'Merriweather', serif;
+    --font-sans: 'Lato', sans-serif;
+    --font-script: 'Style Script', cursive;
+    --font-ital: 'Newsreader', serif;
+    --font-info: 'Playfair Display', serif;
+    --font-play: 'Play', serif;
+    --font-style: 'Montez', cursive;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+
+    color: var(--dark-text);
+    line-height: 1.6;
+}
+
+h2, h3, h4 {
+    font-family: var(--font-info);
+    color: var(--royal-violet);
+    margin-bottom: 0.75em;
+    font-weight: 600;
+}
+
+a {
+    color: var(--deep-blue);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--gold-accent);
+}
+
+
+/* --- 2. CORE LAYOUT & FOOTER --- */
+.site-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr 280px;
+    grid-template-areas: "main-nav main-content right-sidebar";
+    flex-grow: 1; /* Allows grid to fill space for sticky footer */
+}
+
+.main-nav { grid-area: main-nav; }
+.main-content { grid-area: main-content; }
+.right-sidebar { grid-area: right-sidebar; }
+
+
+
+/* --- 3. LEFT NAVIGATION & ADMIN DROPDOWN --- */
+.main-nav {
+    background-color: var(--off-white);
+    color: var(--dark-text);
+    padding-top:0; /* No bottom padding to connect with list */
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(139, 6, 184, 0.2);
+
+}
+
+/* Admin Dropdown Container */
+.logo-dropdown {
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(139, 6, 184, 0.1);
+    background-color: var(--bg-dark);
+}
+
+.logo-dropdown .logo {
+    padding: 1rem 1.5rem 1rem;
+
+}
+
+.logo-dropdown .logo h1 {
+    font-family: var(--font-style);
+    font-size: 1.5rem;
+    color: var(--luminous-green);
+    font-weight: 400;
+    margin: 0;
+}
+
+.logo-dropdown .header-accent-dots {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-75%);
+    width: 20px;
+    height: 20px;
+    background-image: radial-gradient(var(--luminous-green) 35%, transparent 35%);
+    background-size: 5px 5px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--royal-violet);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    z-index: 1000;
+    border-top: 1px solid var(--gold-accent);
+}
+.dropdown-menu.visible { display: block; }
+.dropdown-menu ul { list-style: none; padding: 0.5rem 0; }
+.dropdown-menu li a {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: var(--light-text);
+}
+.dropdown-menu li a:hover {
+    background-color: rgba(0,0,0,0.2);
+    color: var(--gold-accent);
+}
+
+/* Main Topic List */
+.main-nav > ul {
+    list-style-type: none;
+    margin-top: 0.2rem;
+}
+
+.main-topic-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1.5rem; /* Increased padding for a better look */
+    color: var(--dark-text); /* Use the theme's light text color */
+    font-size: 1rem;
+    text-decoration: none;
+    background-color: transparent; /* Ensure it's transparent by default */
+    border-bottom: 1px solid rgba(155, 155, 155, 0.15); /* Subtle separator */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Remove the border from the very last list item */
+.main-nav > ul > li:last-child .main-topic-link {
+    border-bottom: none;
+}
+
+.main-topic-link i {
+    width: 30px;
+    font-size: 1.1rem;
+    margin-right: 10px;
+    color: var(--soft-pink);
+    transition: color 0.3s ease;
+}
+
+.main-topic-link:hover,
+.main-topic-link.active {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--luminous-green);
+}
+
+.main-topic-link:hover i,
+.main-topic-link.active i {
+    color: var(--gold-accent);
+}
+
+
+/* --- 4. SUB-NAVIGATION PANEL (SLIDE-OUT) --- */
+.sub-nav {
+    position: fixed;
+    top: 0;
+    left: 240px;
+    width: 280px;
+    height: 100vh;
+    background-color: var(--deep-blue);
+    color: var(--light-text);
+    z-index: 100;
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+}
+
+.sub-nav.visible {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.sub-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: rgba(0,0,0,0.2);
+}
+
+.sub-nav-header h3 {
+    color: var(--gold-accent);
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--light-text);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+#sub-nav-list { list-style-type: none; padding: 1rem 0; }
+#sub-nav-list a { display: block; padding: 0.75rem 1.5rem; color: var(--off-white); }
+#sub-nav-list a:hover,
+#sub-nav-list a.active {
+    background-color: var(--gold-accent);
+    color: var(--royal-violet);
+}
+
+
+/* --- 5. MAIN CONTENT --- */
+.main-content {
+    background-color: var(--off-white);
+    position: relative; /* Anchor for sticky header */
+    overflow-y: auto; /* Allow the content itself to scroll */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sticky-main-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background:  var(--off-white);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 1rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.sticky-main-header h2 {
+    margin: 0;
+    font-family: var(--font-info);
+    color: var(--royal-violet);
+}
+
+.discourse-container {
+    padding: 1rem 3rem 3rem 3rem;
+}
+
+/* Discourse content styles */
+.discourse-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 1rem;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 0.5rem;
+}
+
+.discourse-body p {
+    font-family: var(--font-info);
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* Sections inside main content */
+.discourse-container section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #ddd;
+}
+.discourse-container section:last-child {
+    border-bottom: none;
+}
+
+/* Resource & Contribution styles */
+#resources-section ul, .resources-section ul { list-style-type: none; padding-left: 0; }
+#resources-section li, .resources-section li { 
+    margin-bottom: 0.75rem; 
+    font-size: 0.95rem;
+    display: flex; /* Use flexbox for nice alignment */
+    align-items: center;
+}
+
+/* This is the new style for the colored circle */
+.resource-type {
+    /* Sizing and Shape */
+    width: 28px;
+    height: 28px;
+    border-radius: 50%; /* This makes it a perfect circle */
+    margin-right: 12px;
+    flex-shrink: 0; /* Prevents the circle from shrinking if text is long */
+    
+    /* Text and Centering */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--earth-brown);
+    text-transform: uppercase;
+    
+    /* A subtle shadow to lift it off the page */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Color definitions for each type */
+.resource-type.verse { background-color: var(--luminous-green); }
+.resource-type.scholar { background-color: var(--soft-pink); }
+.resource-type.journal { background-color: var(--gold-accent); } /* New */
+.resource-type.book { background-color: var(--serene-blue); } /* New */
+
+
+#contribute-section textarea, .contribute-section textarea {
+    width: 100%; min-height: 120px; padding: 10px;
+    border: 1px solid #ccc; border-radius: 4px; margin-bottom: 1rem;
+    font-family: var(--font-sans);
+}
+#contribute-section button, .contribute-section button {
+    background-color: var(--deep-blue); color: white; border: none;
+    padding: 10px 20px; border-radius: 4px; cursor: pointer;
+    font-size: 0.8rem; transition: background-color 0.3s;
+    border-radius:50px;
+}
+#contribute-section button:hover, .contribute-section button:hover {
+    background-color: var(--royal-violet);
+}
+
+
+/* --- 6. RIGHT SIDEBAR --- */
+.right-sidebar {
+    background-color: var(--soft-pink);
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+}
+.right-sidebar h4 {
+    color: var(--earth-brown);
+    border-bottom: 2px solid var(--gold-accent);
+    padding-bottom: 0.5rem;
+}
+.right-sidebar p { font-size: 0.9rem; color: var(--earth-brown); }
+.right-sidebar .sidebar-links ul { list-style-type: none; padding-left: 0; }
+.right-sidebar .sidebar-links li a {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    color: var(--earth-brown);
+    font-weight: bold;
+}
+.right-sidebar .sidebar-links li a:hover { color: var(--royal-violet); }
+.right-sidebar .sidebar-links li i { width: 25px; margin-right: 8px; color: var(--royal-violet); }
+
+
+/* --- 7. MODALS & FORMS (ADMIN) --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 1000;
+}
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--off-white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+    z-index: 1001;
+    width: 90%;
+    max-width: 600px;
+}
+.modal-overlay.visible,
+.modal.visible {
+    display: block;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+.modal-header h3 { margin: 0; }
+.modal-close {
+    background: none; border: none; font-size: 2rem; font-weight: bold;
+    color: #888; cursor: pointer; line-height: 1;
+}
+.modal-close:hover { color: var(--dark-text); }
+
+.form-group { margin-bottom: 1.5rem; }
+.form-group label {
+    display: block; margin-bottom: 0.5rem;
+    font-weight: bold; color: var(--dark-text);
+}
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group textarea {
+    width: 100%; padding: 0.75rem; border: 1px solid #ccc;
+    border-radius: 4px; font-family: var(--font-sans); font-size: 1rem;
+}
+.modal button[type="submit"] {
+    background-color: var(--deep-blue); color: white; border: none;
+    padding: 10px 20px; border-radius: 4px; cursor: pointer;
+    font-size: 1rem; transition: background-color 0.3s;
+}
+.modal button[type="submit"]:hover { background-color: var(--royal-violet); }
+
+.image-preview-container img {
+    max-width: 100%; max-height: 200px; margin-top: 1rem; border: 1px solid #ddd;
+}
+.status-message { margin-top: 1rem; font-weight: bold; }
+
+
+/* --- 8. RESPONSIVE MEDIA QUERIES --- */
+@media (max-width: 1200px) {
+    .site-grid {
+        grid-template-columns: 240px 1fr;
+        grid-template-areas: 
+            "main-nav main-content"
+            "main-nav right-sidebar";
+    }
+}
+
+@media (max-width: 768px) {
+    .site-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "main-nav"
+            "main-content"
+            "right-sidebar";
+    }
+    .main-nav {
+        flex-direction: row; align-items: center;
+        justify-content: space-between; padding: 0 1rem;
+        height: 60px;
+    }
+    .main-nav > ul { display: none; }
+    .sub-nav { left: 0; width: 100%; }
+    .main-content, .right-sidebar { padding: 1.5rem; }
+}
+
+/* =================== 9. OVERLAY FOOTER ========================= */
+
+.site-footer {
+    width: 100%;
+    height: var(--footer-height);
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-dark);
+}
+
+.footer-container {
+    max-width: 1200px;
+    width: 100%;
+    margin: auto auto 0 auto; /* Pushes content to the bottom of the footer area */
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+}
+
+.footer-column h4 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold-accent);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 0.7rem;
+}
+
+.footer-column ul a {
+    color: #ccc;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-family: 'Play', serif;
+}
+
+.footer-column ul a:hover {
+    color: #fff;
+    padding-left: 5px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: #888;
+    background-color: var(--bg-color); /* Solid background for copyright */
+}
+  .tight-p {
+    margin: 0;
+    font-size: 8pt;
+    font-weight: lighter;
+    font-family: 'Playfair Display', serif;
+  }

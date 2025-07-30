@@ -1,0 +1,48 @@
+[
+  {
+    "id": "theodicy-new",
+    "reference": "DISC-2023-10-27-01",
+    "date_posted": "October 27, 2023",
+    "title": "On Theodicy: Reconciling a Good God with a World of Suffering",
+    "body": "<p>The discourse on theodicy grapples with one of the most profound challenges to faith: If God is all-powerful, all-knowing, and all-good, why does evil and suffering persist? This is not merely an intellectual puzzle, but a deep, existential question that touches every human life.</p><p>Various approaches have been proposed. The Augustinian theodicy posits that evil is not a 'thing' in itself, but a privation of good (privatio boni), stemming from the misuse of free will by created beings. In contrast, the Irenaean theodicy suggests that the world is a 'vale of soul-making,' where challenges and suffering are necessary for spiritual development and moral growth.</p>",
+    "resources": [
+        { "type": "verse", "text": "Romans 8:28", "ref": "And we know that in all things God works for the good of those who love him..." },
+        { "type": "scholar", "text": "Alvin Plantinga, 'God, Freedom, and Evil'", "ref": "A key work on the 'Free Will Defense'." },
+        { "type": "journal", "text": "First Things, 'The Public Square'", "ref": "A leading journal on religion in public life." },
+        { "type": "book", "text": "C.S. Lewis, 'Mere Christianity'", "ref": "A classic apologetic work." }
+    ]
+  },
+  {
+    "id": "cosmology-new",
+    "reference": "DISC-2023-10-26-01",
+    "date_posted": "October 26, 2023",
+    "title": "Cosmology & Creation: The Universe Speaks",
+    "body": "<p>The Big Bang theory, far from being a challenge to faith, can be seen as a profound affirmation of a created universe. The discovery that our universe had a definite beginning from a point of singularity aligns remarkably with the concept of 'creatio ex nihilo' (creation out of nothing).</p><p>How do you see the heavens declaring the glory of God (Psalm 19)? Let's discuss the intersection of modern cosmology and timeless faith.</p>",
+    "resources": [
+      { "type": "verse", "text": "Psalm 19:1", "ref": "The heavens declare the glory of God; the skies proclaim the work of his hands." },
+      { "type": "scholar", "text": "William Lane Craig, 'The Kalam Cosmological Argument'", "ref": "A philosophical and scientific argument for a First Cause." }
+    ]
+  },
+  {
+    "id": "epistemology-new",
+    "reference": "DISC-2023-10-25-01",
+    "date_posted": "October 25, 2023",
+    "title": "Christian Epistemology: How Do We Know What Is True?",
+    "body": "<p>Epistemology, the theory of knowledge, is fundamental to both faith and reason. How can we be justified in our beliefs? Christian thought offers concepts like 'Sensus Divinitatis'—an innate sense of the divine—proposed by John Calvin, and 'properly basic beliefs' by Alvin Plantinga, suggesting that belief in God can be rational without requiring external evidence.</p><p>This discourse explores the foundations of knowledge from a faith-based perspective.</p>",
+    "resources": [
+      { "type": "verse", "text": "Proverbs 1:7", "ref": "The fear of the Lord is the beginning of knowledge..." },
+      { "type": "scholar", "text": "John Calvin, 'Institutes of the Christian Religion'", "ref": "Discusses the 'Sensus Divinitatis'." }
+    ]
+  },
+  {
+    "id": "trinity-new",
+    "reference": "DISC-2023-10-24-01",
+    "date_posted": "October 24, 2023",
+    "title": "The Mystery of the Trinity",
+    "body": "<p>The doctrine of the Trinity—one God in three persons—is a cornerstone of Christian theology. It is a revealed mystery that transcends simple logic yet provides a profound framework for understanding God's nature as relational and loving. We will explore the historical development of this doctrine through the ecumenical councils and its philosophical implications.</p>",
+    "resources": [
+      { "type": "verse", "text": "Matthew 28:19", "ref": "Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit." },
+      { "type": "scholar", "text": "Athanasius, 'On the Incarnation'", "ref": "A foundational text for Trinitarian theology." }
+    ]
+  }
+]
