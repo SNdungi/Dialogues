@@ -3,6 +3,10 @@ import os
 from flask import Blueprint, render_template, current_app, request, jsonify
 from datetime import datetime
 from PIL import Image
+from .dol_db.dbops import create_user, get_user_by_email
+from .dol_db.models import DiscourseBlog # Assuming you will use it
+from flask_jwt_extended import create_access_token, create_refresh_token
+from werkzeug.security import check_password_hash
 
 bp = Blueprint('main', __name__)
 
@@ -34,17 +38,6 @@ def splash():
     """Renders the new elegant, art-forward landing page."""
     return render_template('splash.html')
 
-
-@bp.route('/dialogues')
-def dialogues():
-    """Renders the main 3-column application with a single discourse."""
-    all_discourses = load_json_data('content.json')
-    initial_discourse = all_discourses[0] if all_discourses and isinstance(all_discourses, list) else {}
-    return render_template(
-        'dialogues.html',
-        initial_content=initial_discourse,
-        content_data=all_discourses
-    )
 
 # === NEW ROUTE 1: UPLOAD IMAGE ===
 @bp.route('/upload-image', methods=['POST'])
@@ -115,3 +108,93 @@ def add_discourse():
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+    
+
+
+
+# =================================================================
+# REFACTOR DIALOGUES ROUTE TO USE THE DATABASE
+# =================================================================
+@bp.route('/dialogues')
+def dialogues():
+    """Renders the main application with a discourse from the database."""
+    latest_discourse = DiscourseBlog.query.filter_by(is_approved=True).order_by(DiscourseBlog.date_posted.desc()).first()
+    all_discourses = DiscourseBlog.query.filter_by(is_approved=True).order_by(DiscourseBlog.date_posted.desc()).all()
+    
+    all_discourses = load_json_data('content.json')
+    default_discourse = all_discourses[0] if all_discourses and isinstance(all_discourses, list) else {}
+
+    return render_template(
+        'dialogues.html',
+        initial_content=latest_discourse, # Pass the object directly
+        content_data=all_discourses, # Pass the list of objects
+        default_content=default_discourse
+    )
+
+# =================================================================
+# AUTHENTICATION ROUTES
+# =================================================================
+
+
+@bp.route('/register', methods=['POST'])
+def register():
+    """Handles user registration with extended fields."""
+    data = request.get_json()
+    required_fields = ['name', 'other_names', 'email', 'username', 'password', 'password_confirmation']
+    if not data or not all(k in data for k in required_fields):
+        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+
+    # --- New Validation ---
+    if data['password'] != data['password_confirmation']:
+        return jsonify({"status": "error", "message": "Passwords do not match."}), 400
+
+    try:
+        # Pass all fields to the updated dbops function
+        new_user = create_user(
+            name=data['name'],
+            other_names=data['other_names'],
+            email=data['email'],
+            username=data['username'],
+            password=data['password'],
+            organization_name=data.get('organization_name'), # Optional
+            website=data.get('website')                     # Optional
+        )
+        
+        access_token = create_access_token(identity=new_user.id)
+        refresh_token = create_refresh_token(identity=new_user.id)
+        
+        return jsonify({
+            "status": "success",
+            "message": "Registration successful! You can now log in.",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }), 201
+
+    except ValueError as e: # Catches "Email/Username already exists"
+        return jsonify({"status": "error", "message": str(e)}), 409
+    except Exception as e:
+        # In production, you might want to log this error instead of exposing it
+        return jsonify({"status": "error", "message": f"An unexpected error occurred: {e}"}), 500
+
+@bp.route('/login', methods=['POST'])
+def login():
+    """Handles user login."""
+    data = request.get_json()
+    if not data or not data.get('email') or not data.get('password'):
+        return jsonify({"status": "error", "message": "Missing email or password"}), 400
+
+    user = get_user_by_email(data['email'])
+
+    if user and user.check_password(data['password']):
+        access_token = create_access_token(identity=user.id)
+        refresh_token = create_refresh_token(identity=user.id)
+        return jsonify({
+            "status": "success",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        })
+
+    return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+
+# ... (your other routes like /add-discourse and /upload-image would also be refactored
+# to use dbops and require a valid JWT with @jwt_required())

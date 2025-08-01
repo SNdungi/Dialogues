@@ -355,3 +355,247 @@ body {
     color: #888;
     background-color: var(--bg-color); /* Solid background for copyright */
 }
+
+/* =================== 7. LOGIN========================= */
+/* static/css/style.css */
+
+/* --- Top Right Card --- */
+.top-right-card {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(252, 238, 188, 0.9);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    z-index: 1001;
+    overflow: hidden;
+    font-family: 'Lato', sans-serif;
+}
+
+.card-link {
+    padding: 10px 15px;
+    color: #393939;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-link:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.card-divider {
+    width: 1px;
+    height: 25px;
+    background-color: #ccc;
+}
+
+
+/* --- Compact Modal Styling --- */
+.compact-modal {
+    max-width: 420px; /* Smaller width for a compact form */
+}
+
+.modal-intro {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.form-group.sm-group {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.form-group.sm-group label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #444;
+}
+
+.form-group.sm-group input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box; /* Important */
+}
+
+.form-group.sm-group input:focus {
+    outline: none;
+    border-color: #7aa5d6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 10px;
+    background-color: #2c5282; /* A deep blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: #1a365d;
+}
+
+/* --- Re-usable Modal classes (if not already defined) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1002;
+    display: none; /* Hidden by default */
+}
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1003;
+    display: none; /* Hidden by default */
+    width: 90%;
+    max-width: 500px;
+}
+.modal.active, .modal-overlay.active {
+    display: block;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-family: 'Merriweather', serif;
+}
+
+.modal-close {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 28px;
+    font-weight: bold;
+    color: #888;
+}
+
+.status-message {
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+.status-message.success { color: green; }
+.status-message.error { color: red; }
+
+/* static/css/style.css */
+
+/* --- New Signup Form Styling --- */
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Spacing between rows */
+}
+
+.form-grid-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Label takes 1 part, input takes 2 parts */
+    align-items: center;
+    gap: 15px;
+}
+
+.form-grid-row label {
+    text-align: right;
+    font-size: 14px;
+    color: #4A5568; /* A muted gray */
+    padding-right: 10px;
+    font-weight: 500;
+}
+
+.form-grid-row input {
+    padding: 9px 12px;
+    border: 1px solid #CBD5E0;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-grid-row input:focus {
+    outline: none;
+    border-color: #4299E1;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.3);
+}
+
+.form-divider {
+    border: none;
+    border-top: 1px solid #EDF2F7;
+    margin: 5px 0;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-left: calc(33.33% + 15px); /* Align with the input column */
+}
+
+.terms-link {
+    font-size: 14px;
+    color: #3182CE;
+    text-decoration: none;
+}
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+.btn-signup {
+    padding: 10px 24px;
+    background-color: #3182CE;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-signup:hover {
+    background-color: #2B6CB0;
+}

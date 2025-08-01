@@ -10,7 +10,18 @@
 </head>
 <body>
 
-<!-- The transparent sidebar remains -->
+<!-- TOP-RIGHT CARD -->
+<div class="top-right-card">
+    <a href="https://bible-api.com/" target="_blank" class="card-link" title="Powered by bible-api.com">
+        <i class="fas fa-book-bible"></i> Logos
+    </a>
+    <div class="card-divider"></div>
+    <a href="#" class="card-link" data-modal-target="join-modal">
+        Join to Contribute <i class="fas fa-user-plus"></i>
+    </a>
+</div>
+
+<!-- The transparent sidebar -->
 <div class="sidebar">
     <div class="header-accent-dots"></div>
     <a href="{{ url_for('main.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
@@ -108,5 +119,70 @@
     </div>
 </footer>
 
+<!-- REPLACEMENT FOR THE JOIN/REGISTRATION MODAL -->
+<div class="modal-overlay" id="join-modal-overlay"></div>
+<div class="modal" id="join-modal" style="max-width: 550px;"> <!-- Increased width -->
+    <div class="modal-header">
+        <!-- Using h3 to match the other modals -->
+        <h4><i class="fas fa-user-plus" style="margin-right: 8px;"></i>Create your account</h4>
+        <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+        <form id="join-form" class="signup-form">
+            
+            <div class="form-grid-row">
+                <label for="join-org">Organization/Group Name</label>
+                <input type="text" id="join-org" name="organization_name">
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-website">Website</label>
+                <input type="url" id="join-website" name="website" placeholder="https://example.com">
+            </div>
+
+            <hr class="form-divider">
+
+            <div class="form-grid-row">
+                <label for="join-name">First Name *</label>
+                <input type="text" id="join-name" name="name" required>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-other-names">Last Name *</label>
+                <input type="text" id="join-other-names" name="other_names" required>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-email">Email *</label>
+                <input type="email" id="join-email" name="email" required>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-username">Username *</label>
+                <input type="text" id="join-username" name="username" required>
+            </div>
+            
+            <hr class="form-divider">
+
+            <div class="form-grid-row">
+                <label for="join-password">Password *</label>
+                <input type="password" id="join-password" name="password" required>
+            </div>
+
+            <div class="form-grid-row">
+                <label for="join-password-conf">Password confirmation *</label>
+                <input type="password" id="join-password-conf" name="password_confirmation" required>
+            </div>
+            
+            <div class="form-footer">
+                <a href="#" class="terms-link">View terms and conditions of use.</a>
+                <button type="submit" class="btn-signup">Sign up</button>
+            </div>
+            
+            <p id="join-status" class="status-message"></p>
+        </form>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

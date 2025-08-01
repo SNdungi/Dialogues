@@ -12,7 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&family=Kalam:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -80,12 +81,12 @@
             <div class="sidebar-links">
                 <h4>Explore</h4>
                 <ul>
-                    <li><a href="#"><i class="fas fa-mobile-alt"></i> Useful Apps</a></li>
-                    <li><a href="#"><i class="fas fa-hand-holding-heart"></i> Charities</a></li>
-                    <li><a href="#"><i class="fas fa-book-open"></i> Opensource</a></li>
+                    <li><a href="#"><i class="fas fa-mobile-alt"></i> Research App</a></li>
                     <li><a href="#"><i class="fas fa-graduation-cap"></i> Study Guides</a></li>
-                    <li><a href="#"><i class="fas fa-pen-nib"></i> Contribution Blog</a></li>
-                    <li><a href="#"><i class="fas fa-puzzle-piece"></i> Leisure & Riddles</a></li>
+                    <li><a href="#"><i class="fas fa-book-open"></i> OpenRepositories</a></li>
+                    <li><a href="#"><i class="fas fa-pen-nib"></i> Contribution</a></li>
+                    <li><a href="#"><i class="fas fa-hand-holding-heart"></i> Charities</a></li>
+                    <li><a href="#"><i class="fas fa-puzzle-piece"></i> Leisure</a></li>
                 </ul>
             </div>
         </aside>
@@ -139,52 +140,71 @@
         </div>
     </footer>
 
-	 <!-- 1. New Discourse Modal -->
+	<!-- 1. New Discourse Modal (Updated for new style) -->
     <div class="modal-overlay" id="discourse-modal-overlay"></div>
-    <div class="modal" id="discourse-modal">
+    <div class="modal" id="discourse-modal" style="max-width: 600px;"> <!-- Slightly wider for textarea -->
         <div class="modal-header">
-            <h3>Add New Discourse</h3>
-            <button class="modal-close">×</button>
+            <h3><i class="fas fa-pen-nib" style="margin-right: 8px;"></i>Add New Discourse</h3>
+            <button class="modal-close" data-modal-close>×</button>
         </div>
         <div class="modal-body">
-            <form id="discourse-form">
-                <div class="form-group">
-                    <label for="discourse-title">Title</label>
-                    <input type="text" id="discourse-title" name="title" required>
+            <form id="discourse-form" class="signup-form">
+                
+                <div class="form-grid-row">
+                    <label for="discourse-title-input">Title *</label>
+                    <input type="text" id="discourse-title-input" name="title" required>
                 </div>
-                <div class="form-group">
-                    <label for="discourse-body">Body</label>
-                    <textarea id="discourse-body" name="body" rows="10" required></textarea>
+
+                <div class="form-grid-row">
+                    <label for="discourse-body-input">Body *</label>
+                    <textarea id="discourse-body-input" name="body" rows="10" required></textarea>
                 </div>
-                <!-- Resource adding can be a future enhancement -->
-                <button type="submit">Submit Discourse</button>
+                
+                <div class="form-footer">
+                    <!-- This empty span is a spacer to push the button to the right -->
+                    <span></span> 
+                    <button type="submit" class="btn-signup">Submit Discourse</button>
+                </div>
+                
                 <p id="discourse-status" class="status-message"></p>
             </form>
         </div>
     </div>
 
-    <!-- 2. Upload Image Modal -->
+    <!-- 2. Upload Image Modal (Updated for new style) -->
     <div class="modal-overlay" id="image-modal-overlay"></div>
-    <div class="modal" id="image-modal">
+    <div class="modal" id="image-modal" style="max-width: 600px;">
         <div class="modal-header">
-            <h3>Upload & Convert Image</h3>
-            <button class="modal-close">×</button>
+            <h3><i class="fas fa-image" style="margin-right: 8px;"></i>Upload & Convert Image</h3>
+            <button class="modal-close" data-modal-close>×</button>
         </div>
         <div class="modal-body">
-            <form id="image-form">
-                <div class="form-group">
-                    <label for="image-file">Select Image File</label>
+            <!-- IMPORTANT: enctype must be present for file uploads -->
+            <form id="image-form" class="signup-form" enctype="multipart/form-data">
+                
+                <div class="form-grid-row">
+                    <label for="image-file">Select Image File *</label>
                     <input type="file" id="image-file" name="image_file" accept="image/*" required>
                 </div>
-                <div class="form-group">
-                    <label for="image-filename">Assign Filename (without extension)</label>
+                
+                <div class="form-grid-row">
+                    <label for="image-filename">Assign Filename *<br><small>(no extension)</small></label>
                     <input type="text" id="image-filename" name="filename" required>
                 </div>
-                <div class="image-preview-container">
-                    <p>Image Preview:</p>
-                    <img id="image-preview" src="#" alt="Image Preview" style="display:none;">
+
+                <!-- Image Preview Row -->
+                <div class="form-grid-row">
+                    <label>Image Preview</label>
+                    <div class="image-preview-container">
+                        <img id="image-preview" src="#" alt="Image Preview" style="display:none;">
+                    </div>
                 </div>
-                <button type="submit">Upload & Convert</button>
+                
+                <div class="form-footer">
+                    <span></span> <!-- Spacer -->
+                    <button type="submit" class="btn-signup">Upload & Convert</button>
+                </div>
+                
                 <p id="image-status" class="status-message"></p>
             </form>
         </div>
