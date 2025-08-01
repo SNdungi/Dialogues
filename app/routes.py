@@ -1,12 +1,13 @@
 import json
 import os
-from flask import Blueprint, render_template, current_app, request, jsonify
+from flask import Blueprint, render_template, current_app, request, jsonify,url_for,redirect, flash
 from datetime import datetime
 from PIL import Image
 from .dol_db.dbops import create_user, get_user_by_email
-from .dol_db.models import DiscourseBlog # Assuming you will use it
+from .dol_db.models import DiscourseBlog, SubCategory, db
+from sqlalchemy.orm import joinedload # Assuming you will use it
 from flask_jwt_extended import create_access_token, create_refresh_token
-from werkzeug.security import check_password_hash
+from flask_login import login_user, logout_user, login_required, current_user
 
 bp = Blueprint('main', __name__)
 
@@ -73,63 +74,6 @@ def upload_image():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# === NEW ROUTE 2: ADD DISCOURSE ===
-@bp.route('/add-discourse', methods=['POST'])
-def add_discourse():
-    try:
-        data = request.get_json()
-        title = data.get('title')
-        body_text = data.get('body')
-
-        if not title or not body_text:
-            return jsonify({'status': 'error', 'message': 'Title and Body are required'}), 400
-
-        # Construct the new discourse object
-        new_discourse = {
-            "id": f"disc-{int(datetime.now().timestamp())}",
-            "reference": f"DISC-{datetime.now().strftime('%Y-%m-%d-%H%M')}",
-            "date_posted": datetime.now().strftime('%B %d, %Y'),
-            "title": title,
-            "body": f"<p>{body_text.replace(chr(10), '</p><p>')}</p>", # Convert newlines to paragraphs
-            "resources": [] # For now, can be extended later
-        }
-        
-        content_path = os.path.join(current_app.root_path, 'static', 'data', 'content.json')
-        
-        # Read-modify-write the content.json file
-        with open(content_path, 'r+', encoding='utf-8') as f:
-            content_data = json.load(f)
-            content_data.insert(0, new_discourse) # Add to the beginning
-            f.seek(0) # Rewind to the start of the file
-            json.dump(content_data, f, indent=2)
-            f.truncate()
-
-        return jsonify({'status': 'success', 'message': 'Discourse added successfully. Please refresh.'})
-
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-    
-
-
-
-# =================================================================
-# REFACTOR DIALOGUES ROUTE TO USE THE DATABASE
-# =================================================================
-@bp.route('/dialogues')
-def dialogues():
-    """Renders the main application with a discourse from the database."""
-    latest_discourse = DiscourseBlog.query.filter_by(is_approved=True).order_by(DiscourseBlog.date_posted.desc()).first()
-    all_discourses = DiscourseBlog.query.filter_by(is_approved=True).order_by(DiscourseBlog.date_posted.desc()).all()
-    
-    all_discourses = load_json_data('content.json')
-    default_discourse = all_discourses[0] if all_discourses and isinstance(all_discourses, list) else {}
-
-    return render_template(
-        'dialogues.html',
-        initial_content=latest_discourse, # Pass the object directly
-        content_data=all_discourses, # Pass the list of objects
-        default_content=default_discourse
-    )
 
 # =================================================================
 # AUTHENTICATION ROUTES
@@ -176,25 +120,66 @@ def register():
         # In production, you might want to log this error instead of exposing it
         return jsonify({"status": "error", "message": f"An unexpected error occurred: {e}"}), 500
 
-@bp.route('/login', methods=['POST'])
-def login():
-    """Handles user login."""
-    data = request.get_json()
-    if not data or not data.get('email') or not data.get('password'):
-        return jsonify({"status": "error", "message": "Missing email or password"}), 400
+@bp.route('/login', methods=['GET', 'POST'])
+def login_page():
+    """Renders the login page and handles form submission."""
+    if current_user.is_authenticated:
+        return redirect(url_for('discourse.dialogues'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = True if request.form.get('remember') else False
 
-    user = get_user_by_email(data['email'])
+        user = get_user_by_email(email)
 
-    if user and user.check_password(data['password']):
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
-        return jsonify({
-            "status": "success",
-            "access_token": access_token,
-            "refresh_token": refresh_token
+        if not user or not user.check_password(password):
+            flash('Please check your login details and try again.', 'danger')
+            return redirect(url_for('main.login_page'))
+        
+        # Use Flask-Login's login_user function
+        login_user(user, remember=remember)
+        return redirect(url_for('discourse.dialogues'))
+
+    return render_template('login.html')
+
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.splash'))
+
+@bp.route('/register', methods=['GET'])
+def registration_page():
+    """Renders the new registration page."""
+    if current_user.is_authenticated:
+        return redirect(url_for('discourse.dialogues'))
+    return render_template('registration.html')
+
+@bp.context_processor
+def inject_sidebar_data():
+    """
+    Injects a structured list of categories and their subcategories
+    THAT HAVE AT LEAST ONE APPROVED DISCOURSE. This makes the sidebar
+    dynamic and relevant.
+    """
+    # Query to get all subcategories that are linked to an approved discourse
+    active_subcategories = db.session.query(SubCategory)\
+        .join(DiscourseBlog)\
+        .filter(DiscourseBlog.is_approved == True)\
+        .options(joinedload(SubCategory.category))\
+        .distinct()\
+        .all()
+
+    # Structure the data for the template
+    sidebar_topics = {}
+    for sub in active_subcategories:
+        cat_name = sub.category.name
+        if cat_name not in sidebar_topics:
+            sidebar_topics[cat_name] = []
+        sidebar_topics[cat_name].append({
+            'name': sub.name,
+            'id': sub.id # You might use this for linking later
         })
-
-    return jsonify({"status": "error", "message": "Invalid credentials"}), 401
-
-# ... (your other routes like /add-discourse and /upload-image would also be refactored
-# to use dbops and require a valid JWT with @jwt_required())
+        
+    return dict(sidebar_topics=sidebar_topics)

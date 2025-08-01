@@ -4,6 +4,7 @@ import enum
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -56,7 +57,7 @@ class Role(db.Model):
     def __repr__(self):
         return f'<Role {self.name.value}>'
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     
@@ -94,10 +95,36 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.name} {self.email}>'
 
+# /project_folder/app/models.py
+# ... (keep all existing imports and other models: User, Role, etc.)
+
+class Category(db.Model):
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    subcategories = db.relationship('SubCategory', back_populates='category', lazy='dynamic', cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f'<Category {self.name}>'
+
+class SubCategory(db.Model):
+    __tablename__ = 'subcategories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    category = db.relationship('Category', back_populates='subcategories')
+    discourses = db.relationship('DiscourseBlog', back_populates='subcategory', lazy='dynamic')
+    __table_args__ = (db.UniqueConstraint('name', 'category_id', name='_name_category_uc'),)
+
+    def __repr__(self):
+        return f'<SubCategory {self.name}>'
+
 class DiscourseBlog(db.Model):
     __tablename__ = 'discourse_blogs'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    subcategory_id = db.Column(db.Integer, db.ForeignKey('subcategories.id'), nullable=False)
     reference = db.Column(db.String(50), unique=True, nullable=False, index=True)
     title = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
@@ -107,9 +134,13 @@ class DiscourseBlog(db.Model):
     author = db.relationship('User', back_populates='discourses')
     resources = db.relationship('Resource', back_populates='discourse', lazy='joined', cascade="all, delete-orphan")
     comments = db.relationship('DiscourseComment', back_populates='discourse', lazy='dynamic', cascade="all, delete-orphan")
+    
+    # --- NEW RELATIONSHIP ---
+    subcategory = db.relationship('SubCategory', back_populates='discourses')
 
     def __repr__(self):
         return f'<DiscourseBlog {self.title}>'
+
 
 class DiscourseComment(db.Model):
     __tablename__ = 'discourse_comments'
@@ -120,7 +151,6 @@ class DiscourseComment(db.Model):
     date_commented = db.Column(db.DateTime, default=datetime.utcnow)
     is_audited = db.Column(db.Boolean, default=False, nullable=False)
     ip_address = db.Column(db.String(45)) # For audit trail
-
     commenter = db.relationship('User', back_populates='comments')
     discourse = db.relationship('DiscourseBlog', back_populates='comments')
 

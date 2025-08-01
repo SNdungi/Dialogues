@@ -21,6 +21,7 @@
     /* Accent & Text Colors */
     --gold-accent: #ffc400;
     --off-white: #fffcf6;
+    --papyrus-color: #c9b383;
     --baige-accent: rgb(253, 245, 234);
     --dark-text: #2c2c2c;
     --light-text: #e0e0e0;
@@ -72,7 +73,7 @@ a:hover {
 }
 
 
-/* --- 2. CORE LAYOUT & FOOTER --- */
+/* 2. CORE LAYOUT --- */
 .site-grid {
     display: grid;
     grid-template-columns: 240px 1fr 280px;
@@ -86,7 +87,9 @@ a:hover {
 
 
 
-/* --- 3. LEFT NAVIGATION & ADMIN DROPDOWN --- */
+/* =======================================================
+ 3. LEFT NAVIGATION & ADMIN DROPDOWN 
+ ============================================================ */
 .main-nav {
     background-color: var(--off-white);
     color: var(--dark-text);
@@ -196,15 +199,18 @@ a:hover {
 }
 
 
-/* --- 4. SUB-NAVIGATION PANEL (SLIDE-OUT) --- */
+/*=============================================
+ 4. SUB-NAVIGATION PANEL (SLIDE-OUT) 
+ ============================================= */
 .sub-nav {
     position: fixed;
     top: 0;
     left: 240px;
-    width: 280px;
+    width: 200px;
     height: 100vh;
-    background-color: var(--deep-blue);
-    color: var(--light-text);
+
+    background-color: var(--papyrus-color);
+    color: var(--royal-violet);
     z-index: 100;
     transform: translateX(-100%);
     opacity: 0;
@@ -223,14 +229,15 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem;
-    background-color: rgba(0,0,0,0.2);
+    padding: 1rem;
+    background-color: rgba(0,0,0,0.4);
+   
 }
 
 .sub-nav-header h3 {
     color: var(--gold-accent);
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1rem;
 }
 
 .close-btn {
@@ -242,8 +249,8 @@ a:hover {
     line-height: 1;
 }
 
-#sub-nav-list { list-style-type: none; padding: 1rem 0; }
-#sub-nav-list a { display: block; padding: 0.75rem 1.5rem; color: var(--off-white); }
+#sub-nav-list { list-style-type: none; padding: 1rem 0;  }
+#sub-nav-list a { display: block; padding: 0.7rem 1rem; color: var(--off-white); font-size: 0.8rem; border-bottom: 1px solid rgba(92, 92, 92, 0.5) }
 #sub-nav-list a:hover,
 #sub-nav-list a.active {
     background-color: var(--gold-accent);
@@ -251,7 +258,9 @@ a:hover {
 }
 
 
-/* --- 5. MAIN CONTENT --- */
+/*===========================================
+ 5. MAIN CONTENT 
+ ============================================ */
 .main-content {
     background-color: var(--off-white);
     position: relative; /* Anchor for sticky header */
@@ -273,7 +282,6 @@ a:hover {
     border-bottom: 1px solid #ddd;
 }
 
-/*====SEARCH INPUT=======*/
 .search-input {
     flex: 1;
     padding: 5px 10px;
@@ -386,7 +394,10 @@ a:hover {
 }
 
 
-/* --- 6. RIGHT SIDEBAR --- */
+
+/* ================================
+ 6. RIGHT SIDEBAR 
+============================================== */
 .right-sidebar {
     background-color: var(--soft-pink);
     padding: 2rem 1.5rem;
@@ -412,9 +423,11 @@ a:hover {
 .right-sidebar .sidebar-links li i { width: 25px; margin-right: 8px; color: var(--royal-violet); }
 
 
-/* --- 7. MODALS & FORMS --- */
 
-/* --- Base Modal Structure --- */
+/* ======================================
+ 7. MODALS & FORMS 
+ ======================================== */
+
 .modal-overlay {
     display: none;
     position: fixed;
@@ -583,7 +596,10 @@ a:hover {
 .status-message.error { color: #e53e3e; }
 
 
-/* --- 8. RESPONSIVE MEDIA QUERIES --- */
+
+/* ====================================
+ 8. RESPONSIVE MEDIA QUERIES 
+ ========================================= */
 @media (max-width: 1200px) {
     .site-grid {
         grid-template-columns: 240px 1fr;
@@ -611,7 +627,10 @@ a:hover {
     .main-content, .right-sidebar { padding: 1.5rem; }
 }
 
-/* =================== 9. OVERLAY FOOTER ========================= */
+
+/* ======================================== 
+9. OVERLAY FOOTER 
+=========================================== */
 
 .site-footer {
     width: 100%;

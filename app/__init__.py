@@ -1,26 +1,26 @@
 # /project_folder/app/__init__.py
 
 import os
-import click
+import json
 from flask import Flask
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
+from sqlalchemy.orm import joinedload
+
+# --- Import your models directly ---
+from .dol_db.models import db, SubCategory, DiscourseBlog, User
 
 # --------------------------------------------------------------------------
-# 1. INSTANTIATE EXTENSIONS (WITHOUT AN APP)
+# 1. INSTANTIATE EXTENSIONS
 # --------------------------------------------------------------------------
-# The extensions are created here, but not initialized. They are "empty"
-# until they are connected to a specific app instance in the factory below.
-
-# Correct: Import the 'db' object that is defined in your models file.
-from .dol_db.models import db
-# Instantiate the Migrate object here.
 migrate = Migrate()
-
-# We will need these for the factory function.
 from .dol_db.admin import setup_admin
-from .dol_db.dbops import seed_roles
+login_manager = LoginManager()
+# --- NEW: Tell LoginManager where the login page is ---
+# Use 'blueprint_name.view_function_name'
+login_manager.login_view = 'main.login_page' # Assuming you'll create a login page route in routes.py
+login_manager.login_message_category = 'info' # For flashing messages
 
 def create_app():
     """The application factory function."""
@@ -29,15 +29,12 @@ def create_app():
     # --------------------------------------------------------------------------
     # 2. CONFIGURE THE APP
     # --------------------------------------------------------------------------
-    # Load configuration from a mapping.
     app.config.from_mapping(
         SECRET_KEY='change-this-in-production!',
-        # Set the database path. The 'instance' folder is a good place for it.
         SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(app.instance_path, 'dialogues.db'),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
-    # Ensure the instance folder exists where the database file will be stored.
     try:
         os.makedirs(app.instance_path)
     except OSError:
@@ -46,32 +43,83 @@ def create_app():
     # --------------------------------------------------------------------------
     # 3. INITIALIZE EXTENSIONS WITH THE APP
     # --------------------------------------------------------------------------
-    # This is the crucial step. This connects the 'db' and 'migrate' objects
-    # to your configured Flask app.
     db.init_app(app)
-    migrate.init_app(app, db) # Now 'db' knows about the app.
-    
+    migrate.init_app(app, db)
     jwt = JWTManager(app)
     setup_admin(app)
+    login_manager.init_app(app)
 
-    # --------------------------------------------------------------------------
-    # 4. REGISTER BLUEPRINTS & COMMANDS
-    # --------------------------------------------------------------------------
-    # Register the main routes.
-    from . import routes
-    app.register_blueprint(routes.bp)
+
+    # It MUST be defined here.
+    @login_manager.user_loader
+    def load_user(user_id):
+        # Flask-Login stores the ID as a string, so we convert it to an integer
+        return User.query.get(int(user_id))
     
-    # Optional: Add a default URL rule if your blueprint doesn't define '/'.
-    # This ensures navigating to the root of your site works.
+    # --------------------------------------------------------------------------
+    # 4. DEFINE AND REGISTER GLOBAL CONTEXT PROCESSORS
+    # --------------------------------------------------------------------------
+    
+    def load_json_data(filename):
+        """Helper function to load data from the static/data folder."""
+        # Use app.root_path which is more reliable than current_app in this context
+        filepath = os.path.join(app.root_path, 'static', 'data', filename)
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            app.logger.warning(f"Could not load or parse {filename}")
+            return [] if filename.endswith('s.json') else {}
+
+    @app.context_processor
+    def inject_global_data():
+        """
+        Injects data needed by all templates into the context.
+        This combines the logic for the sidebar and other shared data.
+        """
+        # --- Inject data from JSON files ---
+        topics_data = load_json_data('topics.json')
+        daily_data = load_json_data('daily.json')
+        
+        # --- Inject dynamic sidebar data from the database ---
+        sidebar_topics = {}
+        try:
+            active_subcategories = db.session.query(SubCategory)\
+                .join(DiscourseBlog)\
+                .filter(DiscourseBlog.is_approved == True)\
+                .options(joinedload(SubCategory.category))\
+                .distinct()\
+                .all()
+
+            for sub in active_subcategories:
+                cat_name = sub.category.name
+                if cat_name not in sidebar_topics:
+                    sidebar_topics[cat_name] = []
+                sidebar_topics[cat_name].append({
+                    'name': sub.name,
+                    'id': sub.id 
+                })
+        except Exception as e:
+            app.logger.error(f"Could not inject sidebar data: {e}")
+
+        # Return a single dictionary with all the global variables
+        return dict(
+            sidebar_topics=sidebar_topics,
+            topics_data=topics_data,
+            daily_data=daily_data
+        )
+
+    # --------------------------------------------------------------------------
+    # 5. REGISTER BLUEPRINTS & COMMANDS
+    # --------------------------------------------------------------------------
+    from . import routes
+    from .dol_discourse.disc_routes import discourse_bp  
+    app.register_blueprint(routes.bp)
+    app.register_blueprint(discourse_bp)
+    
+    from . import commands
+    commands.init_app(app)
+    
     app.add_url_rule('/', endpoint='main.splash')
-
-
-    # Add the custom CLI command for seeding the database.
-    @app.cli.command("db_seed")
-    def db_seed_command():
-        """Seeds the database with initial data (e.g., roles)."""
-        with app.app_context():
-            seed_roles()
-            click.echo("Database roles seeded successfully.")
 
     return app

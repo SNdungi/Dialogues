@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Dialogues of Light</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth_pages.css') }}">
+</head>
+<body class="auth-page" style="background-image: url({{ url_for('static', filename='images/3.webp') }});">
+
+    <!-- The transparent sidebar -->
+    <div class="sidebar">
+        <div class="header-accent-dots"></div>
+        <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
+        <a href="{{ url_for('main.splash') }}" class="tag-item tag-purple">Home</a>
+    </div>
+
+    <!-- Centered Form Container -->
+    <main class="auth-container">
+        <header class="auth-header">
+            <h2><i class="fas fa-user-plus"></i></h2>
+        </header>
+
+        <form id="registration-form" class="signup-form" method="POST">
+            
+            <div class="form-grid-row">
+                <label for="join-org">Organization/Group Name</label>
+                <input type="text" id="join-org" name="organization_name">
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-website">Website</label>
+                <input type="url" id="join-website" name="website" placeholder="https://example.com">
+            </div>
+
+            <hr class="form-divider">
+
+            <div class="form-grid-row">
+                <label for="join-name">First Name *</label>
+                <input type="text" id="join-name" name="name" required>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-other-names">Last Name *</label>
+                <input type="text" id="join-other-names" name="other_names" required>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-email">Email *</label>
+                <input type="email" id="join-email" name="email" required>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="join-username">Username *</label>
+                <input type="text" id="join-username" name="username" required>
+            </div>
+            
+            <hr class="form-divider">
+
+            <div class="form-grid-row">
+                <label for="join-password">Password *</label>
+                <input type="password" id="join-password" name="password" required>
+            </div>
+
+            <div class="form-grid-row">
+                <label for="join-password-conf">Password confirmation *</label>
+                <input type="password" id="join-password-conf" name="password_confirmation" required>
+            </div>
+            
+            <div class="form-footer">
+                <a href="#" class="terms-link">View terms and conditions of use.</a>
+                <button type="submit" class="btn-signup">Sign up</button>
+            </div>
+            
+            <p id="reg-status" class="status-message"></p>
+
+        </form>
+    </main>
+
+    <script>
+        // Simple client-side form submission
+        const form = document.getElementById('registration-form');
+        const statusEl = document.getElementById('reg-status');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusEl.textContent = 'Processing...';
+            statusEl.className = 'status-message';
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch("{{ url_for('main.register') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    statusEl.textContent = result.message + " Redirecting to login...";
+                    statusEl.classList.add('success');
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('main.login_page') }}";
+                    }, 2000);
+                } else {
+                    statusEl.textContent = result.message;
+                    statusEl.classList.add('error');
+                }
+            } catch (error) {
+                statusEl.textContent = 'A network error occurred.';
+                statusEl.classList.add('error');
+            }
+        });
+    </script>
+</body>
+</html>

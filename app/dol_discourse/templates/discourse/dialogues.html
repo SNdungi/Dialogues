@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <!-- Sticky Header within Main Content -->
+    <div class="sticky-main-header d-flex justify-content-between align-items-center g-5">
+        <h3 class="me-5 mb-0">Daily Discourse</h3>
+        
+        <!-- Search Bar -->
+        <div>
+            <input type="text" class="search-input" placeholder="Search Topics, Categories, Titles..." id="searchInput">
+            <button class="search-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Button to create a new discourse, now pointing to the correct blueprint -->
+        <a href="{{ url_for('discourse.new_discourse_editor') }}" class="btn btn-primary btn-sm ms-3">
+            <i class="fa fa-plus"></i> New Discourse
+        </a>
+    </div>
+
+    <!-- This container holds the main content -->
+    <div class="discourse-container">
+        
+        {% if initial_content %}
+            
+            <!-- A. Display the discourse if it exists -->
+            <section id="discourse-section">
+                <div class="discourse-meta">
+                    <!-- Date Posted -->
+                    <span id="discourse-date">{{ initial_content.date_posted.strftime('%B %d, %Y') }}</span>
+                    
+                    <!-- Category and Subcategory from relationship -->
+                    {% if initial_content.subcategory and initial_content.subcategory.category %}
+                        <span class="discourse-category">
+                            {{ initial_content.subcategory.category.name }} > {{ initial_content.subcategory.name }}
+                        </span>
+                    {% endif %}
+                    
+                    <!-- Reference ID -->
+                    <span id="discourse-ref">Reference: {{ initial_content.reference }}</span>
+                </div>
+                
+                <h4 id="discourse-title">{{ initial_content.title }}</h4>
+                
+                <div id="discourse-body">
+                    {{ initial_content.body | safe }}
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section id="resources-section">
+                <h4>Resources & References</h4>
+                <ul id="resource-list">
+                    {% for resource in initial_content.resources %}
+                    <li>
+                        <!-- Use resource.type.value to get the string from the Enum -->
+                        <span class="resource-type {{ resource.type.value | lower | replace(' ', '-') }}">{{ resource.type.value[0] }}</span>
+                        <strong>{{ resource.name }}:</strong> 
+                        {% if resource.link %}
+                            <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer">{{ resource.link }}</a>
+                        {% endif %}
+                    </li>
+                    {% else %}
+                    <li>No resources are listed for this discourse.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <!-- Contribution Section -->
+            <section id="contribute-section">
+                <h4>Join this Discourse</h4>
+                <p id="contribute-prompt">Share your thoughts on '{{ initial_content.title }}'.</p>
+                <textarea placeholder="Contribute your perspective..."></textarea>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-sm btn-primary">Submit Contribution</button>
+                    <button class="btn btn-sm btn-secondary"><i class="fa fa-print"></i> Print</button>
+                </div>
+            </section>
+
+        {% else %}
+
+            <!-- B. Display a welcoming "empty state" if no discourse exists -->
+            <section id="discourse-section" class="empty-state">
+                <div class="discourse-meta">
+                    <span id="discourse-date">Today</span>
+                    <span id="discourse-ref">Reference: N/A</span>
+                </div>
+                <h4 id="discourse-title">Welcome to the Dialogues</h4>
+                <div id="discourse-body">
+                    <p>There are no approved articles to display at the moment.</p>
+                    <p>An authorized user can <a href="{{ url_for('discourse.new_discourse_editor') }}">add new content</a> via the editor.</p>
+                </div>
+            </section>
+
+            <section id="resources-section" class="empty-state">
+                <h4>Resources & References</h4>
+                <ul id="resource-list">
+                    <li>No resources to display.</li>
+                </ul>
+            </section>
+
+            <section id="contribute-section" class="empty-state">
+                <h4>Join this Discourse</h4>
+                <p id="contribute-prompt">Share your thoughts once a topic is available.</p>
+                <textarea placeholder="Contribute your perspective..." disabled></textarea>
+                 <div class="d-flex justify-content-between">
+                    <button class="btn btn-sm btn-primary" disabled>Submit Contribution</button>
+                    <button class="btn btn-sm btn-secondary" disabled><i class="fa fa-print"></i> Print</button>
+                </div>
+            </section>
+
+        {% endif %}
+    </div>
+{% endblock %}

@@ -16,7 +16,7 @@
         <i class="fas fa-book-bible"></i> Logos
     </a>
     <div class="card-divider"></div>
-    <a href="#" class="card-link" data-modal-target="join-modal">
+    <a href="{{ url_for('main.registration_page') }}" class="card-link">
         Join to Contribute <i class="fas fa-user-plus"></i>
     </a>
 </div>
@@ -24,7 +24,7 @@
 <!-- The transparent sidebar -->
 <div class="sidebar">
     <div class="header-accent-dots"></div>
-    <a href="{{ url_for('main.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
+    <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
     <a href="#" class="tag-item tag-purple">Liturgy</a>
     <a href="#" class="tag-item tag-green">Academy</a>  
     <a href="#" class="tag-item tag-blue">Charity</a>
@@ -44,7 +44,7 @@
                     <h1 class="slide-text"><strong>DIALOGUES</strong> of light</h1>
                     <hr class="animated-hr">
                     <p class="slide-desc">Building The Body of Knowledge in the Body of CHRIST</p>
-                    <a href="{{ url_for('main.dialogues') }}" class="enter-btn">Enter the Dialogues</a>
+                    <a href="{{ url_for('discourse.dialogues') }}" class="enter-btn">Enter the Dialogues</a>
                 </div>
             </div>
         </li>
@@ -76,7 +76,7 @@
         <div class="footer-column">
             <h4>Quick Links</h4>
             <ul>
-                <li><a href="{{ url_for('main.dialogues') }}">Enter Dialogues</a></li>
+                <li><a href="{{ url_for('discourse.dialogues') }}">Enter Dialogues</a></li>
                 <li><a href="#">About Us</a></li>
                 <li><a href="#">Mission & Vision</a></li>
                 <li><a href="#">Contact</a></li>

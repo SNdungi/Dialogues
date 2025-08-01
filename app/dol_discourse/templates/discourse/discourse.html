@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+
+{% block head_extensions %}
+    <!-- Link to the dedicated stylesheet for this page -->
+    <link rel="stylesheet" href="{{ url_for('discourse.static', filename='discourse.css') }}">
+    <!-- NEW: Quill.js Stylesheet via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    <!-- NEW: Quill.js Script via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="editor-container-full-width">
+    <div class="editor-header">
+        <h3>Discourse Editor</h3>
+        <p>Craft and contribute a new dialogue for the community.</p>
+    </div>
+
+    <form id="discourse-form">
+        <!-- Metadata fields in a single row at the top -->
+        <div class="metadata-row">
+            <div class="form-group form-col-6">
+                <label for="discourse-title">Title</label>
+                <input type="text" id="discourse-title" name="title" placeholder="Enter a compelling title" required>
+            </div>
+            
+            <div class="form-group form-col-3">
+                <label for="discourse-category">Category</label>
+                <select id="discourse-category" name="category" required>
+                    <option value="" disabled selected>Select a category...</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group form-col-3">
+                <label for="discourse-subcategory">Sub-Category</label>
+                <select id="discourse-subcategory" name="subcategory_id" required disabled>
+                    <option value="">First, select a category</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- The editor now sits below in its own full-width group -->
+        <div class="form-group">
+            <label for="editor-container-div">Body</label>
+            <!-- NEW: This div is the target for Quill.js. A textarea is not used. -->
+            <div id="editor-container-div"></div>
+        </div>
+
+        <div class="form-footer">
+            <div id="form-status" class="form-status"></div>
+            <button type="submit" class="btn-submit">Save Discourse</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- NEW: Quill.js Initialization ---
+        const quill = new Quill('#editor-container-div', {
+            theme: 'snow', // Use the 'snow' theme for a clean, modern toolbar
+            placeholder: 'Write your discourse here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{'list': 'ordered'}, {'list': 'bullet'}],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // --- DYNAMIC SUBCATEGORY FETCHING (Logic is unchanged) ---
+        const categorySelect = document.getElementById('discourse-category');
+        const subcategorySelect = document.getElementById('discourse-subcategory');
+
+        categorySelect.addEventListener('change', function() {
+            const categoryId = this.value;
+            subcategorySelect.disabled = true;
+            subcategorySelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (!categoryId) {
+                subcategorySelect.innerHTML = '<option value="">First, select a category</option>';
+                return;
+            }
+
+            fetch(`/discourse/api/subcategories/${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    subcategorySelect.innerHTML = '<option value="" disabled selected>Select a sub-category...</option>';
+                    data.forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub.id;
+                        option.textContent = sub.name;
+                        subcategorySelect.appendChild(option);
+                    });
+                    subcategorySelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching subcategories:', error);
+                    subcategorySelect.innerHTML = '<option value="">Error loading</option>';
+                });
+        });
+
+        // --- FORM SUBMISSION (Updated to get data from Quill.js) ---
+        const form = document.getElementById('discourse-form');
+        const statusDiv = document.getElementById('form-status');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            statusDiv.textContent = 'Saving...';
+            statusDiv.className = 'form-status saving';
+
+            const formData = {
+                title: document.getElementById('discourse-title').value,
+                subcategory_id: document.getElementById('discourse-subcategory').value,
+                // NEW: Get the HTML content from the Quill editor instance
+                body: quill.root.innerHTML
+            };
+            
+            // Prevent submitting the placeholder text as content
+            if (quill.getText().trim().length === 0) {
+                 statusDiv.textContent = 'Error: The body content cannot be empty.';
+                 statusDiv.className = 'form-status error';
+                 return;
+            }
+
+            fetch("{{ url_for('discourse.save_discourse') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    statusDiv.textContent = data.message;
+                    statusDiv.className = 'form-status success';
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url || "{{ url_for('discourse.dialogues') }}";
+                    }, 1500);
+                } else {
+                    statusDiv.textContent = 'Error: ' + data.message;
+                    statusDiv.className = 'form-status error';
+                }
+            })
+            .catch(error => {
+                console.error('Submission Error:', error);
+                statusDiv.textContent = 'A network error occurred. Please try again.';
+                statusDiv.className = 'form-status error';
+            });
+        });
+    });
+</script>
+
+{% endblock %}

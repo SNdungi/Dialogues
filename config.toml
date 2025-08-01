@@ -1,0 +1,60 @@
+
+# This file contains seed data for the application.
+
+[discourse_categories]
+  # Each category is a sub-table within discourse_categories.
+  [discourse_categories.theology_doctrine]
+  name = "Theology & Doctrine"
+  subcategories = [
+    "Systematic Theology",
+    "Christology",
+    "Pneumatology",
+    "Ecclesiology",
+    "Eschatology"
+  ]
+
+  [discourse_categories.biblical_studies]
+  name = "Biblical Studies"
+  subcategories = [
+    "Old Testament",
+    "New Testament",
+    "Hermeneutics",
+    "Biblical Archaeology",
+    "Apocrypha"
+  ]
+
+  [discourse_categories.practical_living]
+  name = "Practical Christian Living"
+  subcategories = [
+    "Prayer & Spirituality",
+    "Ethics & Morality",
+    "Family & Relationships",
+    "Work & Vocation",
+    "Stewardship"
+  ]
+
+  [discourse_categories.church_history]
+  name = "Church History"
+  subcategories = [
+    "Early Church",
+    "The Reformation",
+    "Modern Church",
+    "Biographies of Saints"
+  ]
+
+  [discourse_categories.culture_apologetics]
+  name = "Culture & Apologetics"
+  subcategories = [
+    "Science & Faith",
+    "Arts & Literature",
+    "Philosophy & Worldview",
+    "Engaging Other Beliefs"
+  ]
+
+# EXAMPLE: Here's how you could add other data without conflict
+[roles]
+  # This data will be ignored by the category seeder.
+  definitions = [
+    { name = "Admin", description = "Full system access" },
+    { name = "Editor", description = "Can publish and edit discourses" }
+  ]

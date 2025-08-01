@@ -1,0 +1,184 @@
+/* ==========================================================================
+   Shared Styles for Login and Registration Pages
+   ========================================================================== */
+
+:root {
+    --auth-bg-color: #0f0f0f;
+    --auth-accent-color: #f5bd04;
+    --auth-text-color: #e5e7eb;
+    --auth-text-muted: #9ca3af;
+    --auth-primary-blue: #3b82f6;
+    --auth-border-color: rgba(255, 255, 255, 0.2);
+     --luminous-green: #d6ff0a;
+}
+
+body.auth-page {
+    margin: 0;
+    font-family: 'Play', sans-serif;
+    color: var(--auth-text-color);
+    background-color: var(--auth-bg-color);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* --- Transparent Sidebar (from splash page) --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 10%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10;
+}
+
+.sidebar .header-accent-dots {
+    height: 30px;
+    width: 30px;
+    margin-bottom: 1rem;
+    background-image: radial-gradient(var(--auth-accent-color) 35%, transparent 35%);
+    background-size: 6px 6px;
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    padding: 10px 18px 10px 36px;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%);
+    border-left: 4px solid transparent;
+    transition: background-color 0.3s;
+}
+
+.tag-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tag-item::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.tag-yellow { border-left-color: #d4af37; }
+.tag-purple { border-left-color: #4c2a4c; }
+.tag-green  { border-left-color: #556b2f; }
+.tag-blue   { border-left-color: #003366; }
+.tag-pink   { border-left-color: #d8b2d8; }
+.tag-orange { border-left-color: #8c4343; }
+
+
+/* --- Centered Form Container with Glass Effect --- */
+.auth-container {
+    width: 90%;
+    max-width: 550px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid var(--auth-border-color);
+    padding: 0.5rem 3rem;
+    z-index: 20;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+}
+
+
+
+/* --- New Signup Form Styling --- */
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Spacing between rows */
+}
+
+.form-grid-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Label takes 1 part, input takes 2 parts */
+    align-items: center;
+    gap: 15px;
+}
+
+.form-grid-row label {
+    text-align: right;
+    font-size: 14px;
+    color: var(--auth-accent-color); /* A muted gray */
+    padding-right: 10px;
+    font-weight: 500;
+}
+
+.form-grid-row input {
+    padding: 9px 12px;
+    border: 1px solid #CBD5E0;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-grid-row input:focus {
+    outline: none;
+    border-color: #4299E1;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.3);
+}
+
+.form-divider {
+    border: none;
+    border-top: 1px solid #EDF2F7;
+    margin: 5px 0;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-left: calc(33.33% + 15px); /* Align with the input column */
+}
+
+.terms-link {
+    font-size: 14px;
+    color: #000000;
+    text-decoration: none;
+}
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+.btn-signup {
+    padding: 10px 24px;
+    background-color: #03182b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-signup:hover {
+    background-color: #2B6CB0;
+}
