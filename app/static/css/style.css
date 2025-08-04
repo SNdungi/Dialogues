@@ -257,6 +257,51 @@ a:hover {
     color: var(--royal-violet);
 }
 
+/* --- 4. SUB-NAVIGATION PANEL (SLIDE-OUT) --- */
+
+.discourse-nav {
+    position: fixed;
+    top: 0;
+    left: 520px; /* main-nav (240px) + sub-nav (280px) */
+    width: 320px; /* Make it a bit wider for titles */
+    height: 100vh;
+    background-color: var(--earth-brown); /* A different color from the theme */
+    color: var(--light-text);
+    z-index: 99; /* Slightly lower z-index than sub-nav */
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+}
+
+.discourse-nav.visible {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.discourse-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: rgba(0,0,0,0.2);
+}
+
+.discourse-nav-header h3 {
+    color: var(--gold-accent);
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+#discourse-nav-list { list-style-type: none; padding: 1rem 0; }
+#discourse-nav-list a { display: block; padding: 0.75rem 1.5rem; color: var(--off-white); }
+#discourse-nav-list a:hover,
+#discourse-nav-list a.active {
+    background-color: var(--gold-accent);
+    color: var(--earth-brown);
+}
 
 /*===========================================
  5. MAIN CONTENT 

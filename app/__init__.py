@@ -8,8 +8,9 @@ from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
 from sqlalchemy.orm import joinedload
 
+
 # --- Import your models directly ---
-from .dol_db.models import db, SubCategory, DiscourseBlog, User
+from .dol_db.models import db, Category, User, DiscourseBlog
 
 # --------------------------------------------------------------------------
 # 1. INSTANTIATE EXTENSIONS
@@ -74,39 +75,69 @@ def create_app():
     @app.context_processor
     def inject_global_data():
         """
-        Injects data needed by all templates into the context.
-        This combines the logic for the sidebar and other shared data.
+        Injects globally needed data into the template context.
+        - `daily_data`: Static content for the right sidebar.
+        - `sidebar_data`: Dynamic category/subcategory navigation structure.
+        - `content_data`: A list of all approved discourses for JS filtering.
         """
-        # --- Inject data from JSON files ---
-        topics_data = load_json_data('topics.json')
-        daily_data = load_json_data('daily.json')
+        app.logger.info("--- [CONTEXT] Starting global data injection ---")
         
-        # --- Inject dynamic sidebar data from the database ---
-        sidebar_topics = {}
+        # --- 1. Load static data for the right sidebar ---
+        daily_data = load_json_data('daily.json')
+
+        # --- 2. Build the dynamic sidebar data from the database ---
+        sidebar_data = []
         try:
-            active_subcategories = db.session.query(SubCategory)\
-                .join(DiscourseBlog)\
-                .filter(DiscourseBlog.is_approved == True)\
-                .options(joinedload(SubCategory.category))\
-                .distinct()\
-                .all()
+            # Fetch all categories and their subcategories in a single, efficient query.
+            all_categories = Category.query.options(
+                joinedload(Category.subcategories)
+            ).order_by(Category.name).all()
 
-            for sub in active_subcategories:
-                cat_name = sub.category.name
-                if cat_name not in sidebar_topics:
-                    sidebar_topics[cat_name] = []
-                sidebar_topics[cat_name].append({
-                    'name': sub.name,
-                    'id': sub.id 
-                })
+            for cat in all_categories:
+                if len(cat.subcategories) > 0:
+                    sidebar_data.append({
+                        'id': cat.id,
+                        'name': cat.name,
+                        'icon': "fa-landmark",  # Placeholder icon
+                        'subcategories': [
+                            {'id': sub.id, 'name': sub.name}
+                            for sub in sorted(cat.subcategories, key=lambda x: x.name)
+                        ]
+                    })
+            app.logger.info("[CONTEXT] Successfully built sidebar_data.")
         except Exception as e:
-            app.logger.error(f"Could not inject sidebar data: {e}")
+            app.logger.error(f"[CONTEXT] Could not build sidebar_data: {e}")
 
-        # Return a single dictionary with all the global variables
+        # --- 3. NEW: Load all approved discourses for the JavaScript front-end ---
+        content_data = []
+        try:
+            # Query all approved discourses, ordering by the newest first.
+            # We only select the columns needed by the JavaScript to keep the payload small.
+            all_discourses = db.session.query(
+                DiscourseBlog.id, 
+                DiscourseBlog.title,
+                DiscourseBlog.subcategory_id
+            ).filter(DiscourseBlog.is_approved == True).order_by(DiscourseBlog.date_posted.desc()).all()
+
+            # Convert the SQLAlchemy objects to a list of simple dictionaries.
+            # This is faster and cleaner for JSON serialization.
+            content_data = [
+                {
+                    'id': disc.id,
+                    'title': disc.title,
+                    'subcategory_id': disc.subcategory_id
+                } for disc in all_discourses
+            ]
+            app.logger.info(f"[CONTEXT] Successfully loaded {len(content_data)} discourses for content_data.")
+        except Exception as e:
+            app.logger.error(f"[CONTEXT] Could not load discourses for content_data: {e}")
+
+
+        # --- 4. Return the complete context dictionary ---
         return dict(
-            sidebar_topics=sidebar_topics,
-            topics_data=topics_data,
-            daily_data=daily_data
+            daily_data=daily_data,
+            sidebar_data=sidebar_data,
+            content_data=content_data  # This is the crucial addition
         )
 
     # --------------------------------------------------------------------------

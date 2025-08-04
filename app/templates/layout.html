@@ -31,46 +31,44 @@
                 <!-- The actual dropdown menu, hidden by default -->
                 <div class="dropdown-menu" id="logo-dropdown-menu">
                     <ul>
-                        <li><a href="#" data-modal-target="discourse-modal">New Discourse</a></li>
                         <li><a href="#" data-modal-target="image-modal">Upload Image</a></li>
                     </ul>
                 </div>
             </div>
-            
-            <ul >
-                {% for topic in topics_data %}
-                <li >
-                    <a href="#" class="main-topic-link" data-topic-id="{{ topic.id }}">
-                        <span>{{ topic.name }}</span>
+
+            <ul>
+                <!-- MODIFIED: Loop through the new database-driven sidebar_data -->
+                {% for category in sidebar_data %}
+                <li>
+                    <!-- The data-topic-id now holds the real Category ID from the database -->
+                    <a href="#" class="main-topic-link" data-topic-id="{{ category.id }}">
+                        <i class="fas {{ category.icon }}"></i> <!-- Icon is a placeholder for now -->
+                        <span>{{ category.name }}</span>
                     </a>
                 </li>
                 {% endfor %}
             </ul>
         </nav>
 
-        <!-- Sub-topic Navigation (Modal-like column) -->
-        <aside class="sidebar">
-            <nav class="sidebar-nav">
-                <h4>Topics</h4>
-                <ul class="topic-list">
-                    {% for category_name, subcategories in sidebar_topics.items() %}
-                        <li class="topic-item">
-                            <span class="category-title">{{ category_name }}</span>
-                            <ul class="subtopic-list">
-                                {% for sub in subcategories %}
-                                    <li>
-                                        <!-- You can link to a filtered view later -->
-                                        <a href="#">{{ sub.name }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li>No topics with published content yet.</li>
-                    {% endfor %}
-                </ul>
-            </nav>
+        <!-- Panel 2: Subcategories -->
+        <aside class="sub-nav" id="sub-nav">
+            <div class="sub-nav-header">
+                <h3 id="sub-nav-title"></h3>
+                <button class="close-btn" data-close-panel="sub-nav">×</button>
+            </div>
+            <ul id="sub-nav-list"></ul>
         </aside>
+
+        <!-- NEW - Panel 3: Discourse Titles -->
+        <aside class="discourse-nav" id="discourse-nav">
+            <div class="discourse-nav-header">
+                <h3 id="discourse-nav-title"></h3>
+                <button class="close-btn" data-close-panel="discourse-nav">×</button>
+            </div>
+            <ul id="discourse-nav-list"></ul>
+        </aside>
+
+   
 
         <!-- Main Content Area (This will be filled by other templates) -->
         <main class="main-content">
@@ -155,36 +153,6 @@
         </div>
     </footer>
 
-	<!-- 1. New Discourse Modal (Updated for new style) -->
-    <div class="modal-overlay" id="discourse-modal-overlay"></div>
-    <div class="modal" id="discourse-modal" style="max-width: 600px;"> <!-- Slightly wider for textarea -->
-        <div class="modal-header">
-            <h3><i class="fas fa-pen-nib" style="margin-right: 8px;"></i>Add New Discourse</h3>
-            <button class="modal-close" data-modal-close>×</button>
-        </div>
-        <div class="modal-body">
-            <form id="discourse-form" class="signup-form">
-                
-                <div class="form-grid-row">
-                    <label for="discourse-title-input">Title *</label>
-                    <input type="text" id="discourse-title-input" name="title" required>
-                </div>
-
-                <div class="form-grid-row">
-                    <label for="discourse-body-input">Body *</label>
-                    <textarea id="discourse-body-input" name="body" rows="10" required></textarea>
-                </div>
-                
-                <div class="form-footer">
-                    <!-- This empty span is a spacer to push the button to the right -->
-                    <span></span> 
-                    <button type="submit" class="btn-signup">Submit Discourse</button>
-                </div>
-                
-                <p id="discourse-status" class="status-message"></p>
-            </form>
-        </div>
-    </div>
 
     <!-- 2. Upload Image Modal (Updated for new style) -->
     <div class="modal-overlay" id="image-modal-overlay"></div>
@@ -228,7 +196,8 @@
 
     <!-- Data Injection & Scripts -->
     <script>
-        const TOPICS_DATA = {{ topics_data | tojson }};
+            // NEW: Pass the structured sidebar data to JavaScript
+        const SIDEBAR_DATA = {{ sidebar_data | tojson }};
         const CONTENT_DATA = {{ content_data | tojson if content_data else '{}' }};
     </script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

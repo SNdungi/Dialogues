@@ -156,30 +156,4 @@ def registration_page():
         return redirect(url_for('discourse.dialogues'))
     return render_template('registration.html')
 
-@bp.context_processor
-def inject_sidebar_data():
-    """
-    Injects a structured list of categories and their subcategories
-    THAT HAVE AT LEAST ONE APPROVED DISCOURSE. This makes the sidebar
-    dynamic and relevant.
-    """
-    # Query to get all subcategories that are linked to an approved discourse
-    active_subcategories = db.session.query(SubCategory)\
-        .join(DiscourseBlog)\
-        .filter(DiscourseBlog.is_approved == True)\
-        .options(joinedload(SubCategory.category))\
-        .distinct()\
-        .all()
 
-    # Structure the data for the template
-    sidebar_topics = {}
-    for sub in active_subcategories:
-        cat_name = sub.category.name
-        if cat_name not in sidebar_topics:
-            sidebar_topics[cat_name] = []
-        sidebar_topics[cat_name].append({
-            'name': sub.name,
-            'id': sub.id # You might use this for linking later
-        })
-        
-    return dict(sidebar_topics=sidebar_topics)
