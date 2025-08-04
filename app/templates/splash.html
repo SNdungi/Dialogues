@@ -23,10 +23,12 @@
 
 <!-- The transparent sidebar -->
 <div class="sidebar">
-    <div class="header-accent-dots"></div>
+    <div class="header-accent-dots">
+        <a href="{{ url_for('main.logout') }}" title="Logout" aria-label="Logout"></a>
+    </div>
     <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
     <a href="#" class="tag-item tag-purple">Liturgy</a>
-    <a href="#" class="tag-item tag-green">Academy</a>  
+    <a href="{{ url_for('academic.academics') }}" class="tag-item tag-green">Academy</a>  
     <a href="#" class="tag-item tag-blue">Charity</a>
     <a href="#" class="tag-item tag-pink">Resources</a>
     <a href="#" class="tag-item tag-orange">Contact</a>

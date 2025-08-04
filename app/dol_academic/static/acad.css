@@ -1,0 +1,169 @@
+/* ==========================================================================
+   Academic Research Blueprint Styles
+   ========================================================================== */
+
+/*
+ * These styles are specifically for the structured academic guide pages.
+ * They are designed to override or supplement the main site styles
+ * to create a more scholarly, document-like feel.
+*/
+
+/* General container for the blueprint content */
+.academic-blueprint-content {
+    padding: 2rem 3rem; /* Add padding inside the main content area */
+    font-family: 'Times New Roman', serif; /* Classic academic font */
+    line-height: 1.6;
+    background-color: #ffffff; /* Ensure a clean white background */
+    color: #333;
+}
+
+/* Override default heading styles for a more traditional look */
+.academic-blueprint-content h1,
+.academic-blueprint-content h2,
+.academic-blueprint-content h3,
+.academic-blueprint-content h4 {
+    font-family: 'Garamond', serif;
+    color: #333;
+}
+
+.academic-blueprint-content h1 {
+    border-bottom: 2px solid #8B4513;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.academic-blueprint-content h2 {
+    margin-top: 2rem;
+}
+
+/* Styling for the major research phases */
+.phase {
+    border-left: 4px solid #8B4513; /* A visually distinct marker for each phase */
+    padding-left: 20px;
+    margin-bottom: 40px;
+}
+
+/* Individual tasks within a phase */
+.task {
+    margin-bottom: 20px;
+}
+
+/* The grey box for code examples and templates */
+.template-box {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+    font-family: 'Courier New', Courier, monospace; /* Use a monospace font for code */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Styling for placeholder code elements */
+.template-box code {
+    color: #d63384; /* A distinct color for placeholders */
+    font-weight: bold;
+    background-color: #fceef5;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Italicized instructions for the user */
+.instructions {
+    color: #555;
+    font-style: italic;
+    font-size: 0.95em;
+    margin-bottom: 1rem;
+}
+
+/* Green text for notes about automation potential */
+.automation-note {
+    color: #006400;
+    font-size: 0.9em;
+    font-family: 'Lato', sans-serif;
+    margin-top: 5px;
+}
+
+/* --- 5. SITE GRID LAYOUT STYLES --- */
+
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+    font-family: 'Play', serif;
+  }
+
+
+
+  /* The accent dots - this is the specific fix */
+.sidebar .header-accent-dots {
+  height: 30px;
+  width: 30px;
+  margin-bottom: 1rem;
+  background-image: radial-gradient(var(--accent-color, #333) 35%, transparent 35%);
+  background-size: 6px 6px;
+  clip-path: polygon(
+    100% 0%,   /* top right */
+    0% 50%,    /* middle left (arrow tip) */
+    100% 100%  /* bottom right */
+  );
+}
+
+.header-accent-dots a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Now aligns content to the left */
+  position: relative;
+  padding: 10px 18px 10px 36px; /* Left padding increased, right reduced */
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1); /* translucent glass */
+  backdrop-filter: blur(6px);           /* frosted blur */
+  -webkit-backdrop-filter: blur(6px);   /* Safari support */
+  clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* subtle depth */
+  transition: background-color 0.3s, color 0.3s;
+  text-align: left;
+  border-left: 4px solid transparent;
+  
+}
+
+
+  .tag-item::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: white;
+  }
+
+.tag-yellow { border-left-color: #d4af37; } /* Gold Accent */
+.tag-purple { border-left-color: #4c2a4c; } /* Royal Violet */
+.tag-green  { border-left-color: #556b2f; } /* Serene Green */
+.tag-blue   { border-left-color: #003366; } /* Deep Blue */
+.tag-pink   { border-left-color: #d8b2d8; } /* Soft Pink */
+.tag-orange { border-left-color: #8c4343; } /* Muted Red (as an orange substitute) */
+
+
+  .tag-item:hover {
+    filter: brightness(1.1);
+  }

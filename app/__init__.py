@@ -145,8 +145,10 @@ def create_app():
     # --------------------------------------------------------------------------
     from . import routes
     from .dol_discourse.disc_routes import discourse_bp  
+    from .dol_academic.acad_routes import academic_bp
     app.register_blueprint(routes.bp)
     app.register_blueprint(discourse_bp)
+    app.register_blueprint(academic_bp, url_prefix='/academic')
     
     from . import commands
     commands.init_app(app)

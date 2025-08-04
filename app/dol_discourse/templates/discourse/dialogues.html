@@ -60,7 +60,9 @@
                         <span class="resource-type {{ resource.type.value | lower | replace(' ', '-') }}">{{ resource.type.value[0] }}</span>
                         <strong>{{ resource.name }}:</strong> 
                         {% if resource.link %}
-                            <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer">{{ resource.link }}</a>
+                            <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-link" aria-hidden="true"></i>
+                            </a>
                         {% endif %}
                     </li>
                     {% else %}

@@ -1,35 +1,46 @@
+/* ==========================================================================
+   Discourse Editor Page Stylesheet
+   ========================================================================== */
+
+/* --- 1. COLOR PALETTE & GENERAL SETUP --- */
 :root {
-    --color-primary: #3b82f6;
-    --color-primary-dark: #2563eb;
-    --color-primary-rgb: 59, 130, 246;
-    --color-background: #ffffff;
-    --color-background-soft: #f9fafb;
-    --color-background-mute: #f3f4f6;
-    --color-text: #374151;
-    --color-heading: #111827;
-    --color-text-muted: #6b7280;
-    --color-border: #d1d5db;
-    --color-border-soft: #e5e7eb;
-    --color-success: #28a745;
-    --color-error: #dc3545;
+    /* Light Mode Palette */
+    --editor-primary: #8d7e5e;
+    --editor-primary-dark: #eb9c25;
+    --editor-primary-rgb: 59, 130, 246;
+    --editor-bg: #ffffff;
+    --editor-bg-soft: #f9fafb;
+    --editor-bg-mute: #f3f4f6;
+    --editor-text: #374151;
+    --editor-heading: #111827;
+    --editor-text-muted: #6b7280;
+    --editor-border: #d1d5db;
+    --editor-border-soft: #c7c1ba;
+    --editor-success: #28a745;
+    --editor-error: #dc3545;
+    --accent-color: #f5bd04;
+    --royal-violet: #6b156b;
+    --deep-blue: #221344;
+    --soft-pink: #f0ece8;
+    --earth-brown: #4b2b18;
+    --luminous-green: #d6ff0a;
 }
 
+/* Optional Dark Mode Palette */
 @media (prefers-color-scheme: dark) {
     :root {
-        --color-primary: #60a5fa;
-        --color-primary-dark: #3b82f6;
-        --color-primary-rgb: 96, 165, 250;
-        --color-background: #111827;
-        --color-background-soft: #1f2937;
-        --color-background-mute: #374151;
-        --color-text: #d1d5db;
-        --color-heading: #f9fafb;
-        --color-text-muted: #9ca3af;
-        --color-border: #4b5563;
-        --color-border-soft: #374151;
+        --editor-bg: #111827;
+        --editor-bg-soft: #1f2937;
+        --editor-bg-mute: #374151;
+        --editor-text: #d1d5db;
+        --editor-heading: #ffffff;
+        --editor-text-muted: #9ca3af;
+        --editor-border: #4b5563;
+        --editor-border-soft: #374151;
     }
 }
 
+/* --- 2. MAIN EDITOR LAYOUT --- */
 .editor-container-full-width {
     width: 100%;
     padding: 2rem;
@@ -39,23 +50,23 @@
     text-align: center;
     margin-bottom: 2.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--editor-border);
 }
 
 .editor-header h3 {
     font-size: 1.8rem;
-    color: var(--color-heading);
+    color: var(--editor-heading);
     margin-bottom: 0.5rem;
 }
 
 .editor-header p {
     font-size: 1rem;
-    color: var(--color-text-muted);
+    color: var(--editor-text-muted);
     max-width: 600px;
     margin: 0 auto;
 }
 
-#discourse-form {
+#discourse-editor-form {
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -73,28 +84,19 @@
     flex-grow: 1;
 }
 
-.form-col-6 {
-    flex-basis: 100%;
-}
-
-.form-col-3 {
-    flex-basis: 100%;
-}
+.form-col-6 { flex-basis: 100%; }
+.form-col-3 { flex-basis: 100%; }
 
 @media (min-width: 768px) {
-    .form-col-6 {
-        flex-basis: calc(50% - 1rem);
-    }
-    .form-col-3 {
-        flex-basis: calc(25% - 1.5rem);
-    }
+    .form-col-6 { flex-basis: calc(50% - 1rem); }
+    .form-col-3 { flex-basis: calc(25% - 1.5rem); }
 }
 
 .form-group label {
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--color-text-muted);
+    color: var(--editor-text-muted);
     margin-bottom: 0.5rem;
     letter-spacing: 0.5px;
 }
@@ -104,87 +106,281 @@
     width: 100%;
     padding: 0.75rem 1rem;
     font-size: 0.95rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--editor-border);
     border-radius: 4px;
-    background-color: var(--color-background);
-    color: var(--color-text);
+    background-color: var(--editor-bg);
+    color: var(--editor-text);
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-group input[type="text"]:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
+    border-color: var(--editor-primary);
+    box-shadow: 0 0 0 3px rgba(var(--editor-primary-rgb), 0.2);
 }
 
 .form-group select[disabled] {
-    background-color: var(--color-background-mute);
+    background-color: var(--editor-bg-mute);
     cursor: not-allowed;
-    opacity: 0.7;
 }
 
-.ck.ck-editor {
+/* Quill Editor Styles */
+.ql-editor {
+    min-height: 300px;
+    background-color: var(--editor-bg);
+    color: var(--editor-text);
+}
+.ql-toolbar.ql-snow {
+    background-color: var(--editor-bg-soft);
+    border-color: var(--editor-border);
+}
+.ql-container.ql-snow {
+    border-color: var(--editor-border);
+}
+
+
+/* --- 3. RESOURCES STAGING AREA --- */
+.resources-staging-area {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border: 1px dashed var(--editor-border);
+    border-radius: 8px;
+    background-color: var(--editor-bg-soft);
+}
+.section-header-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.section-header-with-button h4 { margin: 0; color: var(--editor-heading); }
+.btn-add-resource {
+   
+    color: var(--deep-blue);
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+.btn-add-resource:hover { background-color: var(--editor-primary); color: white; }
+#resources-table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 0.8rem; /* Smaller font */
+}
+
+#resources-table th,
+#resources-table td {
+  padding: 4px 6px;     /* Smaller padding */
+  margin: 0;
+  vertical-align: middle;
+  text-align: left;
+}
+
+/* Light beige header */
+#resources-table thead {
+  background-color: #f5f1e6; /* Light beige */
+}
+
+#resources-table thead th {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Optional: add subtle borders */
+#resources-table th,
+#resources-table td {
+  border-bottom: 1px solid #ddd;
+}
+
+/* Optional: hover effect for rows */
+#resources-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Optional: make icons smaller and align them nicely */
+#resources-table td a i {
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+#resources-table th:nth-child(1),  /* Type */
+#resources-table th:nth-child(2),  /* Medium */
+#resources-table th:nth-child(5),  /* Actions */
+#resources-table td:nth-child(1),
+#resources-table td:nth-child(2),
+#resources-table td:nth-child(5) {
+  width: 80px; /* or adjust as needed */
+  white-space: nowrap;
+}
+
+#resources-table th:nth-child(3),  /* Name */
+#resources-table td:nth-child(3) {
+  width: 100%;
+}
+
+#resources-table th:nth-child(4),  /* Link */
+#resources-table td:nth-child(4) {
+  min-width: 150px;
+  max-width: 250px;
+  word-break: break-word;
+}
+
+#no-resources-message { padding: 2rem; text-align: center; color: var(--editor-text-muted); font-style: italic; }
+.btn-delete-resource { background: none; border: none; color: #cc0000; font-size: 1.2rem; cursor: pointer; }
+
+
+/* --- 4. MODAL & FORM STYLES (New Grid Layout) --- */
+
+/* Modal Container & Overlay */
+.modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.7); z-index: 1000; }
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--soft-pink) 50%;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    width: 90%;
+    max-width: 600px;
+    height: auto;              /* Ensure content determines height */
+    max-height: 90vh;          /* Optional: prevents overflow beyond viewport */
+    overflow-y: auto;          /* Scroll if content is too tall */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+}
+.modal-overlay.visible, .modal.visible { display: block; opacity: 1; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; border-bottom: 1px solid var(--editor-border-soft); }
+.modal-header h3 { margin: 0; font-size: 1rem; color: var(--royal-violet); }
+.modal-close { background: none; border: none; font-size: 2rem; font-weight: bold; color: #888; cursor: pointer; }
+.modal-body { padding: 1.5rem; }
+
+/* --- Centered Form Container with Glass Effect --- */
+.auth-container {
+    width: 90%;
+    max-width: 550px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid var(--auth-border-color);
+    padding: 0.5rem 3rem;
+    z-index: 20;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+}
+
+
+/* --- New Signup Form Styling --- */
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Spacing between rows */
+}
+
+.form-grid-row {
+    display: grid;
+    grid-template-columns: 1fr 4fr; /* Label takes 1 part, input takes 2 parts */
+    align-items: center;
+    gap: 10px;
+}
+
+.form-grid-row label {
+    text-align: right;
+    font-size: 14px;
+    color: var(--earth-brown); /* A muted gray */
+    padding-right: 10px;
+    font-weight: 500;
+}
+
+.form-grid-row input[type="text"]{
+    padding: 5px 11px;
+    border: 1px solid #CBD5E0;
     border-radius: 4px;
+    font-size: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.form-grid-row select {
+    padding: 5px 11px;
+    border: 1px solid #CBD5E0;
+    border-radius: 4px;
+    font-size: 12px;
+    width: 50%;
+    box-sizing: border-box;
 }
 
-.ck.ck-editor__main > .ck-editor__editable {
-    background-color: var(--color-background);
-    border: 1px solid var(--color-border);
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    min-height: 500px;
-}
-
-.ck.ck-editor__main > .ck-editor__editable:focus {
+.form-grid-row input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
+    border-color: #4299E1;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.3);
 }
 
-.ck.ck-toolbar {
-    background-color: var(--color-background-soft);
-    border: 1px solid var(--color-border);
-    border-radius: 4px 4px 0 0;
+.form-divider {
+    border: none;
+    border-top: 1px solid #88796c;
+    margin: 5px 0;
 }
 
 .form-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 5px;
+    padding-left: calc(33.33% + 15px); /* Align with the input column */
+}
+
+.terms-link {
+    font-size: 14px;
+    color: #000000;
+    text-decoration: none;
+}
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+.btn-signup {
+    padding: 5px 10px;
+    background-color: #03182b;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-signup:hover {
+    background-color: #2B6CB0;
+}
+
+
+/* --- 5. MAIN FORM FOOTER & STATUS --- */
+#discourse-editor-form .form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--color-border-soft);
+    border-top: 1px solid var(--editor-border-soft);
     margin-top: 1rem;
 }
-
 .btn-submit {
-    background-color: var(--color-primary);
-    color: white;
-    padding: 0.8rem 1.8rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: background-color 0.2s ease-in-out;
+    background-color: var(--deep-blue); color: white; padding: 0.5rem 1rem;
+    border: none; border-radius: 5px; cursor: pointer; font-size: 0.75rem;
+    font-weight: 600; transition: background-color 0.2s ease-in-out;
 }
-
-.btn-submit:hover {
-    background-color: var(--color-primary-dark);
-}
-
-.form-status {
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.form-status.saving {
-    color: var(--color-text-muted);
-}
-.form-status.success {
-    color: var(--color-success);
-}
-.form-status.error {
-    color: var(--color-error);
-}
+.btn-submit:hover { background-color: var(--editor-primary-dark); }
+.form-status { font-size: 0.9rem; font-weight: 500; }
+.form-status.saving { color: var(--editor-text-muted); }
+.form-status.success { color: var(--editor-success); }
+.form-status.error { color: var(--editor-error); }

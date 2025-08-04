@@ -1,0 +1,198 @@
+{% extends "acad_base.html" %}
+
+{% block title %}Blueprint for Theological Research - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="academic-blueprint-content">
+    <h1>A Structured Guide to Scholarly Theological Research</h1>
+    <p>This document provides a comprehensive blueprint for developing, researching, and writing a formal academic thesis or paper in the field of theology.</p>
+
+    <!-- ==================================================================================== -->
+    <!-- PHASE 1: CONCEPTION & PROPOSAL DEVELOPMENT                                         -->
+    <!-- This phase is about defining the project's scope, argument, and methodology.       -->
+    <!-- Automation can prompt the user for each field to generate a full proposal.         -->
+    <!-- ==================================================================================== -->
+    <div class="phase">
+        <h2>Phase 1: Conception & Proposal Development</h2>
+        <p class="instructions">The goal of this phase is to move from a general interest to a specific, arguable, and academically significant research project.</p>
+
+        <div class="task">
+            <h4>1.1. Identify the General Field of Study</h4>
+            <p>Begin by narrowing your focus to a specific domain.</p>
+            <p><strong>Examples:</strong> Patristics (Early Church Fathers), Reformation History, Systematic Theology, Biblical Exegesis (e.g., Pauline Epistles), Political Theology, Feminist Theology, Philosophy of Religion.</p>
+            <div class="template-box">
+                <strong>My Field:</strong> <code>[e.g., 20th Century Protestant Systematic Theology]</code>
+            </div>
+        </div>
+
+        <div class="task">
+            <h4>1.2. Establish the State of the Question (*Status Quaestionis*)</h4>
+            <p>Conduct a preliminary literature review to understand the existing scholarly conversation. What has already been said? Where are the debates, tensions, or gaps?</p>
+            <div class="template-box">
+                <strong>Status Quaestionis Summary:</strong>
+                <p>Scholar A (<code>[Name of Scholar]</code>) in their work (<code>[Book/Article Title]</code>) argues that <code>[Scholar A's main point]</code>.</p>
+                <p>However, Scholar B (<code>[Name of Scholar]</code>) challenges this by positing that <code>[Scholar B's counter-argument]</code>.</p>
+                <p>While this debate is well-established, a significant gap exists concerning <code>[The specific gap or unexamined issue]</code>.</p>
+            </div>
+        </div>
+
+        <div class="task">
+            <h4>1.3. Formulate the Research Question</h4>
+            <p>Turn the identified gap into a precise, guiding question.</p>
+            <div class="template-box">
+                <strong>Research Question:</strong> <code>[e.g., How did Dietrich Bonhoeffer's understanding of 'costly grace' in "The Cost of Discipleship" directly inform his theory of state responsibility in the "Ethics" fragments?]</code>
+            </div>
+        </div>
+
+        <div class="task">
+            <h4>1.4. Craft the Thesis Statement</h4>
+            <p>The thesis is the central, arguable claim that answers your research question. It is the single most important sentence of your entire project.</p>
+            <div class="template-box">
+                <strong>Thesis Statement:</strong> This study argues that <code>[Your central, arguable claim]</code>. It will demonstrate this by <code>[briefly outlining the main steps of your argument, e.g., 'by first analyzing concept X, then tracing its development in text Y, and finally showing its impact on historical event Z.']</code>
+            </div>
+        </div>
+
+        <div class="task">
+            <h4>1.5. Define the Methodology and Scope</h4>
+            <p>Clearly state the intellectual tools you will use and the boundaries of your research.</p>
+            <p class="automation-note"><!-- User selects from a dropdown of methodologies. --></p>
+            <div class="template-box">
+                <p><strong>Methodology:</strong> This research will employ a <code>[e.g., Historical-Critical Method combined with a Conceptual Analysis]</code> to interpret the primary sources.</p>
+                <p><strong>Scope & Delimitations:</strong> This study is limited to <code>[e.g., the published and unpublished writings of Dietrich Bonhoeffer between 1937 and 1945]</code>. It will not address <code>[e.g., his earlier universalist tendencies or the reception of his work in post-war America]</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================================== -->
+    <!-- PHASE 2: RESEARCH & SOURCE ENGAGEMENT                                              -->
+    <!-- This phase is about gathering and critically reading the primary/secondary sources. -->
+    <!-- Automation can help build an annotated bibliography.                                 -->
+    <!-- ==================================================================================== -->
+    <div class="phase">
+        <h2>Phase 2: Research & Source Engagement</h2>
+        <p class="instructions">This is the "data collection" phase. The goal is to master the primary texts and understand the secondary scholarship you plan to engage.</p>
+
+        <div class="task">
+            <h4>2.1. Assemble Primary & Secondary Sources</h4>
+            <p><strong>Primary Sources:</strong> The original texts or artifacts you are analyzing (e.g., The Bible, works of Aquinas, sermons, council documents).</p>
+            <p><strong>Secondary Sources:</strong> The works of other scholars who have analyzed your topic or related primary sources.</p>
+            <p class="instructions">Use a citation manager (e.g., Zotero, Mendeley) from the very beginning.</p>
+        </div>
+
+        <div class="task">
+            <h4>2.2. Critical Reading & Note-Taking</h4>
+            <p>Read actively, not passively. Create a system for your notes (e.g., an annotated bibliography, a concept map).</p>
+            <p class="automation-note"><!-- This could link to a note-taking template for each source. --></p>
+            <div class="template-box">
+                <strong>Note-Taking Template for a Source:</strong>
+                <ul>
+                    <li><strong>Full Citation:</strong> <code>[Chicago/Turabian style citation]</code></li>
+                    <li><strong>Author's Main Thesis:</strong> <code>[What is the central argument of this book/article?]</code></li>
+                    <li><strong>Key Evidence Used:</strong> <code>[What texts/data does the author use?]</code></li>
+                    <li><strong>Relevance to My Thesis:</strong> <code>[How does this support, challenge, or add nuance to my argument?]</code></li>
+                    <li><strong>Key Quotes & Page Numbers:</strong> <code>["..." (p. ##)]</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================================== -->
+    <!-- PHASE 3: ANALYSIS & ARGUMENT CONSTRUCTION                                          -->
+    <!-- This phase is about synthesizing your research into a coherent argument.           -->
+    <!-- Automation can help build a dynamic outline based on user input.                   -->
+    <!-- ==================================================================================== -->
+    <div class="phase">
+        <h2>Phase 3: Analysis & Argument Construction</h2>
+        <p class="instructions">Move from collecting information to building your case. The deliverable of this phase is a detailed outline.</p>
+
+        <div class="task">
+            <h4>3.1. Synthesize and Categorize Notes</h4>
+            <p>Organize your notes by theme, concept, or chronological development. Look for patterns, connections, and contradictions that support your thesis.</p>
+        </div>
+
+        <div class="task">
+            <h4>3.2. Develop a Detailed Outline</h4>
+            <p>This is the architectural plan for your paper. Each point should represent a paragraph or section that contributes to proving your main thesis.</p>
+            <div class="template-box">
+                <strong>Thesis Outline Structure:</strong>
+                <ol>
+                    <li><strong>Introduction</strong>
+                        <ul>
+                            <li>Hook/Opening</li>
+                            <li>Status Quaestionis (The scholarly context and gap)</li>
+                            <li>Thesis Statement</li>
+                            <li>Methodology and Roadmap (Outline of chapters)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Chapter 1: [e.g., Historical and Theological Context]</strong>
+                        <ul><li><!-- Point 1.1, Point 1.2, etc. --></li></ul>
+                    </li>
+                    <li><strong>Chapter 2: [e.g., Close Reading of Primary Source A]</strong>
+                        <ul><li><!-- Point 2.1, Point 2.2, etc. --></li></ul>
+                    </li>
+                    <li><strong>Chapter 3: [e.g., Conceptual Analysis of 'Concept X']</strong>
+                        <ul><li><!-- Point 3.1, Point 3.2, etc. --></li></ul>
+                    </li>
+                    <li><strong>Chapter 4: [e.g., Synthesis and Implications]</strong>
+                        <ul><li><!-- Point 4.1, Point 4.2, etc. --></li></ul>
+                    </li>
+                    <li><strong>Conclusion</strong>
+                        <ul>
+                            <li>Restatement of Thesis and Summary of Argument</li>
+                            <li>Statement of Contribution (The "So what?")</li>
+                            <li>Limitations and Avenues for Future Research</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================================== -->
+    <!-- PHASE 4: DRAFTING & FINALIZATION                                                     -->
+    <!-- The final stage of writing, editing, and formatting.                                 -->
+    <!-- ==================================================================================== -->
+    <div class="phase">
+        <h2>Phase 4: Drafting & Finalization</h2>
+        <p class="instructions">Translate your outline into prose. Writing is a process of discovery; expect your ideas to become clearer as you write.</p>
+
+        <div class="task">
+            <h4>4.1. Write the First Draft</h4>
+            <p>Focus on getting your argument down on paper. Follow your outline but do not worry about perfect prose or grammar. This is the "get it done" draft.</p>
+        </div>
+
+        <div class="task">
+            <h4>4.2. Refine and Edit</h4>
+            <p>Revise in multiple passes, focusing on one thing at a time:</p>
+            <ol>
+                <li><strong>Argument & Structure:</strong> Is the logic sound? Does each chapter support the main thesis? Is the flow clear?</li>
+                <li><strong>Clarity & Style:</strong> Is the prose clear, concise, and academic in tone?</li>
+                <li><strong>Proofreading:</strong> Check for grammar, spelling, and punctuation errors. Read it aloud.</li>
+            </ol>
+        </div>
+
+        <div class="task">
+            <h4>4.3. Finalize Formatting, Citations, and Bibliography</h4>
+            <p>Ensure every claim is properly cited according to your required style guide (typically Chicago/Turabian in theology). Check that your bibliography is complete and perfectly formatted.</p>
+        </div>
+        
+        <div class="task">
+            <h4>4.4. The Final Checklist</h4>
+             <p class="automation-note"><!-- A final interactive checklist before submission. --></p>
+            <div class="template-box">
+                <ul>
+                    <li>[ ] Title Page is correctly formatted.</li>
+                    <li>[ ] Table of Contents is accurate.</li>
+                    <li>[ ] Introduction contains a clear thesis statement.</li>
+                    <li>[ ] Each paragraph has a clear topic sentence.</li>
+                    <li>[ ] All sources are cited correctly in footnotes/endnotes.</li>
+                    <li>[ ] Bibliography matches all cited sources.</li>
+                    <li>[ ] Page numbers are correct.</li>
+                    <li>[ ] The document has been spell-checked and proofread.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

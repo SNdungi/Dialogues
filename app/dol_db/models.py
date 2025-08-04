@@ -9,7 +9,6 @@ from flask_login import UserMixin
 db = SQLAlchemy()
 
 # --- Enums for controlled vocabulary ---
-
 class RoleType(enum.Enum):
     ADMIN = 'Admin'
     EDITOR = 'Editor'
@@ -33,21 +32,26 @@ class ResourceType(enum.Enum):
     COMMENTARY = 'Commentary'
     TUTORIAL = 'Tutorial'
     LECTURE = 'Lecture'
+     
+class ResourceMedium(enum.Enum):
     VIDEO = 'Video'
+    AUDIO = 'Audio'
+    IMAGE = 'Image'
+    PDF = 'PDF'
+    BOOK = 'Book'
+    OTHER = 'Other'
 
 class LiturgyType(enum.Enum):
     WORD = 'Word'
     PRAYER = 'Prayer'
 
 # --- Association Table for Many-to-Many User-Role relationship ---
-
 user_roles = db.Table('user_roles',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True)
 )
 
 # --- Main Models ---
-
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -95,15 +99,12 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User {self.name} {self.email}>'
 
-# /project_folder/app/models.py
-# ... (keep all existing imports and other models: User, Role, etc.)
 
 class Category(db.Model):
     __tablename__ = 'categories'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     subcategories = db.relationship('SubCategory', back_populates='category', lazy=True, cascade="all, delete-orphan")
-
     def __repr__(self):
         return f'<Category {self.name}>'
 
@@ -115,7 +116,6 @@ class SubCategory(db.Model):
     category = db.relationship('Category', back_populates='subcategories')
     discourses = db.relationship('DiscourseBlog', back_populates='subcategory', lazy='dynamic')
     __table_args__ = (db.UniqueConstraint('name', 'category_id', name='_name_category_uc'),)
-
     def __repr__(self):
         return f'<SubCategory {self.name}>'
 
@@ -135,7 +135,6 @@ class DiscourseBlog(db.Model):
     resources = db.relationship('Resource', back_populates='discourse', lazy='joined', cascade="all, delete-orphan")
     comments = db.relationship('DiscourseComment', back_populates='discourse', lazy='dynamic', cascade="all, delete-orphan")
     
-    # --- NEW RELATIONSHIP ---
     subcategory = db.relationship('SubCategory', back_populates='discourses')
 
     def __repr__(self):
@@ -163,7 +162,7 @@ class Resource(db.Model):
     discourse_id = db.Column(db.Integer, db.ForeignKey('discourse_blogs.id'), nullable=False)
     type = db.Column(db.Enum(ResourceType), nullable=False)
     name = db.Column(db.String(200), nullable=False) # e.g., "Psalm 19:1" or "On the Incarnation"
-    medium = db.Column(db.String(100)) # e.g., "Book", "Journal Article"
+    medium = db.Column(db.Enum(ResourceMedium)) # e.g., "Book", "Journal Article"
     link = db.Column(db.String(512)) # URL or reference text
 
     discourse = db.relationship('DiscourseBlog', back_populates='resources')
@@ -194,11 +193,9 @@ class Liturgy(db.Model):
     source = db.Column(db.String(200))
     author = db.Column(db.String(200))
     theme = db.Column(db.String(500))
-    
-    # For PRAYER type, the body can be stored here
+
     body = db.Column(db.Text) 
-    
-    # For WORD type, we use a one-to-many relationship to readings
+
     readings = db.relationship('Reading', back_populates='liturgy', lazy='joined', cascade="all, delete-orphan")
 
     def __repr__(self):

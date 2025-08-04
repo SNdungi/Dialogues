@@ -1,11 +1,9 @@
 {% extends "layout.html" %}
 
 {% block head_extensions %}
-    <!-- Link to the dedicated stylesheet for this page -->
+    <!-- Page-specific styles and Quill.js dependencies -->
     <link rel="stylesheet" href="{{ url_for('discourse.static', filename='discourse.css') }}">
-    <!-- NEW: Quill.js Stylesheet via CDN -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
-    <!-- NEW: Quill.js Script via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 {% endblock %}
 
@@ -16,39 +14,67 @@
         <p>Craft and contribute a new dialogue for the community.</p>
     </div>
 
-    <form id="discourse-form">
-        <!-- Metadata fields in a single row at the top -->
+    <!-- Main Discourse Form -->
+    <form id="discourse-editor-form">
         <div class="metadata-row">
             <div class="form-group form-col-6">
-                <label for="discourse-title">Title</label>
-                <input type="text" id="discourse-title" name="title" placeholder="Enter a compelling title" required>
+                <label for="discourse-title-input">Title</label>
+                <input type="text" id="discourse-title-input" name="title" placeholder="Enter a compelling title" required>
             </div>
-            
             <div class="form-group form-col-3">
-                <label for="discourse-category">Category</label>
-                <select id="discourse-category" name="category" required>
+                <label for="discourse-category-select">Category</label>
+                <select id="discourse-category-select" name="category" required>
                     <option value="" disabled selected>Select a category...</option>
                     {% for category in categories %}
                         <option value="{{ category.id }}">{{ category.name }}</option>
                     {% endfor %}
                 </select>
             </div>
-
             <div class="form-group form-col-3">
-                <label for="discourse-subcategory">Sub-Category</label>
-                <select id="discourse-subcategory" name="subcategory_id" required disabled>
+                <label for="discourse-subcategory-select">Sub-Category</label>
+                <select id="discourse-subcategory-select" name="subcategory_id" required disabled>
                     <option value="">First, select a category</option>
                 </select>
             </div>
         </div>
 
-        <!-- The editor now sits below in its own full-width group -->
+        <!-- Quill editor target -->
         <div class="form-group">
-            <label for="editor-container-div">Body</label>
-            <!-- NEW: This div is the target for Quill.js. A textarea is not used. -->
-            <div id="editor-container-div"></div>
+            <label for="editor-target-div">Body</label>
+            <div id="editor-target-div"></div>
         </div>
 
+        <!-- Resources Staging Area (Protected by role check) -->
+        {% if current_user.is_authenticated and (current_user.has_role('Admin') or current_user.has_role('Editor') or current_user.has_role('Writer')) %}
+        <div class="resources-staging-area">
+            <div class="section-header-with-button">
+                <h4>References</h4>
+                <!-- This button uses the standard data-attribute that the global script.js understands -->
+                <button type="button" class="btn-add-resource" data-modal-target="add-resource-modal">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+            <div class="resources-table-container">
+                <table id="resources-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Medium</th>
+                            <th>Name</th>
+                            <th>Link</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resources-table-body">
+                        <!-- Rows are dynamically inserted here -->
+                    </tbody>
+                </table>
+                <p id="no-resources-message">No resources have been added yet.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Form Footer -->
         <div class="form-footer">
             <div id="form-status" class="form-status"></div>
             <button type="submit" class="btn-submit">Save Discourse</button>
@@ -56,106 +82,208 @@
     </form>
 </div>
 
+<!-- Add Resource Modal (Uses standard data-attributes for closing) -->
+<div class="modal-overlay" id="add-resource-modal-overlay"></div>
+<div class="modal" id="add-resource-modal">
+    <div class="modal-header">
+        <h3>Add a Resource</h3>
+        <button type="button" class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+        <form id="resource-staging-form" class="signup-form">
+            <div class="form-grid-row">
+                <label for="res-name">Resource Name</label>
+                <input type="text" id="res-name" required>
+            </div>
+            <div class="form-grid-row">
+                <label for="res-type">Type</label>
+                <select id="res-type" required>
+                    {% for type in get_resource_types() %}
+                        <option value="{{ type.name }}">{{ type.value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-grid-row">
+                <label for="res-medium">Medium</label>
+                <select id="res-medium" required>
+                    {% for medium in get_resource_mediums() %}
+                        <option value="{{ medium.name }}">{{ medium.value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-grid-row">
+                <label for="res-link">Link/Reference</label>
+                <input type="text" id="res-link" required>
+            </div>
+            <hr class="form-divider">
+            <div class="form-footer">
+                <span></span>
+                <button type="submit" class=" btn-signup ">Add to Stage</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ======================================================================= -->
+<!-- SELF-CONTAINED JAVASCRIPT FOR THIS PAGE ONLY (NO MODAL LOGIC) -->
+<!-- ======================================================================= -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- NEW: Quill.js Initialization ---
-        const quill = new Quill('#editor-container-div', {
-            theme: 'snow', // Use the 'snow' theme for a clean, modern toolbar
-            placeholder: 'Write your discourse here...',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    ['blockquote', 'code-block'],
-                    [{'list': 'ordered'}, {'list': 'bullet'}],
-                    [{ 'script': 'sub'}, { 'script': 'super' }],
-                    [{ 'indent': '-1'}, { 'indent': '+1' }],
-                    ['link', 'image'],
-                    ['clean']
-                ]
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("--- DISCOURSE.HTML SCRIPT LOADED ---");
+    // --- SECTION 1: PAGE-SPECIFIC ELEMENT SELECTORS & STATE ---
+    const quill = new Quill('#editor-target-div', {
+        theme: 'snow',
+        placeholder: 'Write your discourse here...',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{'list': 'ordered'}, {'list': 'bullet'}],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+
+    const mainDiscourseForm = document.getElementById('discourse-editor-form');
+    const statusDiv = document.getElementById('form-status');
+    const categorySelect = document.getElementById('discourse-category-select');
+    const subcategorySelect = document.getElementById('discourse-subcategory-select');
+    const resourceStagingForm = document.getElementById('resource-staging-form');
+    const resourcesTableBody = document.getElementById('resources-table-body');
+    const noResourcesMessage = document.getElementById('no-resources-message');
+
+    // In-memory array to store resource data before final submission
+    let stagedResources = [];
+
+    // --- SECTION 2: PAGE-SPECIFIC FUNCTIONS & LISTENERS ---
+
+    // Function to render the local resources table from the 'stagedResources' array
+    function renderResourcesTable() {
+        if (!resourcesTableBody || !noResourcesMessage) return;
+        resourcesTableBody.innerHTML = ''; 
+        noResourcesMessage.style.display = stagedResources.length === 0 ? 'block' : 'none';
+        
+        stagedResources.forEach((res, index) => {
+            const row = document.createElement('tr');
+            // Using .innerText is a safe way to insert user-provided text content
+            row.innerHTML = `
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><button type="button" class="btn-delete-resource" data-index="${index}" title="Remove Resource">×</button></td>
+            `;
+            row.cells[0].innerText = res.type.replace(/_/g, ' ');
+            row.cells[1].innerText = res.medium;
+            row.cells[2].innerText = res.name;
+            row.cells[3].innerText = res.link;
+            resourcesTableBody.appendChild(row);
+        });
+    }
+    renderResourcesTable(); // Render the empty table on page load
+
+    // Listener for the resource staging form (inside the modal)
+    if (resourceStagingForm) {
+        resourceStagingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            stagedResources.push({
+                name: document.getElementById('res-name').value,
+                type: document.getElementById('res-type').value,
+                medium: document.getElementById('res-medium').value,
+                link: document.getElementById('res-link').value,
+            });
+            renderResourcesTable();
+            resourceStagingForm.reset();
+            // This relies on the GLOBAL closeModal function from script.js
+            if (typeof closeModal === 'function') {
+                closeModal();
+            } else {
+                console.error("Global closeModal() function not found. Check script.js.");
             }
         });
+    }
 
-        // --- DYNAMIC SUBCATEGORY FETCHING (Logic is unchanged) ---
-        const categorySelect = document.getElementById('discourse-category');
-        const subcategorySelect = document.getElementById('discourse-subcategory');
-
-        categorySelect.addEventListener('change', function() {
-            const categoryId = this.value;
-            subcategorySelect.disabled = true;
-            subcategorySelect.innerHTML = '<option value="">Loading...</option>';
-
-            if (!categoryId) {
-                subcategorySelect.innerHTML = '<option value="">First, select a category</option>';
-                return;
+    // Listener for deleting a resource from the staging table (uses event delegation)
+    if (resourcesTableBody) {
+        resourcesTableBody.addEventListener('click', function(e) {
+            const deleteButton = e.target.closest('.btn-delete-resource');
+            if (deleteButton) {
+                const indexToRemove = parseInt(deleteButton.dataset.index, 10);
+                stagedResources.splice(indexToRemove, 1);
+                renderResourcesTable();
             }
+        });
+    }
 
+    // Listener for dynamic subcategory fetching
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            const categoryId = this.value; 
+            subcategorySelect.disabled = true; 
+            subcategorySelect.innerHTML = '<option>Loading...</option>';
+            if (!categoryId) { 
+                subcategorySelect.innerHTML = '<option>Select category first</option>'; 
+                return; 
+            }
             fetch(`/discourse/api/subcategories/${categoryId}`)
-                .then(response => response.json())
+                .then(r => {
+                    if (!r.ok) throw new Error('Network response was not OK');
+                    return r.json();
+                })
                 .then(data => {
-                    subcategorySelect.innerHTML = '<option value="" disabled selected>Select a sub-category...</option>';
-                    data.forEach(sub => {
-                        const option = document.createElement('option');
-                        option.value = sub.id;
-                        option.textContent = sub.name;
-                        subcategorySelect.appendChild(option);
+                    subcategorySelect.innerHTML = '<option value="" disabled selected>Select sub-category...</option>';
+                    data.forEach(sub => { 
+                        subcategorySelect.innerHTML += `<option value="${sub.id}">${sub.name}</option>`; 
                     });
                     subcategorySelect.disabled = false;
-                })
-                .catch(error => {
-                    console.error('Error fetching subcategories:', error);
-                    subcategorySelect.innerHTML = '<option value="">Error loading</option>';
+                }).catch(err => { 
+                    console.error("Error fetching subcategories:", err); 
+                    subcategorySelect.innerHTML = '<option>Error loading</option>'; 
                 });
         });
+    }
 
-        // --- FORM SUBMISSION (Updated to get data from Quill.js) ---
-        const form = document.getElementById('discourse-form');
-        const statusDiv = document.getElementById('form-status');
-
-        form.addEventListener('submit', function(event) {
+    // Listener for the final submission of the main discourse form
+    if (mainDiscourseForm) {
+        mainDiscourseForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            statusDiv.textContent = 'Saving...';
+            statusDiv.textContent = 'Saving...'; 
             statusDiv.className = 'form-status saving';
-
-            const formData = {
-                title: document.getElementById('discourse-title').value,
-                subcategory_id: document.getElementById('discourse-subcategory').value,
-                // NEW: Get the HTML content from the Quill editor instance
-                body: quill.root.innerHTML
-            };
-            
-            // Prevent submitting the placeholder text as content
             if (quill.getText().trim().length === 0) {
-                 statusDiv.textContent = 'Error: The body content cannot be empty.';
-                 statusDiv.className = 'form-status error';
+                 statusDiv.textContent = 'Error: The body content cannot be empty.'; 
+                 statusDiv.className = 'form-status error'; 
                  return;
             }
-
+            const finalPayload = {
+                title: document.getElementById('discourse-title-input').value,
+                subcategory_id: document.getElementById('discourse-subcategory-select').value,
+                body: quill.root.innerHTML,
+                resources: stagedResources 
+            };
             fetch("{{ url_for('discourse.save_discourse') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(finalPayload)
+            }).then(r => r.json()).then(data => {
                 if (data.status === 'success') {
-                    statusDiv.textContent = data.message;
+                    statusDiv.textContent = data.message; 
                     statusDiv.className = 'form-status success';
-                    setTimeout(() => {
-                        window.location.href = data.redirect_url || "{{ url_for('discourse.dialogues') }}";
-                    }, 1500);
+                    setTimeout(() => { window.location.href = data.redirect_url; }, 1500);
                 } else {
-                    statusDiv.textContent = 'Error: ' + data.message;
+                    statusDiv.textContent = 'Error: ' + data.message; 
                     statusDiv.className = 'form-status error';
                 }
-            })
-            .catch(error => {
-                console.error('Submission Error:', error);
-                statusDiv.textContent = 'A network error occurred. Please try again.';
-                statusDiv.className = 'form-status error';
+            }).catch(err => { 
+                console.error("Submission Error:", err); 
+                statusDiv.textContent = 'A network error occurred. Please try again.'; 
+                statusDiv.className = 'form-status error'; 
             });
         });
-    });
+    }
+});
 </script>
-
 {% endblock %}

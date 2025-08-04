@@ -229,16 +229,27 @@ body {
     font-family: 'Play', serif;
   }
 
+
+
   /* The accent dots - this is the specific fix */
 .sidebar .header-accent-dots {
-    height: 30px;
-    width: 30px;
-    margin-bottom: 1rem;
-    background-image: radial-gradient(var(--accent-color) 35%, transparent 35%);
-    background-size: 6px 6px;
+  height: 30px;
+  width: 30px;
+  margin-bottom: 1rem;
+  background-image: radial-gradient(var(--accent-color, #333) 35%, transparent 35%);
+  background-size: 6px 6px;
+  clip-path: polygon(
+    100% 0%,   /* top right */
+    0% 50%,    /* middle left (arrow tip) */
+    100% 100%  /* bottom right */
+  );
 }
 
-
+.header-accent-dots a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
 .tag-item {
   display: flex;
