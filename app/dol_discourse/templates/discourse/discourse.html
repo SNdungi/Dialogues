@@ -17,11 +17,17 @@
     <!-- Main Discourse Form -->
     <form id="discourse-editor-form">
         <div class="metadata-row">
-            <div class="form-group form-col-6">
+<!-- Change the column classes to make space -->
+            <div class="form-group form-col-4">
                 <label for="discourse-title-input">Title</label>
-                <input type="text" id="discourse-title-input" name="title" placeholder="Enter a compelling title" required>
+                <input type="text" id="discourse-title-input" name="title" required>
             </div>
-            <div class="form-group form-col-3">
+            <!-- NEW: Featured Image Input -->
+            <div class="form-group form-col-4">
+                <label for="featured-image-input">Featured Image (Optional)</label>
+                <input type="file" id="featured-image-input" name="featured_image" accept="image/jpeg, image/png, image/webp">
+            </div>
+            <div class="form-group form-col-2">
                 <label for="discourse-category-select">Category</label>
                 <select id="discourse-category-select" name="category" required>
                     <option value="" disabled selected>Select a category...</option>
@@ -30,7 +36,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group form-col-3">
+            <div class="form-group form-col-2">
                 <label for="discourse-subcategory-select">Sub-Category</label>
                 <select id="discourse-subcategory-select" name="subcategory_id" required disabled>
                     <option value="">First, select a category</option>
@@ -248,26 +254,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Listener for the final submission of the main discourse form
-    if (mainDiscourseForm) {
+   if (mainDiscourseForm) {
         mainDiscourseForm.addEventListener('submit', function(event) {
             event.preventDefault();
             statusDiv.textContent = 'Saving...'; 
             statusDiv.className = 'form-status saving';
+            
+            // --- VALIDATION (unchanged) ---
             if (quill.getText().trim().length === 0) {
-                 statusDiv.textContent = 'Error: The body content cannot be empty.'; 
+                 statusDiv.textContent = 'Error: Body cannot be empty.'; 
                  statusDiv.className = 'form-status error'; 
                  return;
             }
-            const finalPayload = {
-                title: document.getElementById('discourse-title-input').value,
-                subcategory_id: document.getElementById('discourse-subcategory-select').value,
-                body: quill.root.innerHTML,
-                resources: stagedResources 
-            };
+
+            // --- NEW: USE FORMDATA ---
+            const formData = new FormData();
+            
+            // 1. Append text and select data
+            formData.append('title', document.getElementById('discourse-title-input').value);
+            formData.append('subcategory_id', document.getElementById('discourse-subcategory-select').value);
+            formData.append('body', quill.root.innerHTML);
+            
+            // 2. Append the staged resources as a JSON string
+            formData.append('resources', JSON.stringify(stagedResources));
+            
+            // 3. Append the optional image file
+            const imageInput = document.getElementById('featured-image-input');
+            if (imageInput.files[0]) {
+                formData.append('featured_image', imageInput.files[0]);
+            }
+
+            // 4. Fetch using FormData (note: no 'Content-Type' header is set)
             fetch("{{ url_for('discourse.save_discourse') }}", {
                 method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(finalPayload)
+                body: formData // The browser will automatically set the correct multipart/form-data header
             }).then(r => r.json()).then(data => {
                 if (data.status === 'success') {
                     statusDiv.textContent = data.message; 
@@ -279,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }).catch(err => { 
                 console.error("Submission Error:", err); 
-                statusDiv.textContent = 'A network error occurred. Please try again.'; 
+                statusDiv.textContent = 'A network error occurred.'; 
                 statusDiv.className = 'form-status error'; 
             });
         });

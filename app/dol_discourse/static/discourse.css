@@ -384,3 +384,22 @@
 .form-status.saving { color: var(--editor-text-muted); }
 .form-status.success { color: var(--editor-success); }
 .form-status.error { color: var(--editor-error); }
+
+/* Add/modify these rules in your media query block */
+@media (min-width: 992px) { /* Use a larger breakpoint for 4 columns */
+    .form-col-4 { flex-basis: calc(50% - 1rem); }
+    .form-col-2 { flex-basis: calc(25% - 1.5rem); }
+}
+/* Add this for the file input */
+.form-group input[type="file"] {
+    padding: 0.5rem; /* Adjust padding for file inputs */
+}
+
+.featured-image {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}

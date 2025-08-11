@@ -6,6 +6,10 @@ from datetime import datetime
 from app.dol_db.models import db, DiscourseBlog, User, Category, SubCategory, Resource, ResourceMedium,ResourceType
 from sqlalchemy.orm import joinedload
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
+from PIL import Image
+import json
+
 
 # 1. Define the Blueprint correctly (removed url_defaults)
 discourse_bp = Blueprint('discourse', __name__,
@@ -46,60 +50,89 @@ def get_subcategories(category_id):
     return jsonify([{'id': sub.id, 'name': sub.name} for sub in subcategories])
 
 
+
+
+
 @discourse_bp.route('/save', methods=['POST'])
 @login_required
 def save_discourse():
     """
-    Handles saving a new discourse, including its associated resources.
+    Handles saving a new discourse from a multipart/form-data request,
+    including a potential featured image upload.
     """
-    data = request.get_json()
-    if not data or not all(k in data for k in ['title', 'body', 'subcategory_id']):
-        return jsonify({"status": "error", "message": "Missing title, body, or subcategory"}), 400
+    current_app.logger.info("Received request to /discourse/save")
+    
+    # 1. Access data from request.form for text fields
+    try:
+        title = request.form['title']
+        body = request.form['body']
+        subcategory_id = int(request.form['subcategory_id'])
+        resources_json_string = request.form.get('resources', '[]') # Default to an empty JSON array string
+    except (KeyError, ValueError) as e:
+        current_app.logger.error(f"Missing or invalid form data: {e}")
+        return jsonify({"status": "error", "message": "Missing or invalid required form data."}), 400
+
+    # ... (Authorization check remains the same) ...
     if not current_user.has_role('Admin') and not current_user.has_role('Editor') and not current_user.has_role('Writer'):
         return jsonify({"status": "error", "message": "You are not authorized to create a discourse."}), 403
 
     try:
-        # 3. Create the main DiscourseBlog object
+        image_filename = None
+        # 2. Handle the optional image upload from request.files
+        if 'featured_image' in request.files:
+            file = request.files['featured_image']
+            if file and file.filename != '':
+                timestamp = int(datetime.now().timestamp())
+                base_filename = secure_filename(os.path.splitext(file.filename)[0])
+                image_filename = f"{base_filename}_{timestamp}.webp"
+                
+                # It's good practice to have a dedicated uploads folder
+                save_path_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'discourse_images')
+                os.makedirs(save_path_dir, exist_ok=True)
+                save_path = os.path.join(save_path_dir, image_filename)
+
+                with Image.open(file.stream) as img:
+                    img.save(save_path, 'webp', quality=85)
+                current_app.logger.info(f"Successfully saved image as {image_filename}")
+
+        # 3. Create the DiscourseBlog object
         new_discourse = DiscourseBlog(
             user_id=current_user.id,
-            title=data['title'],
-            body=data['body'],
-            subcategory_id=int(data['subcategory_id']),
+            title=title,
+            body=body,
+            subcategory_id=subcategory_id,
+            featured_image=image_filename,
             reference=f"DISC-{int(datetime.now().timestamp())}",
-            is_approved=True  # Or False, depending on your workflow
+            is_approved=True
         )
 
-        # 4. Process and add the resources
-        resources_data = data.get('resources', []) # Get the list of resources, default to empty
+        # 4. Process resources from the JSON string
+        resources_data = json.loads(resources_json_string)
         if resources_data:
             for res_data in resources_data:
-                # Create a Resource object for each item in the list
                 resource = Resource(
                     name=res_data['name'],
                     type=ResourceType[res_data['type']],
                     medium=ResourceMedium[res_data['medium']],
                     link=res_data['link']
                 )
-                # Append it to the new_discourse's resources relationship.
-                # SQLAlchemy will handle setting the foreign key.
                 new_discourse.resources.append(resource)
         
         db.session.add(new_discourse)
         db.session.commit()
         
+        current_app.logger.info(f"Discourse '{title}' saved successfully with ID {new_discourse.id}")
+        
         return jsonify({
             "status": "success", 
-            "message": "Discourse and resources saved successfully!",
+            "message": "Discourse saved successfully!",
             "redirect_url": url_for('discourse.dialogues') 
         }), 201
 
-    except KeyError as e:
-        db.session.rollback()
-        return jsonify({"status": "error", "message": f"Invalid value for resource type or medium: {e}"}), 400
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Error saving discourse: {e}")
-        return jsonify({"status": "error", "message": "An internal error occurred."}), 500
+        current_app.logger.error(f"Error during discourse save process: {e}", exc_info=True)
+        return jsonify({"status": "error", "message": "An internal server error occurred."}), 500
 
 
 # ============== PUBLIC-FACING DIALOGUES ROUTE =====================
@@ -159,6 +192,7 @@ def get_discourse_details(discourse_id):
                 "id": discourse.id,
                 "title": discourse.title,
                 "body": discourse.body,
+                "featured_image_url": url_for('static', filename=f'uploads/discourse_images/{discourse.featured_image}') if discourse.featured_image else None,
                 "date_posted": discourse.date_posted.strftime('%B %d, %Y'),
                 "reference": discourse.reference,
                 "resources": [

@@ -45,6 +45,12 @@
                 
                 <h4 id="discourse-title">{{ initial_content.title }}</h4>
                 
+                <div id="featured-image-container">
+                    {% if initial_content and initial_content.featured_image %}
+                    <img src="{{ url_for('static', filename='uploads/discourse_images/' + initial_content.featured_image) }}" alt="{{ initial_content.title }}" class="featured-image">
+                    {% endif %}
+                </div>
+                
                 <div id="discourse-body">
                     {{ initial_content.body | safe }}
                 </div>

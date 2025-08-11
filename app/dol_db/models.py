@@ -130,6 +130,7 @@ class DiscourseBlog(db.Model):
     body = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     is_approved = db.Column(db.Boolean, default=False, nullable=False)
+    featured_image = db.Column(db.String(255), nullable=True)
 
     author = db.relationship('User', back_populates='discourses')
     resources = db.relationship('Resource', back_populates='discourse', lazy='joined', cascade="all, delete-orphan")

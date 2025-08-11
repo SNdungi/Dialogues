@@ -12,17 +12,31 @@ academic_bp = Blueprint(
     static_folder='static'
 )
 
-# The route remains the same...
 @academic_bp.route('/theology')
-def academics():
-    # MODIFICATION: The template path is now relative to the blueprint's 'templates' folder.
-    # We must include the 'academy' sub-directory.
+def theology():
     return render_template('acad_theology.html')
+
+
+@academic_bp.route('/sociology')
+def sociology():
+    return render_template('acad_sociology.html')
+
+
+@academic_bp.route('/science')
+def science():
+    return render_template('acad_science.html')
+
 
 @academic_bp.route('/library')
 def library():
-    return render_template('academy/acad_base.html', content="<h1>This is the Academic Library page.</h1>")
+    return render_template('library.html', content="<h1>This is the Academic Library page.</h1>")
+
 
 @academic_bp.route('/research')
 def research():
-    return render_template('academy/acad_base.html', content="<h1>This is the Published Papers page.</h1>")
+    return render_template('research.html', content="<h1>This is the Published Papers page.</h1>")
+
+
+@academic_bp.route('/tools')
+def tools():
+    return render_template('tools.html', content="<h1>This is the Academic Tools page.</h1>")

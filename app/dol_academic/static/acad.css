@@ -2,19 +2,44 @@
    Academic Research Blueprint Styles
    ========================================================================== */
 
-/*
- * These styles are specifically for the structured academic guide pages.
- * They are designed to override or supplement the main site styles
- * to create a more scholarly, document-like feel.
-*/
+:root {
+    /* Royal Colors */
+    --royal-violet: #5c075c;
+    --deep-blue: #221344;
+    --soft-pink: #f5ddf5;
+    --bg-dark: #131313;
+    --luminous-green: #d6ff0a;
+
+    /* Earth Colors */
+    --earth-brown: #5a3d2b;
+    --serene-blue: #7bf5ef;
+    --muted-red: #8c4343;
+
+    /* Accent & Text Colors */
+    --gold-accent: #ffc400;
+    --off-white: #fffcf6;
+    --papyrus-color: #ccbb96;
+    --baige-accent: rgb(253, 245, 234);
+    --dark-text: #2c2c2c;
+    --light-text: #e0e0e0;
+
+    /* Font Stacks */
+    --font-serif: 'Merriweather', serif;
+    --font-sans: 'Lato', sans-serif;
+    --font-script: 'Style Script', cursive;
+    --font-ital: 'Newsreader', serif;
+    --font-info: 'Playfair Display', serif;
+    --font-play: 'Play', serif;
+    --font-style: 'Montez', cursive;
+}
 
 /* General container for the blueprint content */
 .academic-blueprint-content {
     padding: 2rem 3rem; /* Add padding inside the main content area */
-    font-family: 'Times New Roman', serif; /* Classic academic font */
-    line-height: 1.6;
-    background-color: #ffffff; /* Ensure a clean white background */
-    color: #333;
+     font-family: var(--font-sans);
+    line-height: 1.5;
+    background-color: var(--off-white); /* Ensure a clean white background */
+    color: var(--dark-text);
 }
 
 /* Override default heading styles for a more traditional look */
@@ -22,11 +47,16 @@
 .academic-blueprint-content h2,
 .academic-blueprint-content h3,
 .academic-blueprint-content h4 {
-    font-family: 'Garamond', serif;
-    color: #333;
+    font-family: var(--font-info);
+    color: var(--royal-violet);
+    margin-bottom: 0.75em;
+    font-weight: 600;
 }
 
-.academic-blueprint-content h1 {
+
+
+.academic-blueprint-content h1,
+.academic-blueprint-content h2 {
     border-bottom: 2px solid #8B4513;
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
@@ -55,7 +85,7 @@
     border-radius: 4px;
     padding: 15px;
     margin-top: 10px;
-    font-family: 'Courier New', Courier, monospace; /* Use a monospace font for code */
+    font-family: var(--font-sans); /* Use a monospace font for code */
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
@@ -80,26 +110,24 @@
 .automation-note {
     color: #006400;
     font-size: 0.9em;
-    font-family: 'Lato', sans-serif;
+    font-family:var(--font-sans);
     margin-top: 5px;
 }
 
 /* --- 5. SITE GRID LAYOUT STYLES --- */
 
-  .sidebar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 10%;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    z-index: 1000;
-    font-family: 'Play', serif;
-  }
-
-
+.sidebar {
+position: absolute;
+top: 0;
+left: 0;
+width: 15%;
+padding: 20px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+z-index: 1000;
+font-family: var(--font-play);
+}
 
   /* The accent dots - this is the specific fix */
 .sidebar .header-accent-dots {
@@ -128,33 +156,30 @@
   position: relative;
   padding: 10px 18px 10px 36px; /* Left padding increased, right reduced */
   color: #fff;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 500;
   text-decoration: none;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1); /* translucent glass */
-  backdrop-filter: blur(6px);           /* frosted blur */
-  -webkit-backdrop-filter: blur(6px);   /* Safari support */
+  background-color: var(--papyrus-color); /* translucent glass */
   clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* subtle depth */
-  transition: background-color 0.3s, color 0.3s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* subtle depth */
   text-align: left;
-  border-left: 4px solid transparent;
+  border-left: 6px solid transparent;
   
 }
 
 
-  .tag-item::before {
-    content: '';
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: white;
-  }
+.tag-item::before {
+content: '';
+position: absolute;
+left: 12px;
+top: 50%;
+transform: translateY(-50%);
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background-color: white;
+}
 
 .tag-yellow { border-left-color: #d4af37; } /* Gold Accent */
 .tag-purple { border-left-color: #4c2a4c; } /* Royal Violet */
@@ -167,3 +192,13 @@
   .tag-item:hover {
     filter: brightness(1.1);
   }
+
+.nav-section-title {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.3em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2em 0.8em;
+}
