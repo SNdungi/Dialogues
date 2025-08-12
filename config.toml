@@ -26,11 +26,13 @@
   [discourse_categories.practical_living]
   name = "Practical Christian Living"
   subcategories = [
+    "God & You"
     "Prayer & Spirituality",
     "Ethics & Morality",
     "Family & Relationships",
     "Work & Vocation",
-    "Stewardship"
+    "Stewardship",
+    "Mental Health & Well-being"
   ]
 
   [discourse_categories.church_history]

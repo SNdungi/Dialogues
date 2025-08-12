@@ -48,7 +48,7 @@
 
 .editor-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--editor-border);
 }
@@ -69,43 +69,62 @@
 #discourse-editor-form {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 .metadata-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
+    gap: 1.2rem;
 }
 
+@media (min-width: 900px) {
+    .metadata-row .form-col-4 {
+        flex: 0 0 calc(40% - 0.25rem);
+    }
+    .metadata-row .form-col-2 {
+        flex: 0 0 calc(25% - 0.25rem);
+    }
+    .metadata-row .form-col-12 {
+    flex: 0 0 calc(100% - 0.25rem);
+    }
+}
 .form-group {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
 
-.form-col-6 { flex-basis: 100%; }
-.form-col-3 { flex-basis: 100%; }
-
-@media (min-width: 768px) {
-    .form-col-6 { flex-basis: calc(50% - 1rem); }
-    .form-col-3 { flex-basis: calc(25% - 1.5rem); }
+/* Add this for the file input */
+.form-group-sm input[type="file"] {
+    padding: 0.25rem; /* Adjust padding for file inputs */
+    font-size: 0.7rem;
 }
 
-.form-group label {
-    font-size: 0.8rem;
-    font-weight: 600;
+
+.form-group-sm label {
+    font-size: 0.7rem;
+    font-weight: 500;
     text-transform: uppercase;
     color: var(--editor-text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     letter-spacing: 0.5px;
 }
 
-.form-group input[type="text"],
-.form-group select {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
+.form-group-sm input[type="text"] {  
+    width: 90%;
+    padding: 0.25rem 1rem;
+    font-size: 0.7rem;
+    border: 1px solid var(--editor-primary);
+    border-radius: 4px;
+    background-color: var(--editor-bg);
+    color: var(--editor-text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group-sm select {
+    width: 100%;  
+    padding: 0.25rem 1rem;
+    font-size: 0.7rem;
     border: 1px solid var(--editor-border);
     border-radius: 4px;
     background-color: var(--editor-bg);
@@ -113,14 +132,14 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.form-group input[type="text"]:focus,
-.form-group select:focus {
+.form-group-sm input[type="text"]:focus,
+.form-group-sm select:focus {
     outline: none;
     border-color: var(--editor-primary);
     box-shadow: 0 0 0 3px rgba(var(--editor-primary-rgb), 0.2);
 }
 
-.form-group select[disabled] {
+.form-group-sm select[disabled] {
     background-color: var(--editor-bg-mute);
     cursor: not-allowed;
 }
@@ -142,10 +161,8 @@
 
 /* --- 3. RESOURCES STAGING AREA --- */
 .resources-staging-area {
-    margin-top: 1rem;
     padding: 1.5rem;
     border: 1px dashed var(--editor-border);
-    border-radius: 8px;
     background-color: var(--editor-bg-soft);
 }
 .section-header-with-button {
@@ -156,12 +173,10 @@
 }
 .section-header-with-button h4 { margin: 0; color: var(--editor-heading); }
 .btn-add-resource {
-   
     color: var(--deep-blue);
-    padding: 5px 10px;
-    border-radius: 20px;
+    padding: 3px 10px;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: bold;
     transition: all 0.2s ease;
 }
@@ -385,15 +400,6 @@
 .form-status.success { color: var(--editor-success); }
 .form-status.error { color: var(--editor-error); }
 
-/* Add/modify these rules in your media query block */
-@media (min-width: 992px) { /* Use a larger breakpoint for 4 columns */
-    .form-col-4 { flex-basis: calc(50% - 1rem); }
-    .form-col-2 { flex-basis: calc(25% - 1.5rem); }
-}
-/* Add this for the file input */
-.form-group input[type="file"] {
-    padding: 0.5rem; /* Adjust padding for file inputs */
-}
 
 .featured-image {
     width: 100%;

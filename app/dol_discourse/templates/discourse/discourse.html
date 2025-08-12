@@ -18,16 +18,11 @@
     <form id="discourse-editor-form">
         <div class="metadata-row">
 <!-- Change the column classes to make space -->
-            <div class="form-group form-col-4">
+            <div class="form-group-sm form-col-12">
                 <label for="discourse-title-input">Title</label>
                 <input type="text" id="discourse-title-input" name="title" required>
             </div>
-            <!-- NEW: Featured Image Input -->
-            <div class="form-group form-col-4">
-                <label for="featured-image-input">Featured Image (Optional)</label>
-                <input type="file" id="featured-image-input" name="featured_image" accept="image/jpeg, image/png, image/webp">
-            </div>
-            <div class="form-group form-col-2">
+            <div class="form-group-sm form-col-2">
                 <label for="discourse-category-select">Category</label>
                 <select id="discourse-category-select" name="category" required>
                     <option value="" disabled selected>Select a category...</option>
@@ -36,48 +31,57 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group form-col-2">
+            <div class="form-group-sm form-col-2">
                 <label for="discourse-subcategory-select">Sub-Category</label>
                 <select id="discourse-subcategory-select" name="subcategory_id" required disabled>
                     <option value="">First, select a category</option>
                 </select>
             </div>
+            <div class="form-group-sm form-col-2">
+                <label for="featured-image-input">Featured Image (Optional)</label>
+                <input type="file" id="featured-image-input" name="featured_image" accept="image/jpeg, image/png, image/webp">
+            </div>
         </div>
 
         <!-- Quill editor target -->
-        <div class="form-group">
+        <div class="form-group-sm">
             <label for="editor-target-div">Body</label>
             <div id="editor-target-div"></div>
         </div>
 
         <!-- Resources Staging Area (Protected by role check) -->
         {% if current_user.is_authenticated and (current_user.has_role('Admin') or current_user.has_role('Editor') or current_user.has_role('Writer')) %}
-        <div class="resources-staging-area">
-            <div class="section-header-with-button">
-                <h4>References</h4>
-                <!-- This button uses the standard data-attribute that the global script.js understands -->
-                <button type="button" class="btn-add-resource" data-modal-target="add-resource-modal">
-                    <i class="fas fa-plus"></i> Add
-                </button>
-            </div>
-            <div class="resources-table-container">
-                <table id="resources-table">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Medium</th>
-                            <th>Name</th>
-                            <th>Link</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resources-table-body">
-                        <!-- Rows are dynamically inserted here -->
-                    </tbody>
-                </table>
-                <p id="no-resources-message">No resources have been added yet.</p>
+        
+         <div class="form-group-sm">
+        <label for="editor-target-div">References</label>
+            <div class="resources-staging-area">
+                <div class="section-header-with-button"> 
+                    <!-- This button uses the standard data-attribute that the global script.js understands -->
+                    <button type="button" class="btn-add-resource" data-modal-target="add-resource-modal">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+                <div class="resources-table-container">
+                    <table id="resources-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Medium</th>
+                                <th>Name</th>
+                                <th>Link</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resources-table-body">
+                            <!-- Rows are dynamically inserted here -->
+                        </tbody>
+                    </table>
+                    <p id="no-resources-message">No resources have been added yet.</p>
+                </div>
             </div>
         </div>
+        {% else %}
+            <p class="form-warning">You must be logged in as an Admin, Editor, or Writer to add resources.</p>
         {% endif %}
 
         <!-- Form Footer -->

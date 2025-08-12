@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Standard meta tags for character set and mobile responsiveness -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- The title that appears in the browser tab -->
+    <title>The Word - Dialogues of Light</title>
+    
+    <!-- Link to our custom stylesheet for this page -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bible.css') }}">
+    
+    <!-- Link to Font Awesome for icons (search, sun, moon, arrows, etc.) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- This is the main container that centers the content and provides padding -->
+    <div class="bible-reader-container">
+        
+        <!-- ===================================================================== -->
+        <!-- 1. HEADER SECTION                                                     -->
+        <!-- Contains the site title, search form, and theme toggle button.      -->
+        <!-- ===================================================================== -->
+        <header class="bible-header">
+            
+            <!-- Link back to the splash page -->
+				<div class="header-accent-dots">
+					<a href="{{ url_for('main.splash') }}" class="home-link" title="Back to Welcome Page"></a>
+				</div>
+            
+            <!-- A container for all the user controls -->
+            <div class="search-controls">
+                
+                <!-- The form for searching scripture -->
+                <form id="bible-search-form">
+                    
+                    <!-- A wrapper for the input field to position the search icon inside it -->
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-book-bible"></i>
+                        <input type="text" id="passage-input" placeholder="e.g., John 3:16 or Genesis" required>
+                    </div>
+                    
+                    <!-- The dropdown menu to select the Bible translation -->
+                    <select id="translation-select" title="Select Bible Version">
+                        <option value="kjv" selected>KJV</option>
+                        <option value="web">WEB</option>
+                        <option value="bbe">BBE</option>
+                    </select>
+                    
+                    <!-- The submit button for the search form -->
+                    <button type="submit" title="Search"><i class="fas fa-search"></i></button>
+                </form>
+                
+                <!-- The button to toggle between day (light) and night (dark) modes -->
+                <button id="theme-toggle" title="Toggle Day/Night Mode">
+                    <!-- The icon inside this button (sun/moon) will be changed by JavaScript -->
+                    <i class="fas fa-sun"></i>
+                </button>
+
+            </div>
+        </header>
+
+        <!-- ===================================================================== -->
+        <!-- 2. MAIN CONTENT SECTION                                               -->
+        <!-- This area will display status messages and the scripture results.     -->
+        <!-- ===================================================================== -->
+        <main class="results-panel" id="results-panel">
+            
+            <!-- A dedicated container for status messages (e.g., "Loading...", "Error...") -->
+            <!-- It is hidden by default and managed entirely by JavaScript. -->
+            <div id="status-container" class="status-container"></div>
+
+            <!-- A wrapper for the actual scripture content. This allows us to -->
+            <!-- dim the old content while new content is loading. -->
+            <div id="scripture-content-wrapper">
+                
+                <!-- The initial message shown to the user before they perform a search -->
+                <div class="welcome-message">
+                    <h2>The Word of God</h2>
+                    <p><small> Study the Bible before Bible Study</small></p>
+                    <p>Enter a scripture reference (e.g., <strong>Psalm 23</strong>) or a book name (e.g., <strong>Jude</strong>) to begin reading.</p>
+                </div>
+
+            </div>
+
+            <!-- A container for the "Previous Chapter" and "Next Chapter" buttons -->
+            <!-- It starts with the 'hidden' class and is made visible by JavaScript after a successful search. -->
+            <div id="navigation-controls" class="navigation-controls hidden">
+                <button id="prev-chapter-btn" class="nav-btn">
+                    <i class="fas fa-arrow-left"></i> Previous Chapter
+                </button>
+                <button id="next-chapter-btn" class="nav-btn">
+                    Next Chapter <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </main>
+
+        <!-- ===================================================================== -->
+        <!-- 3. FOOTER SECTION                                                     -->
+        <!-- Contains copyright information and credit to the API provider.        -->
+        <!-- ===================================================================== -->
+        <footer class="site-footer">
+            <div class="footer-bottom">
+                <!-- The 'now().year' part is a Jinja2 template variable from Flask to get the current year -->
+                <p>© {{ now().year }} - Dialogues of Light. All scripture passages are provided by the public <a href="https://bible-api.com/" target="_blank">bible-api.com</a>.</p>
+            </div>
+        </footer>
+
+    </div>
+
+<script >
+	
+	document.addEventListener('DOMContentLoaded', function() {
+    
+    // =========================================================================
+    // 1. BIBLE METADATA & BOOK ORDER
+    // =========================================================================
+    const BIBLE_METADATA = {
+        'Genesis': 50, 'Exodus': 40, 'Leviticus': 27, 'Numbers': 36, 'Deuteronomy': 34,
+        'Joshua': 24, 'Judges': 21, 'Ruth': 4, '1 Samuel': 31, '2 Samuel': 24, '1 Kings': 22,
+        '2 Kings': 25, '1 Chronicles': 29, '2 Chronicles': 36, 'Ezra': 10, 'Nehemiah': 13,
+        'Esther': 10, 'Job': 42, 'Psalms': 150, 'Proverbs': 31, 'Ecclesiastes': 12,
+        'Song of Solomon': 8, 'Isaiah': 66, 'Jeremiah': 52, 'Lamentations': 5, 'Ezekiel': 48,
+        'Daniel': 12, 'Hosea': 14, 'Joel': 3, 'Amos': 9, 'Obadiah': 1, 'Jonah': 4, 'Micah': 7,
+        'Nahum': 3, 'Habakkuk': 3, 'Zephaniah': 3, 'Haggai': 2, 'Zechariah': 14, 'Malachi': 4,
+        'Matthew': 28, 'Mark': 16, 'Luke': 24, 'John': 21, 'Acts': 28, 'Romans': 16,
+        '1 Corinthians': 16, '2 Corinthians': 13, 'Galatians': 6, 'Ephesians': 6, 'Philippians': 4,
+        'Colossians': 4, '1 Thessalonians': 5, '2 Thessalonians': 3, '1 Timothy': 6, '2 Timothy': 4,
+        'Titus': 3, 'Philemon': 1, 'Hebrews': 13, 'James': 5, '1 Peter': 5, '2 Peter': 3,
+        '1 John': 5, '2 John': 1, '3 John': 1, 'Jude': 1, 'Revelation': 22
+    };
+    const BIBLE_BOOK_ORDER = Object.keys(BIBLE_METADATA);
+
+    // =========================================================================
+    // 2. DOM ELEMENT REFERENCES
+    // =========================================================================
+    const searchForm = document.getElementById('bible-search-form');
+    const passageInput = document.getElementById('passage-input');
+    const translationSelect = document.getElementById('translation-select');
+    const statusContainer = document.getElementById('status-container');
+    const scriptureWrapper = document.getElementById('scripture-content-wrapper');
+    const navControls = document.getElementById('navigation-controls');
+    const prevChapterBtn = document.getElementById('prev-chapter-btn');
+    const nextChapterBtn = document.getElementById('next-chapter-btn');
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    // =========================================================================
+    // 3. STATE MANAGEMENT
+    // =========================================================================
+    let currentChapterState = { book: null, chapter: null };
+
+    // =========================================================================
+    // 4. THE BRAIN: The Corrected Bible Reference Parser
+    // =========================================================================
+    
+    /**
+     * Intelligently parses a user's query and determines the user's intent.
+     * @param {string} userInput The raw text from the search box.
+     * @returns {object|null} An object { matchedBook, apiQuery, targetVerse } or null if invalid.
+     */
+    function parseBibleQuery(userInput) {
+        const normalizedInput = userInput.trim().toLowerCase();
+        
+        // Loop backwards to solve "1 John" vs "John" ambiguity.
+        for (let i = BIBLE_BOOK_ORDER.length - 1; i >= 0; i--) {
+            const bookName = BIBLE_BOOK_ORDER[i];
+            const normalizedBookName = bookName.toLowerCase();
+
+            if (normalizedInput.startsWith(normalizedBookName)) {
+                const matchedBook = bookName;
+                const referencePart = userInput.substring(matchedBook.length).trim();
+                const isSingleChapterBook = BIBLE_METADATA[matchedBook] === 1;
+
+                if (isSingleChapterBook) {
+                    let targetVerse = null;
+                    if (referencePart && !isNaN(referencePart)) {
+                        targetVerse = parseInt(referencePart, 10);
+                    }
+                    // *** THE CRUCIAL FIX IS HERE ***
+                    // We now ALWAYS create a query with "Chapter 1" for single-chapter books
+                    // to ensure the API call is consistent and reliable.
+                    return { matchedBook, apiQuery: `${matchedBook} 1`, targetVerse };
+                } else {
+                    // For multi-chapter books, the logic remains the same.
+                    const apiQuery = `${matchedBook} ${referencePart || '1'}`;
+                    return { matchedBook, apiQuery, targetVerse: null };
+                }
+            }
+        }
+        return null;
+    }
+
+
+    // =========================================================================
+    // 5. EVENT HANDLERS & INITIALIZATION
+    // =========================================================================
+    
+    (function setupTheme() {
+        themeToggle.addEventListener('click', () => {
+            const isDayMode = body.classList.contains('day-mode');
+            setTheme(isDayMode ? 'night' : 'day');
+        });
+        const savedTheme = localStorage.getItem('bible-theme') || 'night';
+        setTheme(savedTheme);
+    })();
+    
+    searchForm.addEventListener('submit', handleSearch);
+    prevChapterBtn.addEventListener('click', () => navigateChapter('prev'));
+    nextChapterBtn.addEventListener('click', () => navigateChapter('next'));
+
+    function handleSearch(event) {
+        if (event) event.preventDefault();
+        const query = passageInput.value;
+        if (!query.trim()) return;
+        const parsedResult = parseBibleQuery(query);
+
+        if (parsedResult) {
+            fetchBiblePassage(parsedResult.apiQuery, translationSelect.value, parsedResult.matchedBook, parsedResult.targetVerse);
+        } else {
+            setStatus('error', `Could not recognize the book "${query}". Please check spelling.`);
+        }
+    }
+
+    function navigateChapter(direction) {
+        const { book, chapter } = currentChapterState;
+        const currentIndex = BIBLE_BOOK_ORDER.indexOf(book);
+        const totalChapters = BIBLE_METADATA[book];
+        let newQuery;
+
+        if (direction === 'next') {
+            if (chapter < totalChapters) {
+                newQuery = `${book} ${chapter + 1}`;
+            } else {
+                const nextIndex = (currentIndex + 1) % BIBLE_BOOK_ORDER.length;
+                newQuery = `${BIBLE_BOOK_ORDER[nextIndex]} 1`;
+            }
+        } else { // direction === 'prev'
+            if (chapter > 1) {
+                newQuery = `${book} ${chapter - 1}`;
+            } else {
+                const prevIndex = (currentIndex - 1 + BIBLE_BOOK_ORDER.length) % BIBLE_BOOK_ORDER.length;
+                const prevBook = BIBLE_BOOK_ORDER[prevIndex];
+                newQuery = `${prevBook} ${BIBLE_METADATA[prevBook]}`;
+            }
+        }
+        passageInput.value = newQuery;
+        handleSearch();
+    }
+    
+    function setTheme(theme) {
+        if (theme === 'day') {
+            body.classList.add('day-mode');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            localStorage.setItem('bible-theme', 'day');
+        } else {
+            body.classList.remove('day-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            localStorage.setItem('bible-theme', 'night');
+        }
+    }
+
+    // =========================================================================
+    // 6. CORE LOGIC & RENDERING FUNCTIONS
+    // =========================================================================
+    
+    async function fetchBiblePassage(apiQuery, translation, canonicalBookName, targetVerse) {
+        const encodedQuery = encodeURIComponent(apiQuery);
+        const apiUrl = `https://bible-api.com/${encodedQuery}?translation=${translation}`;
+        
+        setStatus('loading', 'Loading scripture...');
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Passage not found.');
+            }
+            const data = await response.json();
+            displayResults(data, canonicalBookName, targetVerse);
+        } catch (error) {
+            console.error('API Fetch Error:', error);
+            setStatus('error', `Error: ${error.message}.`);
+        }
+    }
+
+    /**
+     * Displays results, and now highlights and scrolls to a target verse if provided.
+     */
+    function displayResults(data, canonicalBookName, targetVerse) {
+        setStatus('clear');
+        scriptureWrapper.innerHTML = '';
+
+        currentChapterState = {
+            book: canonicalBookName,
+            chapter: Math.max(...data.verses.map(v => v.chapter))
+        };
+
+        const referenceHeader = document.createElement('h2');
+        referenceHeader.className = 'scripture-reference';
+        referenceHeader.textContent = data.reference;
+
+        const translationName = document.createElement('span');
+        translationName.className = 'translation-name';
+        translationName.textContent = data.translation_name;
+
+        const scriptureText = document.createElement('div');
+        scriptureText.className = 'scripture-text';
+        
+        const paragraph = document.createElement('p');
+
+        // Loop through verses and create the content
+        data.verses.forEach(verse => {
+            const verseContainer = document.createElement('span'); // Container for easier styling
+            const verseNumber = document.createElement('sup');
+            verseNumber.textContent = verse.verse;
+            const verseText = document.createTextNode(` ${verse.text.trim()} `);
+
+            verseContainer.appendChild(verseNumber);
+            verseContainer.appendChild(verseText);
+            
+            if (targetVerse && verse.verse === targetVerse) {
+                verseContainer.classList.add('highlighted-verse');
+                verseContainer.id = 'target-verse-highlight';
+            }
+            
+            paragraph.appendChild(verseContainer);
+        });
+        
+        scriptureText.appendChild(paragraph);
+        scriptureWrapper.appendChild(referenceHeader);
+        scriptureWrapper.appendChild(translationName);
+        scriptureWrapper.appendChild(scriptureText);
+
+        updateNavigationControls();
+
+        const highlightedElement = document.getElementById('target-verse-highlight');
+        if (highlightedElement) {
+            setTimeout(() => {
+                highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    }
+
+    // =========================================================================
+    // 7. UI UTILITY FUNCTIONS
+    // =========================================================================
+    
+    function updateNavigationControls() {
+        const { book, chapter } = currentChapterState;
+
+        if (!book || !chapter || !BIBLE_METADATA[book]) {
+            navControls.classList.add('hidden');
+            return;
+        }
+
+        const totalChapters = BIBLE_METADATA[book];
+        const currentIndex = BIBLE_BOOK_ORDER.indexOf(book);
+        
+        const prevIndex = (currentIndex - 1 + BIBLE_BOOK_ORDER.length) % BIBLE_BOOK_ORDER.length;
+        const prevBook = BIBLE_BOOK_ORDER[prevIndex];
+        prevChapterBtn.innerHTML = (chapter > 1) 
+            ? `<i class="fas fa-arrow-left"></i> Previous Chapter`
+            : `<i class="fas fa-arrow-left"></i> Previous Book (${prevBook})`;
+        
+        const nextIndex = (currentIndex + 1) % BIBLE_BOOK_ORDER.length;
+        const nextBook = BIBLE_BOOK_ORDER[nextIndex];
+        nextChapterBtn.innerHTML = (chapter < totalChapters)
+            ? `Next Chapter <i class="fas fa-arrow-right"></i>`
+            : `Next Book (${nextBook}) <i class="fas fa-arrow-right"></i>`;
+        
+        prevChapterBtn.disabled = false;
+        nextChapterBtn.disabled = false;
+        navControls.classList.remove('hidden');
+    }
+    
+    function setStatus(type, message = '') {
+        scriptureWrapper.classList.remove('is-loading');
+        statusContainer.style.display = 'none';
+        statusContainer.className = 'status-container';
+        if (type === 'loading') {
+            statusContainer.className = 'status-container loading';
+            statusContainer.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${message}`;
+            statusContainer.style.display = 'block';
+            scriptureWrapper.classList.add('is-loading');
+            navControls.classList.add('hidden');
+        } else if (type === 'error') {
+            statusContainer.className = 'status-container error';
+            statusContainer.innerHTML = message;
+            statusContainer.style.display = 'block';
+            scriptureWrapper.innerHTML = '';
+            navControls.classList.add('hidden');
+        }
+    }
+});
+</script>
+</body>
+</html>

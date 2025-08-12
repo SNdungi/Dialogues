@@ -39,6 +39,11 @@ def splash():
     """Renders the new elegant, art-forward landing page."""
     return render_template('splash.html')
 
+@bp.route('/the-word')
+def the_word():
+    """Renders the integrated Bible reader page."""
+    return render_template('bible.html')
+
 
 # === NEW ROUTE 1: UPLOAD IMAGE ===
 @bp.route('/upload-image', methods=['POST'])

@@ -12,7 +12,7 @@
 
 <!-- TOP-RIGHT CARD -->
 <div class="top-right-card">
-    <a href="https://bible-api.com/" target="_blank" class="card-link" title="Powered by bible-api.com">
+    <a href="{{ url_for('main.the_word') }}"  class="card-link">
         <i class="fas fa-book-bible"></i>λόγος
     </a>
     <div class="card-divider"></div>
@@ -177,7 +177,7 @@
             </div>
             
             <div class="form-footer">
-                <a href="#" class="terms-link">View terms and conditions of use.</a>
+                <a href="{{ url_for('main.login_page') }}" class="terms-link">Already Contributing. Login</a>
                 <button type="submit" class="btn-signup">Sign up</button>
             </div>
             
