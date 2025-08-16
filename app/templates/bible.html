@@ -198,7 +198,21 @@
     // =========================================================================
     // 5. EVENT HANDLERS & INITIALIZATION
     // =========================================================================
-    
+
+    // --- THIS IS THE NEW PART TO ADD ---
+    function checkForUrlQuery() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const passageQuery = urlParams.get('passage');
+
+        if (passageQuery) {
+            console.log(`Found passage in URL: ${passageQuery}`);
+            passageInput.value = decodeURIComponent(passageQuery);
+            // Use a small timeout to ensure the rest of the page is ready
+            setTimeout(() => handleSearch(), 100); 
+        }
+    }
+
+    // --- END OF NEW PART ---    
     (function setupTheme() {
         themeToggle.addEventListener('click', () => {
             const isDayMode = body.classList.contains('day-mode');
@@ -211,6 +225,8 @@
     searchForm.addEventListener('submit', handleSearch);
     prevChapterBtn.addEventListener('click', () => navigateChapter('prev'));
     nextChapterBtn.addEventListener('click', () => navigateChapter('next'));
+
+    checkForUrlQuery();
 
     function handleSearch(event) {
         if (event) event.preventDefault();

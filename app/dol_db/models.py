@@ -32,12 +32,19 @@ class ResourceType(enum.Enum):
     COMMENTARY = 'Commentary'
     TUTORIAL = 'Tutorial'
     LECTURE = 'Lecture'
+    PAGE = 'Page'
+    SCRIPTURE = 'Scripture' 
+    SERMON = 'Sermon'
+    OTHER = 'Other'
      
 class ResourceMedium(enum.Enum):
     VIDEO = 'Video'
     AUDIO = 'Audio'
     IMAGE = 'Image'
-    PDF = 'PDF'
+    DOCUMENT = 'DOCUMENT'
+    FILE_FOLDER= 'File_Folder'
+    WEBSITE = 'Website'
+    BIBLE = 'Bible'
     BOOK = 'Book'
     OTHER = 'Other'
 
