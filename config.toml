@@ -26,7 +26,7 @@
   [discourse_categories.practical_living]
   name = "Practical Christian Living"
   subcategories = [
-    "God & You"
+    "God & You",
     "Prayer & Spirituality",
     "Ethics & Morality",
     "Family & Relationships",

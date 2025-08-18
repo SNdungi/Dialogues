@@ -8,3 +8,15 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Python
+*.pyc
+instance/
+
+# Environment files
+.env
+*.env
+
+# IDE / OS files
+.vscode/
+.idea/
