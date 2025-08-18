@@ -39,6 +39,8 @@ def create_app():
     DB_PASSWORD = os.environ.get('DB_PASSWORD')
     DB_HOST = os.environ.get('DB_HOST')
     DB_NAME = os.environ.get('DB_NAME')
+    
+    print(f"Using database: {DB_NAME} at {DB_HOST} with user {DB_USER}")
 
     # Construct the MySQL Database URI
     # The format is: 'mysql+pymysql://<user>:<password>@<host>/<database_name>'
