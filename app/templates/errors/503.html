@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Unavailable | Words of Light</title>
+    
+    <!-- Fonts - reusing from layout.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Play:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #131313;
+            --gold-accent: #ffc400;
+            --luminous-green: #d6ff0a;
+            --off-white: #fffcf6;
+            --font-serif: 'Newsreader', serif;
+            --font-sans: 'Play', sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent body scrollbars */
+            background-color: var(--bg-dark);
+            color: var(--off-white);
+            font-family: var(--font-sans);
+        }
+
+        .scroll-container {
+            position: fixed;
+            inset: 0;
+            perspective: 1000px; /* Creates a 3D space for the cards */
+        }
+
+        .scroll-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 200%; /* Twice the height to allow for continuous looping */
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around; /* Distribute cards evenly */
+            animation: scroll-up 50s linear infinite; /* Adjust duration for speed */
+        }
+
+        @keyframes scroll-up {
+            from { transform: translateY(0); }
+            to { transform: translateY(-50%); } /* Scrolls exactly one half of the wrapper's height */
+        }
+
+        .quote-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            opacity: 0.8;
+        }
+
+        .quote-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.5);
+            opacity: 1;
+        }
+
+        .quote-card .quote-body {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 400;
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--off-white);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .quote-card .quote-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            color: var(--luminous-green);
+        }
+
+        .quote-footer .ref {
+            font-weight: 700;
+        }
+
+        .quote-footer .age {
+            opacity: 0.7;
+        }
+        
+        /* Overlay content */
+        .overlay-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(19, 19, 19, 1) 20%, rgba(19, 19, 19, 0));
+            text-align: center;
+            z-index: 10;
+        }
+
+        .overlay-content h4 {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            color: var(--gold-accent);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .overlay-content p {
+            font-size: 0.8rem;
+            color: var(--off-white);
+            opacity: 0.8;
+            margin: 0;
+        }
+        .header-accent-dots {
+            height: 30px;
+            width: 30px;
+            margin: 1rem;
+            background-image: radial-gradient(var(--gold-accent, #333) 35%, transparent 35%);
+            background-size: 6px 6px;
+            clip-path: polygon(
+                100% 0%,   /* top right */
+                0% 50%,    /* middle left (arrow tip) */
+                100% 100%  /* bottom right */
+            );
+            }
+
+            .header-accent-dots a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            }
+    </style>
+</head>
+<body>
+    <div class="header-accent-dots" id="logo-dropdown-trigger">
+        <a href="{{ url_for('main.splash') }}" class="btn btn-primary mt-4"></a>
+    </div>
+    
+
+    <div class="scroll-container" id="scroll-container">
+        <!-- This wrapper will be duplicated by JavaScript for a seamless loop -->
+        <div class="scroll-wrapper" id="scroll-wrapper">
+            {% for quote in quotes %}
+                <div class="quote-card">
+                    <p class="quote-body">"{{ quote.Quote }}"</p>
+                    <div class="quote-footer">
+                        <span class="ref">{{ quote.ref }}</span>
+                        <span class="age">{{ quote.Age }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="overlay-content">
+        <h4>Connecting to the Sanctuary...</h4>
+        <p>While we re-establish our connection, please reflect on these Words of Light.</p>
+        
+    </div>
+
+    <script>
+        // JavaScript for seamless infinite scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollWrapper = document.getElementById('scroll-wrapper');
+            if (scrollWrapper) {
+                // Clone the content to create a seamless loop
+                const clone = scrollWrapper.cloneNode(true);
+                scrollWrapper.parentElement.appendChild(clone);
+            }
+        });
+    </script>
+
+</body>
+</html>

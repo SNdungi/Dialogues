@@ -1,3 +1,5 @@
+
+
 {% extends "layout.html" %}
 
 {% block content %}
@@ -93,15 +95,36 @@
             <section id="contribute-section">
                 <h4>Join this Discourse</h4>
                 <p id="contribute-prompt">Share your thoughts on '{{ initial_content.title }}'.</p>
-                <textarea placeholder="Contribute your perspective..."></textarea>
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-sm btn-primary">Submit Contribution</button>
-                    <!-- FIX 2: Removed the duplicate navigation buttons from here -->
+                <textarea id="comment-textarea" placeholder="Contribute your perspective..."></textarea>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <button id="submit-comment-btn" class="btn btn-sm btn-primary">Submit Contribution</button>
+                    <small id="comment-status-msg" class="text-muted"></small>
+                </div>
+            </section>
+
+            <section id="comments-section" class="mt-4">
+                <div class="d-grid">
+                    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#comments-collapse-wrapper" aria-expanded="false" aria-controls="comments-collapse-wrapper" id="view-comments-btn">
+                        View Contributions ({{ initial_content.comments|length }})
+                    </button>
+                </div>
+                <div class="collapse" id="comments-collapse-wrapper">
+                    <div class="card card-body mt-2" id="comment-list-container">
+                        {% for comment in initial_content.comments | sort(attribute='date_commented') %}
+                            <div class="comment-item">
+                                <p class="comment-body mb-1">{{ comment.body }}</p>
+                                <small class="comment-meta text-muted">
+                                    &mdash; {{ comment.commenter.name }} {{ comment.commenter.other_names }} on {{ comment.date_commented.strftime('%b %d, %Y') }}
+                                </small>
+                            </div>
+                        {% else %}
+                            <p class="text-center text-muted m-2">Be the first to contribute!</p>
+                        {% endfor %}
+                    </div>
                 </div>
             </section>
 
         {% else %}
-
             <!-- B. Display a welcoming "empty state" -->
             <section id="discourse-section" class="empty-state">
                 <div class="discourse-meta">
@@ -122,19 +145,14 @@
             <section id="contribute-section" class="empty-state">
                 <h4>Join this Discourse</h4>
                 <p id="contribute-prompt">Share your thoughts once a topic is available.</p>
-                <textarea placeholder="Contribute your perspective..." disabled></textarea>
+                <textarea id="comment-textarea" placeholder="Contribute your perspective..." disabled></textarea>
                  <div class="d-flex justify-content-between">
-                    <button class="btn btn-sm btn-primary" disabled>Submit Contribution</button>
-                    <!-- FIX 2: Removed the duplicate navigation buttons from here -->
+                    <button id="submit-comment-btn" class="btn btn-sm btn-primary" disabled>Submit Contribution</button>
                 </div>
             </section>
-
         {% endif %}
     </div>
 
-    <!-- ================================================================ -->
-    <!-- FIX 3: THE SCRIPT IS NOW SELF-CONTAINED AND COMPLETE           -->
-    <!-- ================================================================ -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('discourse-content-wrapper');
@@ -143,15 +161,22 @@
         // --- 1. ELEMENT CACHING & STATE ---
         const prevBtn = document.getElementById('prev-discourse-btn');
         const nextBtn = document.getElementById('next-discourse-btn');
+        // MODIFIED: Added caching for all comment-related elements
+        const commentTextarea = document.getElementById('comment-textarea');
+        const submitCommentBtn = document.getElementById('submit-comment-btn');
+        const commentStatusMsg = document.getElementById('comment-status-msg');
+        const viewCommentsBtn = document.getElementById('view-comments-btn');
+        const commentListContainer = document.getElementById('comment-list-container');
+        
         const navigationState = { currentId: null, prevId: null, nextId: null };
 
         // --- 2. CORE FUNCTIONS ---
 
         /**
-         * The helper function to update the DOM is now HERE, inside this script.
-         * This makes the script self-contained and resolves the error.
+         * MODIFIED: This function now also updates the collapsible comments section.
          */
         function updateDiscourseContent(discourse) {
+            // (Concise Old Content: This part updated title, body, resources, etc.)
             const titleEl = document.getElementById('discourse-title');
             const bodyEl = document.getElementById('discourse-body');
             const dateEl = document.getElementById('discourse-date');
@@ -196,22 +221,57 @@
                     resourceList.innerHTML = '<li>No resources are listed for this discourse.</li>';
                 }
             }
+            
+            // NEW: Update the comments section based on API data
+            if (viewCommentsBtn && commentListContainer) {
+                const commentCount = discourse.comments ? discourse.comments.length : 0;
+                viewCommentsBtn.textContent = `View Contributions (${commentCount})`;
+
+                commentListContainer.innerHTML = ''; // Clear previous comments
+
+                if (commentCount > 0) {
+                    discourse.comments.forEach(comment => {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.className = 'comment-item';
+                        commentDiv.innerHTML = `
+                            <p class="comment-body mb-1">${comment.body}</p>
+                            <small class="comment-meta text-muted">
+                                &mdash; ${comment.author_name} on ${comment.date_commented}
+                            </small>
+                        `;
+                        commentListContainer.appendChild(commentDiv);
+                    });
+                } else {
+                    commentListContainer.innerHTML = '<p class="text-center text-muted m-2">Be the first to contribute!</p>';
+                }
+            }
         }
 
         async function loadDiscourse(discourseId) {
             if (!discourseId) return;
+            // (Concise Old Content: This part handled opacity and nav button state.)
             container.style.opacity = '0.5';
             prevBtn.disabled = true;
             nextBtn.disabled = true;
+            // MODIFIED: Disable comment form during loading
+            if (commentTextarea) commentTextarea.disabled = true;
+            if (submitCommentBtn) submitCommentBtn.disabled = true;
 
             try {
                 const response = await fetch(`/discourse/api/get/${discourseId}`);
                 if (!response.ok) throw new Error('Failed to fetch discourse content.');
                 const result = await response.json();
                 if (result.status === 'success') {
-                    updateDiscourseContent(result.discourse);
+                    // (Concise Old Content: This called updateDiscourseContent and fetchAndUpdateNavigation.)
+                    updateDiscourseContent(result.discourse); // Now updates comments too
                     navigationState.currentId = discourseId;
                     await fetchAndUpdateNavigation(discourseId);
+                    
+                    // MODIFIED: Re-enable comment form for logged-in users after loading
+                    {% if current_user.is_authenticated %}
+                        if (commentTextarea) commentTextarea.disabled = false;
+                        if (submitCommentBtn) submitCommentBtn.disabled = false;
+                    {% endif %}
                 }
             } catch (error) {
                 console.error('Error loading discourse:', error);
@@ -221,6 +281,7 @@
         }
 
         async function fetchAndUpdateNavigation(discourseId) {
+            // (Concise Old Content: This function remains unchanged.)
             if (!discourseId) {
                 updateNavButtonState();
                 return;
@@ -234,17 +295,69 @@
                     navigationState.nextId = navData.next_id;
                     updateNavButtonState();
                 }
-            } catch (error) {
-                console.error('Error fetching navigation:', error);
-            }
+            } catch (error) { console.error('Error fetching navigation:', error); }
         }
 
         function updateNavButtonState() {
+            // (Concise Old Content: This function remains unchanged.)
             prevBtn.disabled = !navigationState.prevId;
             nextBtn.disabled = !navigationState.nextId;
         }
 
+        // NEW: Function to handle submitting the contribution form
+        async function handleSubmitComment() {
+            const commentBody = commentTextarea.value.trim();
+            const discourseId = navigationState.currentId;
+
+            if (!discourseId) {
+                commentStatusMsg.textContent = 'No discourse loaded.';
+                commentStatusMsg.className = 'text-danger';
+                return;
+            }
+            if (!commentBody) {
+                commentStatusMsg.textContent = 'Please enter your contribution.';
+                commentStatusMsg.className = 'text-danger';
+                return;
+            }
+
+            submitCommentBtn.disabled = true;
+            commentStatusMsg.textContent = 'Submitting...';
+            commentStatusMsg.className = 'text-muted';
+
+            try {
+                const response = await fetch('/discourse/api/add-comment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        discourse_id: discourseId,
+                        comment_body: commentBody
+                    })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    commentStatusMsg.textContent = result.message || 'Success!';
+                    commentStatusMsg.className = 'text-success';
+                    commentTextarea.value = '';
+                    // NEW: Reload the discourse to show the new comment immediately
+                    loadDiscourse(discourseId); 
+                } else {
+                    commentStatusMsg.textContent = result.message || 'An error occurred.';
+                    commentStatusMsg.className = 'text-danger';
+                }
+
+            } catch (error) {
+                console.error('Error submitting comment:', error);
+                commentStatusMsg.textContent = 'A network error occurred.';
+                commentStatusMsg.className = 'text-danger';
+            } finally {
+                submitCommentBtn.disabled = false;
+                setTimeout(() => { commentStatusMsg.textContent = ''; }, 5000);
+            }
+        }
+
         // --- 3. EVENT LISTENERS & INITIALIZATION ---
+        // (Concise Old Content: Event listeners for nav buttons existed here.)
         prevBtn.addEventListener('click', () => {
             if (navigationState.prevId) loadDiscourse(navigationState.prevId);
         });
@@ -252,11 +365,28 @@
             if (navigationState.nextId) loadDiscourse(navigationState.nextId);
         });
 
+        // NEW: Add event listener for the comment submission button
+        if (submitCommentBtn) {
+            submitCommentBtn.addEventListener('click', handleSubmitComment);
+        }
+
         const initialId = container.dataset.initialDiscourseId;
         if (initialId) {
             navigationState.currentId = parseInt(initialId, 10);
             fetchAndUpdateNavigation(navigationState.currentId);
         }
+        
+        // NEW: Logic to disable comment section if user is not logged in or no content is shown
+        {% if not current_user.is_authenticated %}
+            if (commentTextarea) {
+                commentTextarea.placeholder = 'Please log in to contribute.';
+                commentTextarea.disabled = true;
+            }
+            if (submitCommentBtn) submitCommentBtn.disabled = true;
+        {% elif not initial_content %}
+             if (commentTextarea) commentTextarea.disabled = true;
+             if (submitCommentBtn) submitCommentBtn.disabled = true;
+        {% endif %}
     });
     </script>
 {% endblock %}

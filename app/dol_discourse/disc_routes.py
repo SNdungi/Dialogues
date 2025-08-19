@@ -3,7 +3,7 @@
 import os
 from flask import Blueprint, render_template, current_app, request, jsonify, url_for, abort
 from datetime import datetime
-from app.dol_db.models import db, DiscourseBlog, User, Category, SubCategory, Resource, ResourceMedium,ResourceType
+from app.dol_db.models import db, DiscourseBlog, User, Category, SubCategory, Resource, ResourceMedium,ResourceType, DiscourseComment
 from sqlalchemy.orm import joinedload
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -53,7 +53,7 @@ def edit_discourse(discourse_id):
     discourse = DiscourseBlog.query.options(
         joinedload(DiscourseBlog.resources),
         joinedload(DiscourseBlog.subcategory)
-    ).get_or_404(discourse_id)
+    ).get_or_44(discourse_id)
 
     # --- Authorization Check ---
     is_author = discourse.user_id == current_user.id
@@ -248,8 +248,7 @@ def update_discourse(discourse_id):
         return jsonify({"status": "error", "message": "An internal server error occurred."}), 500
 
     
-
-# ============= NEW ROUTE FOR VIEWING A SINGLE DISCOURSE ===================
+# ============= ROUTE FOR VIEWING DIALOGUES (UPDATED) ===================
 @discourse_bp.route('/')
 @discourse_bp.route('/dialogues')
 def dialogues():
@@ -258,23 +257,22 @@ def dialogues():
     - If 'discourse_id' is in the URL, it loads that specific discourse.
     - Otherwise, it loads the latest approved discourse.
     """
-    # Check if a specific ID was requested in the URL query parameters
     requested_discourse_id = request.args.get('discourse_id', type=int)
     
     content_to_load = None
 
+    # Eagerly load all related data needed for the initial render
     query_options = [
         joinedload(DiscourseBlog.subcategory).joinedload(SubCategory.category),
         joinedload(DiscourseBlog.author),
-        joinedload(DiscourseBlog.resources) # Also load resources for display
+        joinedload(DiscourseBlog.resources),
+        joinedload(DiscourseBlog.comments).joinedload(DiscourseComment.commenter) # Eager load comments and their authors
     ]
 
     if requested_discourse_id:
-        # A specific discourse was requested, so fetch it by its ID
         current_app.logger.info(f"Loading specific discourse with ID: {requested_discourse_id}")
         content_to_load = DiscourseBlog.query.options(*query_options).get(requested_discourse_id)
     else:
-        # No specific ID, so fall back to the original behavior: get the latest
         current_app.logger.info("Loading latest discourse.")
         content_to_load = DiscourseBlog.query.filter_by(is_approved=True)\
                                           .order_by(DiscourseBlog.date_posted.desc())\
@@ -286,17 +284,21 @@ def dialogues():
         initial_content=content_to_load
     )
 
-# -============== NEW API ENDPOINT TO GET A SINGLE DISCOURSE'S DETAILS ================
+# ============= API ENDPOINT TO GET DISCOURSE DETAILS (UPDATED) ================
 @discourse_bp.route('/api/get/<int:discourse_id>')
 def get_discourse_details(discourse_id):
-    """API endpoint to fetch the full details of a single discourse."""
+    """API endpoint to fetch the full details of a single discourse, including comments."""
     try:
         discourse = DiscourseBlog.query.options(
-            joinedload(DiscourseBlog.resources)
+            joinedload(DiscourseBlog.resources),
+            joinedload(DiscourseBlog.comments).joinedload(DiscourseComment.commenter) # Eagerly load comments and authors
         ).get(discourse_id)
 
         if not discourse:
             return jsonify({"status": "error", "message": "Discourse not found"}), 404
+
+        # Sort comments by date posted
+        sorted_comments = sorted(discourse.comments, key=lambda c: c.date_commented)
 
         data_to_return = {
             "status": "success",
@@ -313,6 +315,13 @@ def get_discourse_details(discourse_id):
                         "name": resource.name,
                         "link": resource.link
                     } for resource in discourse.resources
+                ],
+                "comments": [ # NEW: Add comments to the payload
+                    {
+                        "body": comment.body,
+                        "author_name": f"{comment.commenter.name} {comment.commenter.other_names}",
+                        "date_commented": comment.date_commented.strftime('%B %d, %Y at %I:%M %p')
+                    } for comment in sorted_comments
                 ]
             }
         }
@@ -320,8 +329,53 @@ def get_discourse_details(discourse_id):
     except Exception as e:
         current_app.logger.error(f"API Error fetching discourse {discourse_id}: {e}")
         return jsonify({"status": "error", "message": "An internal server error occurred"}), 500
-    
-# === NEW API ROUTE TO ADD A RESOURCE TO A DISCOURSE ===
+
+# === API ROUTE TO ADD A COMMENT TO A DISCOURSE ===
+@discourse_bp.route('/api/add-comment', methods=['POST'])
+@login_required
+def add_comment():
+    """API endpoint to add a new comment to an existing discourse."""
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Invalid request. No data provided.'}), 400
+
+    discourse_id = data.get('discourse_id')
+    comment_body = data.get('comment_body')
+
+    if not discourse_id or not comment_body or not isinstance(comment_body, str) or not comment_body.strip():
+        return jsonify({'status': 'error', 'message': 'Missing discourse ID or comment body.'}), 400
+
+    try:
+        # Verify the discourse exists
+        discourse = DiscourseBlog.query.get(discourse_id)
+        if not discourse:
+            return jsonify({'status': 'error', 'message': 'Discourse not found.'}), 404
+
+        # Create the new comment
+        new_comment = DiscourseComment(
+            user_id=current_user.id,
+            discourse_id=discourse.id,
+            body=comment_body.strip(),
+            ip_address=request.remote_addr
+        )
+
+        db.session.add(new_comment)
+        db.session.commit()
+
+        current_app.logger.info(f"User {current_user.id} added comment to Discourse {discourse_id}")
+
+        return jsonify({
+            "status": "success",
+            "message": "Your contribution has been submitted successfully!",
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error adding comment for discourse {discourse_id}: {e}", exc_info=True)
+        return jsonify({'status': 'error', 'message': 'An internal server error occurred.'}), 500
+
+
+# === API ROUTE TO ADD A RESOURCE TO A DISCOURSE ===
 @discourse_bp.route('/api/add-resource', methods=['POST'])
 @login_required
 def add_resource():
@@ -377,28 +431,24 @@ def get_navigation_links(discourse_id):
         if not current_discourse:
             return jsonify({"status": "error", "message": "Discourse not found"}), 404
 
-        # --- GUARD CLAUSE: Handle posts that might be missing a date ---
-        # This is the primary fix for the 500 error.
         if not current_discourse.date_posted:
             current_app.logger.warning(f"Discourse ID {discourse_id} has no date_posted. Cannot determine navigation.")
             return jsonify({"status": "success", "previous_id": None, "next_id": None})
 
-        # --- Find the PREVIOUS approved post (older date) ---
         previous_post = DiscourseBlog.query.filter(
             DiscourseBlog.date_posted < current_discourse.date_posted,
             DiscourseBlog.is_approved == True
         ).order_by(
             DiscourseBlog.date_posted.desc(), 
-            DiscourseBlog.id.desc()  # Added .id for deterministic sorting
+            DiscourseBlog.id.desc()
         ).first()
 
-        # --- Find the NEXT approved post (more recent date) ---
         next_post = DiscourseBlog.query.filter(
             DiscourseBlog.date_posted > current_discourse.date_posted,
             DiscourseBlog.is_approved == True
         ).order_by(
             DiscourseBlog.date_posted.asc(),
-            DiscourseBlog.id.asc() # Added .id for deterministic sorting
+            DiscourseBlog.id.asc()
         ).first()
 
         return jsonify({

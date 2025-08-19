@@ -141,7 +141,7 @@ class DiscourseBlog(db.Model):
 
     author = db.relationship('User', back_populates='discourses')
     resources = db.relationship('Resource', back_populates='discourse', lazy='joined', cascade="all, delete-orphan")
-    comments = db.relationship('DiscourseComment', back_populates='discourse', lazy='dynamic', cascade="all, delete-orphan")
+    comments = db.relationship('DiscourseComment', back_populates='discourse', cascade="all, delete-orphan")
     
     subcategory = db.relationship('SubCategory', back_populates='discourses')
 

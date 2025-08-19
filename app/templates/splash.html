@@ -27,7 +27,7 @@
         <a href="{{ url_for('main.logout') }}" title="Logout" aria-label="Logout"></a>
     </div>
     <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
-    <a href="#" class="tag-item tag-purple">Liturgy</a>
+    <a href="{{ url_for('liturgy_bp.liturgy') }}" class="tag-item tag-purple">Liturgy</a>
     <a href="{{ url_for('academic.theology') }}" class="tag-item tag-green">Academy</a>  
     <a href="#" class="tag-item tag-blue">Charity</a>
     <a href="#" class="tag-item tag-pink">Resources</a>

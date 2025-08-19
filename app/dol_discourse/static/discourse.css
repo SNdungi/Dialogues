@@ -409,3 +409,14 @@
     border-radius: 8px;
     margin-bottom: 1.5rem;
 }
+
+.comment-item {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+.comment-item:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+}
+.comment-body {
+    white-space: pre-wrap; /* Respects newlines in comments */
+}

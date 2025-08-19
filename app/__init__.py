@@ -2,7 +2,9 @@
 
 import os
 import json
-from flask import Flask
+import csv # <--- IMPORT THE CSV MODULE
+from sqlalchemy.exc import OperationalError
+from flask import Flask,render_template
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
@@ -153,9 +155,47 @@ def create_app():
     from . import routes
     from .dol_discourse.disc_routes import discourse_bp  
     from .dol_academic.acad_routes import academic_bp
+    from .dol_liturgy.lit_routes import liturgy_bp
+    app.register_blueprint(liturgy_bp)
     app.register_blueprint(routes.bp)
     app.register_blueprint(discourse_bp)
     app.register_blueprint(academic_bp, url_prefix='/academic')
+    
+    # --------------------------------------------------------------------------
+    # 6. REGISTER CUSTOM ERROR HANDLERS
+    # --------------------------------------------------------------------------
+
+
+    @app.errorhandler(OperationalError)
+    def handle_db_connection_error(e):
+        """
+        Catches database connection errors and shows an engaging "waiting" page
+        with scrolling quotes.
+        """
+        app.logger.error(f"DATABASE CONNECTION ERROR: {e}")
+        
+        quotes = []
+        # --- NEW: Read the CSV file ---
+        csv_path = os.path.join(app.root_path, 'static', 'data', 'Jesus_speaks.csv')
+        try:
+            with open(csv_path, mode='r', encoding='utf-8') as infile:
+                # Use DictReader to read rows as dictionaries
+                reader = csv.DictReader(infile)
+                for row in reader:
+                    # Clean up keys and values
+                    cleaned_row = {k.strip(): v.strip() for k, v in row.items()}
+                    quotes.append(cleaned_row)
+        except FileNotFoundError:
+            app.logger.error(f"Jesus_speaks.csv not found at {csv_path}")
+            # Provide a fallback quote if the file is missing
+            quotes.append({
+                'Quote': 'Come to me, all you who are weary and burdened, and I will give you rest.',
+                'ref': 'Matthew 11:28',
+                'Age': ''
+            })
+
+        # Pass the list of quotes to the template
+        return render_template('errors/503.html', quotes=quotes), 503
     
     from . import commands
     commands.init_app(app)
