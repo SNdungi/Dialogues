@@ -53,7 +53,7 @@ def edit_discourse(discourse_id):
     discourse = DiscourseBlog.query.options(
         joinedload(DiscourseBlog.resources),
         joinedload(DiscourseBlog.subcategory)
-    ).get_or_44(discourse_id)
+    ).get_or_404(discourse_id)
 
     # --- Authorization Check ---
     is_author = discourse.user_id == current_user.id
