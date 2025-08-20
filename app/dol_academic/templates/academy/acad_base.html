@@ -63,15 +63,16 @@
 
         <!-- Right Sidebar (Data now comes from context_processor) -->
         <aside class="right-sidebar">
-			   <div class="sidebar-links">
+            <div class="sidebar-links">
                 <h4>Explore</h4>
                 <ul>
-                    <li><a href="#"><i class="fas fa-mobile-alt"></i> Research App</a></li>
-                    <li><a href="#"><i class="fas fa-graduation-cap"></i> Study Guides</a></li>
-                    <li><a href="#"><i class="fas fa-book-open"></i> OpenRepositories</a></li>
-                    <li><a href="#"><i class="fas fa-pen-nib"></i> Contribution</a></li>
+                    <li><a href="{{ url_for('discourse.dialogues') }}"><i class="fas fa-pen-nib"></i>Dialogues</a></li>
+                    <li><a href="{{ url_for('liturgy_bp.liturgy') }}" ><i class="fas fa-bible"></i>Liturgy</a></li>
+                    <li><a href="{{ url_for('academic.theology') }}" ><i class="fas fa-graduation-cap"></i>Academy</a></li>  
+                    <li><a href="#"><i class="fas fa-book-open"></i> Repositories</a></li>
                     <li><a href="#"><i class="fas fa-hand-holding-heart"></i> Charities</a></li>
                     <li><a href="#"><i class="fas fa-puzzle-piece"></i> Leisure</a></li>
+                    
                 </ul>
             </div>
             <div class="daily-content">

@@ -1,97 +1,126 @@
-import requests
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, current_app, jsonify, request
 from datetime import date, datetime
 
+# Import helpers from lit_utils
+from app.dol_liturgy.lit_utils import (
+    get_daily_readings,
+    safe_fetch,
+    litcal_url,
+    DEFAULTS,
+    API,
+)
 
-liturgy_bp = Blueprint('liturgy_bp', __name__,
-                         url_prefix='/liturgy',
-                         template_folder='templates/liturgy',
-                         static_folder='static')
+liturgy_bp = Blueprint(
+    'liturgy_bp',
+    __name__,
+    url_prefix='/liturgy',
+    template_folder='templates/liturgy',
+    static_folder='static'
+)
 
-# This helper function cleans the HTML that the API sometimes returns in the reading body
-def format_reading_body(body_html):
-    """Splits the body into a list of paragraphs, removing HTML tags."""
-    if not body_html:
-        return []
-    # Simple replace for <p> tags and split by newline.
-    # A more robust solution might use BeautifulSoup if the HTML is complex.
-    cleaned_text = body_html.replace('<p>', '').replace('</p>', '\n').strip()
-    return [p.strip() for p in cleaned_text.splitlines() if p.strip()]
 
 @liturgy_bp.route('/liturgy')
 def liturgy():
-    """
-    Fetches daily liturgical data from the Vachan API and renders the liturgy page.
-    """
     today = date.today()
-    api_date_format = today.strftime("%Y-%m-%d")
-    display_date_format = today.strftime("%B %d, %Y")
-    
-    # The API endpoint for the current day
-    api_url = f"https://vachan-api.herokuapp.com/api/v1/readings/{api_date_format}"
-    
-    liturgy_data = {}
+    year = today.year
 
+    locale = request.args.get("locale", DEFAULTS["locale"])
+    nation = request.args.get("nation", "US")
+    diocese = request.args.get("diocese")
+
+    api_url = litcal_url(nation=nation if not diocese else None,
+                         diocese=diocese,
+                         year=year)
+
+    current_app.logger.info(f"Fetching liturgy calendar: {api_url} with locale {locale}")
+
+    calendar_data, err = safe_fetch(
+        api_url,
+        params={"locale": locale},
+        ttl=DEFAULTS["calendar_ttl"],
+        cache_key=f"LITCAL::{nation or diocese or 'GR'}::{year}::{locale}",
+        timeout=20,
+    )
+
+    if calendar_data is None:
+        current_app.logger.error(f"Calendar fetch failed: {err}")
+        calendar_data = {"error": "Could not connect to the liturgy service.", "detail": err}
+
+    return render_template(
+        'liturgy.html',
+        calendar_data=calendar_data,
+        national_calendar_config=nation
+    )
+
+
+@liturgy_bp.route("/daily-devotions")
+def daily_devotions():
+    today_str = date.today().isoformat()
+    current_app.logger.info("Fetching daily_devotions from external APIs...")
+
+    prayers, err1 = safe_fetch(
+        API["TCCP_DAILY"],
+        ttl=DEFAULTS["devotions_ttl"],
+        cache_key=f"TCCP::{today_str}",
+    )
+
+    rosary, err2 = safe_fetch(
+        API["YORI_DAILY"],
+        ttl=DEFAULTS["devotions_ttl"],
+        cache_key=f"YORI::ROSARY::{today_str}",
+    )
+
+    saint_today, err3 = safe_fetch(
+        API["YORI_DAILY"],
+        ttl=DEFAULTS["devotions_ttl"],
+        cache_key=f"YORI::SAINT::{today_str}",
+    )
+
+    combined = {
+        "date": today_str,
+        "prayers": prayers or [],
+        "rosary": rosary or {},
+        "saint_of_the_day": saint_today or {},
+        "errors": {"tccp": err1, "rosary": err2, "saint": err3}
+    }
+
+    return jsonify(combined)
+
+
+
+@liturgy_bp.route('/api/get-readings/<date_str>')
+def get_readings_for_date(date_str):
+    """
+    Fetches daily readings for a given date using the catholic-mass-readings library helper.
+    """
     try:
-        # Make the API request with a timeout
-        response = requests.get(api_url, timeout=10)
-        # This will raise an exception for bad status codes (like 404 or 500)
-        response.raise_for_status()
-        
-        raw_data = response.json()
-        
-        # --- Structure the data for our template ---
-        liturgy_data = {
-            'date': raw_data.get('date'),
-            'season': raw_data.get('season'),
-            'season_week': raw_data.get('season_week'),
-            'celebration': raw_data.get('celebration'),
-            'color': raw_data.get('color', {}), # Safely access nested color dict
-            'readings': [],
-            'prayers': []
-        }
-        
-        # Process readings
-        for reading in raw_data.get('readings', []):
-            liturgy_data['readings'].append({
-                'title': reading.get('title'),
-                'reference': reading.get('reference'),
-                'response': reading.get('response', ''), # For psalms
-                'body': format_reading_body(reading.get('text')) # Use our helper function
-            })
-            
-        # Process prayers (Mass Propers)
-        for prayer in raw_data.get('prayers', []):
-             liturgy_data['prayers'].append({
-                'title': prayer.get('title'),
-                'body': prayer.get('text')
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Invalid date format provided.'}), 400
+
+    current_app.logger.info(f"Fetching readings for {target_date} using lit_utils helper.")
+    
+    mass_data = get_daily_readings(target_date)
+    if not mass_data or not mass_data.sections:
+        return jsonify({
+            'status': 'error',
+            'message': f'Readings are not available for {date_str}.'
+        }), 404
+
+    readings_list = []
+    for section in mass_data.sections:
+        for reading in section.readings:
+            readings_list.append({
+                'title': reading.header,
+                'body': reading.text
             })
 
-    except requests.exceptions.RequestException as e:
-        # Handle network errors, timeouts, bad responses, etc.
-        print(f"Error fetching liturgical data: {e}")
-        liturgy_data['error'] = "Could not connect to the liturgy service. Please try again later."
-    except Exception as e:
-        # Handle other potential errors (e.g., JSON parsing)
-        print(f"An unexpected error occurred: {e}")
-        liturgy_data['error'] = "An unexpected error occurred while processing the data."
+    if not readings_list:
+        return jsonify({
+            'status': 'error',
+            'message': f"Successfully fetched mass data for {date_str}, but it contained no parseable readings."
+        }), 404
 
-    return render_template('liturgy.html', 
-                           liturgy_data=liturgy_data, 
-                           date_for_display=display_date_format)
-
-# You can keep these other routes or remove them if they are not needed for this blueprint
-@liturgy_bp.route('/prayers')
-def Prayer():
-    return "<h1>Prayers, devotions and chaplets page.</h1>"
-
-@liturgy_bp.route('/word')
-def Word():
-    return "<h1>This is the word page.</h1>"
-
-@liturgy_bp.route('/commentary')
-def Commentary():
-    return "<h1>These are commentaries on the word page.</h1>"
+    return jsonify({'status': 'success', 'readings': readings_list})
 
 
- 

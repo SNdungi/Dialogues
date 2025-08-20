@@ -73,7 +73,11 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        try:
+            return User.query.get(int(user_id))
+        except OperationalError as e:
+            app.logger.warning(f"Could not connect to DB to load user: {e}")
+            return None # Tell Flask-Login no user could be loaded
     
     @app.context_processor
     def inject_global_data():

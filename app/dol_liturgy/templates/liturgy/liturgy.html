@@ -1,107 +1,161 @@
 {% extends "layout.html" %}
 
-{% block title %}Liturgy of the Day{% endblock %}
+{% block title %}Liturgical Calendar{% endblock %}
 
 {% block head_extensions %}
-<link rel="stylesheet" href="{{ url_for('liturgy_bp.static', filename='liturgy.css') }}">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    
+    <style>
+        /* --- LAYOUT & FRAME STYLING --- */
 
+        .liturgy-page-content { 
+            display: flex; 
+            flex-direction: column;
+            padding: 2rem 1rem; /* Add vertical padding to frame the content */
+            gap: 1.5rem; 
+        }
+
+        /* The new container style for the "frame on a wall" look */
+        #calendar-container {
+            width: 100%;
+            max-width: 950px;
+            margin: 0 auto;
+            background-color: whitesmoke;
+            padding: 1rem;
+            border-radius: 16px;
+            border: 5px solid gray;
+        }
+                
+
+        #details-panel { 
+                    width: 100%;            /* <-- ADDED */
+                    max-width: 950px;
+                    margin: 1rem auto 0;
+                    background-color: #fdfaf3; 
+                    border-top: 3px solid var(--gold-accent);
+                    padding: 1.5rem;
+                }
+        /* --- CALENDAR ELEMENT STYLING --- */
+
+        :root { 
+            --fc-border-color: #e5e5e5; /* Lighter border color for inside the calendar */
+            --fc-today-bg-color: rgba(255, 196, 0, 0.15); 
+        }
+
+        .fc .fc-toolbar-title { 
+            font-family: var(--font-info); 
+            color: var(--deep-blue); 
+            font-size: 1rem; 
+        }
+
+
+        .fc .fc-button {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            box-shadow: none !important;
+        }
+
+        .fc-event-main { 
+            font-size: 0.6rem; /* <-- REDUCED */
+            padding: 2px 5px;
+            color: white !important;
+            font-weight: 400;
+        }
+
+        /* --- (Reading card styles are unchanged) --- */
+        .reading-card { margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        .reading-title { color: var(--royal-violet); font-family: var(--font-info); }
+        .reading-body { font-family: var(--font-serif); line-height: 1.7; font-size: 0.8rem; }
+    </style>
 {% endblock %}
 
 {% block content %}
-    <!-- Sticky Header within Main Content (Inspired by dialogues.html) -->
     <div class="sticky-main-header d-flex justify-content-between align-items-center">
-        <h3 class="mb-0">Liturgy of the Day</h3>
-        <div class="d-flex align-items-center">
-            <span class="me-3 fs-6 text-muted" id="liturgy-date-display">{{ date_for_display }}</span>
-            <div class="discourse-navigation-controls">
-                <!-- We will add JavaScript to control these later -->
-                <button id="prev-day-btn" class="btn btn-outline-secondary btn-sm" title="Previous Day">
-                    <i class="fa fa-chevron-left"></i>
-                </button>
-                <button id="next-day-btn" class="btn btn-outline-secondary btn-sm" title="Next Day">
-                    <i class="fa fa-chevron-right"></i>
-                </button>
-            </div>
+        <h5 class="mb-0">Liturgical Calendar</h5>
+    </div>
+
+    <div class="liturgy-page-content">
+        <div id="calendar-container">
+            <div id='calendar'></div>
         </div>
+        <aside id="details-panel">
+            <h4 id="details-title">Select a day</h4>
+            <div id="details-content">
+                <p>Click on a date to view its readings and prayers.</p>
+            </div>
+        </aside>
     </div>
 
-    <!-- Main liturgy content container -->
-    <div class="discourse-container" id="liturgy-content-wrapper">
+<script>
+    const CALENDAR_DATA = {{ calendar_data | tojson }};
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
         
-        {% if liturgy_data and not liturgy_data.error %}
-            <!-- ================================================================ -->
-            <!-- 1. Liturgical Information Header                                 -->
-            <!-- ================================================================ -->
-            <div class="liturgy-info-card" style="--liturgical-color: {{ liturgy_data.color.hex }};">
-                <h2>{{ liturgy_data.celebration }}</h2>
-                <div class="liturgy-meta">
-                    <span>Season: {{ liturgy_data.season }}</span> | 
-                    <span>Week: {{ liturgy_data.season_week }}</span>
-                </div>
-            </div>
+        if (!CALENDAR_DATA || !document.getElementById('calendar')) { /* ... */ }
+        const calendarEl = document.getElementById('calendar');
+        const detailsTitleEl = document.getElementById('details-title');
+        const detailsContentEl = document.getElementById('details-content');
+        async function fetchAndRenderDetails(dateStr, eventTitle) { /* ... */ }
+        function renderReadings(readings, dateStr, eventTitle) { /* ... */ }
+        function formatEvents(litcalData) { /* ... */ }
+        
+        
+        async function fetchAndRenderDetails(dateStr, eventTitle) {
+            detailsTitleEl.textContent = eventTitle || 'Loading...';
+            detailsContentEl.innerHTML = '<p>Fetching today\'s readings...</p>';
+            const apiUrl = `/liturgy/api/get-readings/${dateStr}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) { throw new Error(`Our server failed with status ${response.status}`); }
+                const data = await response.json();
+                if (data.status === 'success' && data.readings) { renderReadings(data.readings, dateStr, eventTitle); } else { throw new Error(data.message || 'Invalid data from our server.'); }
+            } catch (error) { console.error('Error fetching day details from our backend:', error); detailsTitleEl.textContent = 'Error'; detailsContentEl.innerHTML = '<p>Could not retrieve the readings.</p>'; }
+        }
+        function renderReadings(readings, dateStr, eventTitle) {
+            detailsTitleEl.textContent = eventTitle;
+            let contentHtml = '';
+            if (readings.length > 0) { readings.forEach(reading => { contentHtml += `<div class="reading-card"><h5 class="reading-title">${reading.title}</h5><div class="reading-body"><p>${reading.body.replace(/\n/g, '</p><p>')}</p></div></div>`; });
+            } else { contentHtml += '<p>The readings for this day are not available.</p>'; }
+            detailsContentEl.innerHTML = contentHtml;
+        }
+        function formatEvents(litcalData) {
+            if (!litcalData || !litcalData.litcal) return [];
+            return litcalData.litcal.filter(e => e.name).map(e => {
+                const d = new Date(e.date * 1000);
+                const c = { "white": "#6c757d", "red": "#dc3545", "green": "#198754", "violet": "#6f42c1", "rose": "#d63384", "black": "#343a40" };
+                let color = '#0d6efd';
+                if (e.color && e.color.length > 0) { color = c[e.color[0].toLowerCase()] || color; }
+                return { title: e.name, start: d.toISOString().split('T')[0], allDay: true, backgroundColor: color, borderColor: color };
+            });
+        }
 
-            <!-- ================================================================ -->
-            <!-- 2. Daily Readings Section                                        -->
-            <!-- ================================================================ -->
-            <section id="readings-section">
-                {% for reading in liturgy_data.readings %}
-                <div class="reading-card">
-                    <h4 class="reading-title">{{ reading.title }}</h4>
-                    <span class="reading-reference">{{ reading.reference }}</span>
-                    
-                    {% if reading.title.lower().startswith('responsorial') %}
-                        <p class="psalm-response">R. {{ reading.response }}</p>
-                    {% endif %}
 
-                    <div class="reading-body">
-                        {# The body is pre-formatted with paragraphs from our Python route #}
-                        {% for paragraph in reading.body %}
-                            <p>{{ paragraph | safe }}</p>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
-            </section>
+        // --- Initialize FullCalendar with the new responsive options ---
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            themeSystem: 'bootstrap5',
+            initialView: 'dayGridMonth',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listYear' },
+            eventDisplay: 'block', 
             
-            <!-- ================================================================ -->
-            <!-- 3. Daily Prayers / Propers Section                               -->
-            <!-- ================================================================ -->
-            <section id="prayers-section" class="mt-4">
-                <h4>Mass Prayers</h4>
-                {% for prayer in liturgy_data.prayers %}
-                <div class="reading-card">
-                    <h5 class="reading-title">{{ prayer.title }}</h5>
-                    <div class="reading-body">
-                         <p><em>{{ prayer.body | safe }}</em></p>
-                    </div>
-                </div>
-                {% else %}
-                <p>Mass prayers for this day are not available.</p>
-                {% endfor %}
-            </section>
+            // --- JAVASCRIPT CHANGES ---
+            height: 'auto',          
+            dayMaxEvents: true,      
 
-            <!-- ================================================================ -->
-            <!-- 4. Future Add-on Section (Homilies, Reflections)               -->
-            <!-- ================================================================ -->
-            <section id="homily-section" class="mt-4">
-                <h4>Homily Notes & Reflections</h4>
-                <p>Share your reflections on today's Word, or if you are a priest, post your homily.</p>
-                <textarea placeholder="Contribute your reflection..." class="w-100" rows="4" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
-                <div class="d-flex justify-content-end mt-2">
-                    <button class="btn btn-sm btn-primary">Submit Reflection</button>
-                </div>
-                 <!-- A container for comments/homilies will go here -->
-            </section>
-
-        {% else %}
-            <!-- Displayed if the API call fails or returns no data -->
-            <div class="alert alert-warning" role="alert">
-              <h4 class="alert-heading">Content Unavailable</h4>
-              <p>We could not retrieve the liturgical data for the selected day. Please try a different date or check back later.</p>
-              <hr>
-              <p class="mb-0">{{ liturgy_data.get('error', 'An unknown error occurred.') }}</p>
-            </div>
-        {% endif %}
-
-    </div>
+            events: formatEvents(CALENDAR_DATA),
+            dateClick: function(info) {
+                const eventOnDay = CALENDAR_DATA.litcal.find(e => new Date(e.date * 1000).toISOString().split('T')[0] === info.dateStr);
+                const title = eventOnDay ? eventOnDay.name : `Readings for ${info.dateStr}`;
+                fetchAndRenderDetails(info.dateStr, title);
+            },
+            eventClick: function(info) {
+                info.jsEvent.preventDefault(); 
+                fetchAndRenderDetails(info.event.startStr, info.event.title);
+            }
+        });
+        
+        calendar.render();
+    });
+</script>
 {% endblock %}
