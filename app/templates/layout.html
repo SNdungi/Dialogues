@@ -90,21 +90,30 @@
                     
                 </ul>
             </div>
-            <div class="daily-content">
-                <section id="daily-reading">
-                    <h4>{{ daily_data.get('reading', {}).get('title', 'Daily Reading') }}</h4>
-                    <p>{{ daily_data.get('reading', {}).get('body', 'Content unavailable.') }}</p>
-                </section>
-                <section id="daily-devotion">
-                    <h4>{{ daily_data.get('devotion', {}).get('title', 'Moment of Devotion') }}</h4>
-                    <p>{{ daily_data.get('devotion', {}).get('body', 'Content unavailable.') }}</p>
-                </section>
-                <section id="daily-prayer">
-                    <h4>{{ daily_data.get('prayer', {}).get('title', 'Prayer') }}</h4>
-                    <p><em>{{ daily_data.get('prayer', {}).get('body', 'Content unavailable.') }}</em></p>
-                </section>
-            </div>
+                <div class="daily-content">
+                    
+                    <!-- Section 1: Repurposed for Prayers from TCCP_DAILY API -->
+                    <section id="daily-reading">
+                        <!-- Add IDs to the h4 and p tags -->
+                        <h4 id="reading-title">{{ daily_data.get('reading', {}).get('title', 'Daily Reading') }}</h4>
+                        <p id="reading-body">{{ daily_data.get('reading', {}).get('body', 'Content unavailable.') }}</p>
+                    </section>
 
+                    <!-- Section 2: Repurposed for Saint of the Day from YORI_DAILY API -->
+                    <section id="daily-devotion">
+                        <!-- Add IDs to the h4 and p tags -->
+                        <h4 id="devotion-title">{{ daily_data.get('devotion', {}).get('title', 'Saint of the Day') }}</h4>
+                        <p id="devotion-body">{{ daily_data.get('devotion', {}).get('body', 'Content unavailable.') }}</p>
+                    </section>
+
+                    <!-- Section 3: Repurposed for Rosary Mysteries from YORI_DAILY API -->
+                    <section id="daily-prayer">
+                        <!-- Add IDs to the h4 and p tags -->
+                        <h4 id="prayer-title">{{ daily_data.get('prayer', {}).get('title', 'Rosary Mysteries') }}</h4>
+                        <em id="prayer-body">{{ daily_data.get('prayer', {}).get('body', 'Content unavailable.') }}</em>
+                    </section>
+                    
+                </div>
         </aside>
     </div>
 <!-- NEW: Sophisticated Overlay Footer -->

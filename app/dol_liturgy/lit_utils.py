@@ -22,11 +22,18 @@ Blueprint helpers for Catholic devotions + liturgical calendar.
 API = {
     # LitCal (official project)
     "LITCAL_BASE": "https://litcal.johnromanodorazio.com/api/dev/calendar",
-    # TCCP: Traditional Catholic Content Provider (placeholder)
-    "TCCP_DAILY": "https://api.tccp.example/v1/devotions/daily",
-    # YoriFaith: (placeholder)
-    "YORI_DAILY": "https://api.yorifaith.example/v1/devotions/daily",
+
+    # TCCP API endpoints
+    "TCCP_PRAYERS": "https://the-collection-of-catholic-prayers-api.vercel.app/v1/basic_prayers",
+    "TCCP_STATIONS": "https://the-collection-of-catholic-prayers-api.vercel.app/v1/stations_of_cross",
+    "TCCP_SAINTS": "https://the-collection-of-catholic-prayers-api.vercel.app/v1/saints",
+
+    # YoriFaith API endpoints
+    "YORI_ROSARY": "https://yorifaith.cf/rosary/v1/today",
+    "YORI_READINGS": "https://yorifaith.cf/daily-readings-podcasts/v1/today",
+    "YORI_SAINT": "https://yorifaith.cf/saint-of-the-day/v1/saints",
 }
+
 
 DEFAULTS = {
     "locale": "en-US",     # use US English; underscores are normalized to hyphens by the ecosystem

@@ -52,40 +52,50 @@ def liturgy():
         national_calendar_config=nation
     )
 
-
 @liturgy_bp.route("/daily-devotions")
 def daily_devotions():
     today_str = date.today().isoformat()
-    current_app.logger.info("Fetching daily_devotions from external APIs...")
+    current_app.logger.info("Fetching daily_devotions...")
 
-    prayers, err1 = safe_fetch(
-        API["TCCP_DAILY"],
-        ttl=DEFAULTS["devotions_ttl"],
-        cache_key=f"TCCP::{today_str}",
-    )
+    # Fetch from APIs
+    prayers_raw, err1 = safe_fetch(API["TCCP_PRAYERS"], ttl=DEFAULTS["devotions_ttl"], cache_key=f"TCCP::{today_str}")
+    rosary_raw, err2 = safe_fetch(API["YORI_ROSARY"], ttl=DEFAULTS["devotions_ttl"], cache_key=f"YORI::ROSARY::{today_str}")
+    saint_raw, err3 = safe_fetch(API["YORI_SAINT"], ttl=DEFAULTS["devotions_ttl"], cache_key=f"YORI::SAINT::{today_str}")
 
-    rosary, err2 = safe_fetch(
-        API["YORI_DAILY"],
-        ttl=DEFAULTS["devotions_ttl"],
-        cache_key=f"YORI::ROSARY::{today_str}",
-    )
+    # --- Normalize prayers (map tilte → title, pick text) ---
+    prayers = []
+    if isinstance(prayers_raw, list):
+        for p in prayers_raw:
+            prayers.append({
+                "title": p.get("title") or p.get("tilte") or "Untitled Prayer",
+                "text": p.get("prayerText") or p.get("prayerHTML") or ""
+            })
 
-    saint_today, err3 = safe_fetch(
-        API["YORI_DAILY"],
-        ttl=DEFAULTS["devotions_ttl"],
-        cache_key=f"YORI::SAINT::{today_str}",
-    )
+    # --- Normalize rosary ---
+    rosary = {}
+    if isinstance(rosary_raw, dict) and "title" in rosary_raw:
+        rosary = {
+            "title": rosary_raw.get("title"),
+            "mysteries": rosary_raw.get("mysteries", [])
+        }
+
+    # --- Normalize saint ---
+    saint = {}
+    if isinstance(saint_raw, dict) and ("title" in saint_raw or "name" in saint_raw):
+        saint = {
+            "title": saint_raw.get("title") or saint_raw.get("name"),
+            "description": saint_raw.get("description") or saint_raw.get("bio") or ""
+        }
 
     combined = {
         "date": today_str,
-        "prayers": prayers or [],
-        "rosary": rosary or {},
-        "saint_of_the_day": saint_today or {},
+        "prayers": prayers,
+        "rosary": rosary,
+        "saint_of_the_day": saint,
         "errors": {"tccp": err1, "rosary": err2, "saint": err3}
     }
 
     return jsonify(combined)
-
 
 
 @liturgy_bp.route('/api/get-readings/<date_str>')

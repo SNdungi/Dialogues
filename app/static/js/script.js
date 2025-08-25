@@ -348,4 +348,72 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+
+async function populateDailyDevotions() {
+    console.log("Attempting to populate daily devotions...");
+
+    // Sidebar elements
+    const readingTitleEl = document.getElementById('reading-title');
+    if (!readingTitleEl) {
+        console.log("Sidebar devotional elements not found on this page. Skipping fetch.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/liturgy/daily-devotions');
+        if (!response.ok) {
+            console.error('Failed to fetch daily devotions. Status:', response.status);
+            return;
+        }
+
+        const data = await response.json();
+        console.log("Successfully fetched daily devotions data:", data);
+
+        // --- 1. Daily Prayer ---
+        const readingBodyEl = document.getElementById('reading-body');
+        if (Array.isArray(data.prayers) && data.prayers.length > 0) {
+            const firstPrayer = data.prayers[0] || {};
+            const title = firstPrayer.title || 'Daily Prayer';
+            const text = typeof firstPrayer.text === "string" ? firstPrayer.text : '';
+
+            if (readingTitleEl) readingTitleEl.textContent = title;
+            if (readingBodyEl) {
+                readingBodyEl.innerHTML = text
+                    ? text.replace(/\n/g, '<br>')
+                    : 'Prayer content not available.';
+            }
+        } else {
+            if (readingTitleEl) readingTitleEl.textContent = 'Daily Prayer';
+            if (readingBodyEl) readingBodyEl.textContent = 'Prayer content not available.';
+        }
+
+        // --- 2. Saint of the Day ---
+        const devotionTitleEl = document.getElementById('devotion-title');
+        const devotionBodyEl = document.getElementById('devotion-body');
+        const saint = data.saint_of_the_day || {};
+        if (saint.title || saint.name) {
+            if (devotionTitleEl) devotionTitleEl.textContent = saint.title || saint.name;
+            if (devotionBodyEl) devotionBodyEl.textContent = saint.description || saint.bio || 'Saint details not available.';
+        }
+
+        // --- 3. Rosary Mysteries ---
+        const prayerTitleEl = document.getElementById('prayer-title');
+        const prayerBodyEl = document.getElementById('prayer-body');
+        const rosary = data.rosary || {};
+        if (rosary.title) {
+            if (prayerTitleEl) prayerTitleEl.textContent = rosary.title;
+            const mysteries = Array.isArray(rosary.mysteries) ? rosary.mysteries.join(', ') : 'Mysteries not available.';
+            const targetPrayerBody = prayerBodyEl || document.querySelector('#daily-prayer em');
+            if (targetPrayerBody) targetPrayerBody.textContent = mysteries;
+        }
+
+    } catch (error) {
+        console.error('Network error while fetching daily devotions:', error);
+    }
+}
+
+
+// Keep this call inside the main DOMContentLoaded listener
+populateDailyDevotions();
+
+}); // This is the closing brace for the main DOMContentLoaded listener at the top of the file                                                   M
