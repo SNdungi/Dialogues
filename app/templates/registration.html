@@ -11,7 +11,9 @@
 
     <!-- The transparent sidebar -->
     <div class="sidebar">
-        <div class="header-accent-dots"></div>
+        <div class="header-accent-dots">
+            <a href="{{ url_for('main.splash') }}" class="home-link" title="Back to Welcome Page"></a>
+        </div>
         <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
         <a href="{{ url_for('main.splash') }}" class="tag-item tag-purple">Home</a>
     </div>
@@ -54,6 +56,23 @@
             <div class="form-grid-row">
                 <label for="join-username">Username *</label>
                 <input type="text" id="join-username" name="username" required>
+            </div>
+
+            <hr class="form-divider">
+
+            <div class="form-grid-row">
+                <label for="join-education">Education</label>
+                <input type="text" id="join-education" name="education" placeholder="e.g., M.A. in Theology, University of Notre Dame">
+            </div>
+
+            <div class="form-grid-row">
+                <label for="join-contact">Contact (Phone)</label>
+                <input type="tel" id="join-contact" name="contact" placeholder="+1-555-555-5555">
+            </div>
+
+            <div class="form-grid-row">
+                <label for="join-career">Career/Vocation</label>
+                <textarea id="join-career" name="career" rows="3" placeholder="A brief description of your work or vocation..."></textarea>
             </div>
             
             <hr class="form-divider">

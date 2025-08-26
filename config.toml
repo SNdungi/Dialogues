@@ -60,3 +60,48 @@
     { name = "Admin", description = "Full system access" },
     { name = "Editor", description = "Can publish and edit discourses" }
   ]
+
+[resource_theme]
+repository      = "#D6EAF8"  # Light Blue
+journal         = "#FDEBD0"  # Soft Orange
+academic-paper  = "#D5F5E3"  # Mint Green
+blog            = "#E8DAEF"  # Lavender
+book            = "#D1F2EB"  # Aqua
+commentary      = "#FCF3CF"  # Pale Yellow
+tutorial        = "#FDEDEC"  # Soft Pink
+lecture         = "#D4E6F1"  # Serene Blue
+webpage         = "#EAEDED"  # Light Gray
+scripture       = "#F9E79F"  # Gold Accent
+sermon          = "#D7BDE2"  # Lilac
+other           = "#F2F3F4"  # Very Light Gray
+
+[bible_translations]
+KJV = "King James Version"
+WEB = "World English Bible"
+BBE = "Bible in Basic English"
+ASV = "American Standard Version"
+Byz = "Byzantine Majority Text"
+CPDV = "Catholic Public Domain Version"
+dialogues = "Dialogues of Light"
+Haweis = "Haweis Translation"
+HebModern = "Modern Hebrew Bible"
+JPS = "Jewish Publication Society"
+KJVA = "King James Version with Apocrypha"
+KJVPCE = "King James Version, Pure Cambridge Edition"
+LEB = "Lexham English Bible"
+LITV = "Literal Translation of the Holy Bible"
+OEB = "Open English Bible"
+RLT = "Revised Literal Translation"
+RNKJV = "Restored Name King James Version"
+Rotherham = "Rotherham's Emphasized Bible"
+SwhNV = "Swahili New Version"
+Twenty = "Twentieth Century New Testament"
+UKJV = "Updated King James Version"
+Vulgate = "Latin Vulgate"
+VulgClementine = "Clementine Vulgate"
+VulgConte = "Conte Vulgate"
+VulgHetzenauer = "Hetzenauer Vulgate"
+VulgSistine = "Sistine Vulgate"
+Webster = "Webster's Bible Translation"
+Wulfila = "Gothic Bible (Wulfila)"
+Wycliffe = "Wycliffe Bible"

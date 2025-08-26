@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Dialogues of Light</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth_pages.css') }}">
+</head>
+<body class="auth-page" style="background-image: url({{ url_for('static', filename='images/3.webp') }});">
+
+    <!-- The transparent sidebar -->
+    <div class="sidebar">
+            <div class="header-accent-dots">
+                <a href="{{ url_for('main.splash') }}" class="home-link" title="Back to Welcome Page"></a>
+            </div>
+        <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
+        <a href="{{ url_for('main.splash') }}" class="tag-item tag-purple">Home</a>
+    </div>
+
+<main class="auth-page-content" style="padding-top: 2rem;">
+    <div class="auth-container">
+        <header class="auth-header">
+            <h2><i class="fas fa-user-edit "></i> </h2>
+        </header>
+        <hr class="form-divider">
+
+        <!-- Display Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- We use a standard POST form here, not AJAX, for simplicity -->
+        <form id="profile-form" class="signup-form" method="POST" action="{{ url_for('main.update_profile') }}">
+
+                        <!-- NEW: Profile Picture Section -->
+            <div class="profile-picture-container">
+                <img id="profile-picture-preview" 
+                     src="{{ url_for('static', filename='images/profile_pics/' + current_user.profile_picture) }}" 
+                     alt="Profile Picture">
+                <div>
+                    <button type="button" class="btn-signup btn-sm" onclick="document.getElementById('profile-picture-input').click();">Change Photo</button>
+                    <p id="upload-status" class="status-message"></p>
+                </div>
+            </div>
+            
+            <!-- Hidden file input, triggered by the button -->
+            <input type="file" id="profile-picture-input" style="display: none;" accept="image/png, image/jpeg, image/gif">
+            
+            <!-- Hidden input to store the NEW uploaded filename for the main form submission -->
+            <input type="hidden" name="profile_picture" id="profile-picture-filename">
+            
+            <!-- Personal Information -->
+            <h5 class="form-section-header">Personal Information</h5>
+            <div class="form-grid-row">
+                <label for="profile-name">First Name *</label>
+                <!-- Use the 'value' attribute to pre-populate with user data -->
+                <input type="text" id="profile-name" name="name" value="{{ current_user.name }}" required>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="profile-other-names">Last Name *</label>
+                <input type="text" id="profile-other-names" name="other_names" value="{{ current_user.other_names }}" required>
+            </div>
+
+            <div class="form-grid-row">
+                <label for="profile-contact">Contact (Phone)</label>
+                <input type="tel" id="profile-contact" name="contact" value="{{ current_user.contact or '' }}" placeholder="+1-555-555-5555">
+            </div>
+
+            <hr class="form-divider">
+
+            <!-- Professional / Vocation Information -->
+            <h5 class="form-section-header">Professional & Vocation</h5>
+            <div class="form-grid-row">
+                <label for="profile-org">Organization/Group Name</label>
+                <input type="text" id="profile-org" name="organization_name" value="{{ current_user.organization_name or '' }}">
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="profile-website">Website</label>
+                <input type="url" id="profile-website" name="website" value="{{ current_user.website or '' }}" placeholder="https://example.com">
+            </div>
+
+            <div class="form-grid-row">
+                <label for="profile-education">Education</label>
+                <input type="text" id="profile-education" name="education" value="{{ current_user.education or '' }}" placeholder="e.g., M.A. in Theology, University of Notre Dame">
+            </div>
+
+            <div class="form-grid-row">
+                <label for="profile-career">Vocation/Career/Business</label>
+                <textarea id="profile-career" name="career" rows="6" placeholder="A brief description of your work or vocation...">{{ current_user.career or '' }}</textarea>
+            </div>
+
+            <hr class="form-divider">
+
+            <!-- Account Information (Read-only for safety) -->
+            <h5 class="form-section-header">Account Information</h5>
+             <div class="form-grid-row">
+                <label for="profile-email">Email</label>
+                <input type="email" id="profile-email" name="email" value="{{ current_user.email }}" readonly disabled>
+            </div>
+            
+            <div class="form-grid-row">
+                <label for="profile-username">Username</label>
+                <input type="text" id="profile-username" name="username" value="{{ current_user.username }}" readonly disabled>
+            </div>
+
+            <div class="form-footer">
+                <a href="{{ url_for('discourse.dialogues') }}" class="terms-link">Cancel</a>
+                <button type="submit" class="btn-signup">Update Profile</button>
+            </div>
+        </form>
+    </div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('profile-picture-input');
+    const imagePreview = document.getElementById('profile-picture-preview');
+    const statusEl = document.getElementById('upload-status');
+    const hiddenFilenameInput = document.getElementById('profile-picture-filename');
+
+    fileInput.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        // 1. Show a local preview immediately for better UX
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        // 2. Prepare data for the upload route
+        statusEl.textContent = 'Uploading...';
+        statusEl.className = 'status-message';
+        const formData = new FormData();
+        
+        // Generate a unique filename to prevent browser caching issues
+        const uniqueFilename = `user_{{ current_user.id }}_${Date.now()}`;
+
+        formData.append('image_file', file);
+        formData.append('filename', uniqueFilename);
+        formData.append('subfolder', 'profile_pics'); // Tell the backend where to save it
+
+        try {
+            // 3. Send the image to the upload endpoint
+            const response = await fetch("{{ url_for('main.upload_image') }}", {
+                method: 'POST',
+                body: formData
+                // No 'Content-Type' header needed; browser sets it for FormData
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.status === 'success') {
+                statusEl.textContent = 'Upload complete!';
+                statusEl.classList.add('success');
+                // 4. IMPORTANT: Store the new filename in the hidden input
+                hiddenFilenameInput.value = result.filename; 
+            } else {
+                statusEl.textContent = result.message || 'Upload failed.';
+                statusEl.classList.add('error');
+            }
+        } catch (error) {
+            statusEl.textContent = 'A network error occurred.';
+            statusEl.classList.add('error');
+        }
+    });
+});
+</script>
+</body>
+</html>

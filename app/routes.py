@@ -39,20 +39,18 @@ def splash():
     """Renders the new elegant, art-forward landing page."""
     return render_template('splash.html')
 
-@bp.route('/the-word')
-def the_word():
-    """Renders the integrated Bible reader page."""
-    return render_template('bible.html')
 
-
-# === NEW ROUTE 1: UPLOAD IMAGE ===
+# === MODIFIED ROUTE: UPLOAD IMAGE ===
 @bp.route('/upload-image', methods=['POST'])
+@login_required # Good practice to protect this endpoint
 def upload_image():
     if 'image_file' not in request.files:
         return jsonify({'status': 'error', 'message': 'No file part'}), 400
     
     file = request.files['image_file']
     filename = request.form.get('filename')
+    # NEW: Get the target subfolder
+    subfolder = request.form.get('subfolder', '') # e.g., 'profile_pics'
 
     if file.filename == '':
         return jsonify({'status': 'error', 'message': 'No selected file'}), 400
@@ -60,30 +58,90 @@ def upload_image():
     if not filename:
         return jsonify({'status': 'error', 'message': 'Filename is required'}), 400
 
-    # Sanitize filename (basic)
     safe_filename = "".join(c for c in filename if c.isalnum() or c in ('-', '_')).rstrip()
     if not safe_filename:
         return jsonify({'status': 'error', 'message': 'Invalid filename provided'}), 400
 
     try:
-        # Define the save path for the new WebP image
-        webp_filename = f"{safe_filename}.webp"
-        save_path = os.path.join(current_app.root_path, 'static', 'images', webp_filename)
-
-        # Open the uploaded image and save it as WebP
-        with Image.open(file.stream) as img:
-            img.save(save_path, 'webp', quality=85) # quality can be adjusted
+        # --- MODIFIED SAVE PATH ---
+        # Create the target directory if it doesn't exist
+        upload_folder = os.path.join(current_app.root_path, 'static', 'images', subfolder)
+        os.makedirs(upload_folder, exist_ok=True)
         
-        return jsonify({'status': 'success', 'message': f'Image uploaded and saved as {webp_filename}'})
+        webp_filename = f"{safe_filename}.webp"
+        save_path = os.path.join(upload_folder, webp_filename)
+
+        with Image.open(file.stream) as img:
+            # Resize for profile pictures to a consistent size
+            if subfolder == 'profile_pics':
+                img.thumbnail((300, 300)) # Create a thumbnail, maintains aspect ratio
+
+            img.save(save_path, 'webp', quality=85)
+        
+        # Return the final filename to the client
+        return jsonify({
+            'status': 'success',
+            'message': f'Image saved as {webp_filename}',
+            'filename': webp_filename
+        })
 
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        current_app.logger.error(f"Image upload failed: {e}")
+        return jsonify({'status': 'error', 'message': 'Image processing failed.'}), 500
+
+
+# =================================================================
+# PROFILE ROUTES
+# =================================================================
+
+@bp.route('/profile')
+@login_required
+def profile_page():
+    """Renders the user's profile page for viewing and editing."""
+    # The `current_user` proxy from Flask-Login gives us the user object.
+    # We pass it to the template, which will populate the form fields.
+    return render_template('profile.html')
+
+
+@bp.route('/profile/update', methods=['POST'])
+@login_required
+def update_profile():
+    """Handles the submission of the profile update form."""
+    
+    # Update the user's attributes directly from the form data.
+    # The `request.form.get()` method is used to access form data.
+    current_user.name = request.form.get('name')
+    current_user.other_names = request.form.get('other_names')
+    current_user.contact = request.form.get('contact')
+    current_user.organization_name = request.form.get('organization_name')
+    current_user.website = request.form.get('website')
+    current_user.education = request.form.get('education')
+    current_user.career = request.form.get('career')
+    
+    new_picture_filename = request.form.get('profile_picture')
+    if new_picture_filename:
+        current_user.profile_picture = new_picture_filename
+
+    # Basic validation to ensure required fields aren't blanked out.
+    if not current_user.name or not current_user.other_names:
+        flash('First Name and Last Name are required fields.', 'danger')
+        return redirect(url_for('main.profile_page'))
+
+    try:
+        # Commit the changes to the database
+        db.session.commit()
+        flash('Your profile has been updated successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error updating profile for user {current_user.id}: {e}")
+        flash('An error occurred while updating your profile. Please try again.', 'danger')
+
+    return redirect(url_for('main.profile_page'))
 
 
 # =================================================================
 # AUTHENTICATION ROUTES
 # =================================================================
-
 
 @bp.route('/register', methods=['POST'])
 def register():
@@ -106,7 +164,10 @@ def register():
             username=data['username'],
             password=data['password'],
             organization_name=data.get('organization_name'), # Optional
-            website=data.get('website')                     # Optional
+            website=data.get('website'),
+            education=data.get('education'),
+            contact=data.get('contact'),
+            career=data.get('career')# Optional
         )
         
         access_token = create_access_token(identity=new_user.id)

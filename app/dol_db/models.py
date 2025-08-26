@@ -29,10 +29,11 @@ class ResourceType(enum.Enum):
     JOURNAL = 'Journal'
     ACADEMIC_PAPER = 'Academic Paper'
     BLOG = 'Blog'
+    BOOK = 'Book'
     COMMENTARY = 'Commentary'
     TUTORIAL = 'Tutorial'
     LECTURE = 'Lecture'
-    PAGE = 'Page'
+    WEBPAGE = 'WebPage'
     SCRIPTURE = 'Scripture' 
     SERMON = 'Sermon'
     OTHER = 'Other'
@@ -43,9 +44,9 @@ class ResourceMedium(enum.Enum):
     IMAGE = 'Image'
     DOCUMENT = 'DOCUMENT'
     FILE_FOLDER= 'File_Folder'
-    WEBSITE = 'Website'
+    ONLINE = 'Online'
     BIBLE = 'Bible'
-    BOOK = 'Book'
+    PRINT = 'Print'
     OTHER = 'Other'
 
 class LiturgyType(enum.Enum):
@@ -64,7 +65,6 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Enum(RoleType), unique=True, nullable=False)
     description = db.Column(db.String(255))
-
     def __repr__(self):
         return f'<Role {self.name.value}>'
 
@@ -74,10 +74,18 @@ class User(db.Model, UserMixin):
     
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    name = db.Column(db.String(100), nullable=False)        # Will be "First Name"
-    other_names = db.Column(db.String(100), nullable=False) # Will be "Last Name"
-    organization_name = db.Column(db.String(150))           # New optional field
-    website = db.Column(db.String(200))                     # New optional field
+    name = db.Column(db.String(100), nullable=False)        # "First Name"
+    other_names = db.Column(db.String(100), nullable=False) # "Last Name"
+    organization_name = db.Column(db.String(150))
+    website = db.Column(db.String(200))
+
+    # --- ABOUT FIELDS ---
+    education = db.Column(db.String(300), nullable=True)
+    contact = db.Column(db.String(20), nullable=True) # Using String for phone numbers
+    career = db.Column(db.String(500), nullable=True)
+    
+    # --- PROFILE PIC FIELDS ---
+    profile_picture = db.Column(db.String(255), nullable=False, default='default.webp')
     
     password_hash = db.Column(db.String(256), nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
@@ -221,3 +229,35 @@ class Reading(db.Model):
 
     def __repr__(self):
         return f'<Reading {self.reading_number} for Liturgy {self.liturgy_id}>'
+    
+
+class LiturgicalDay(db.Model):
+    __tablename__ = 'liturgical_days'
+    
+    # Composite primary key to ensure one entry per day per region
+    date = db.Column(db.Date, primary_key=True)
+    region = db.Column(db.String(50), primary_key=True, default='GR', comment="Nation, Diocese, or 'GR' for General Roman")
+    
+    # Indexed columns for fast querying
+    year = db.Column(db.Integer, nullable=False, index=True)
+    name = db.Column(db.String(255), nullable=False)
+    grade = db.Column(db.Integer, nullable=False)
+    grade_name = db.Column(db.String(100)) # e.g., "SOLEMNITY", "Memorial"
+    liturgical_season = db.Column(db.String(50), index=True)
+    
+    # Store the original data for flexibility
+    # db.JSON will automatically use the native JSON type in MySQL (5.7.8+)
+    # and fall back to TEXT for older versions or other DBs without native support.
+    full_data = db.Column(db.JSON, nullable=False)
+
+    __table_args__ = (
+        db.Index('ix_liturgical_days_year_region', 'year', 'region'),
+    )
+
+    def __repr__(self):
+        return f'<LiturgicalDay {self.date} [{self.region}]: {self.name}>'
+
+    def to_dict(self):
+        """Helper to convert the object to a dict, using the original full_data."""
+        # The data is already stored as a dict/list, so just return it.
+        return self.full_data

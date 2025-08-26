@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (resourceType === 'SCRIPTURE') {
                 const passage = resScriptureInput.value;
                 // Build the local URL with a query parameter
-                resourceLink = `/the-word?passage=${encodeURIComponent(passage)}`;
+                resourceLink = `/bible?passage=${encodeURIComponent(passage)}`;
             } else {
                 resourceLink = resLinkInput.value;
             }

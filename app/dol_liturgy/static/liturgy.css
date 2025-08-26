@@ -1,58 +1,103 @@
+/* /project_folder/app/dol_liturgy/static/css/liturgy.css */
+
+/* --- LAYOUT & FRAME STYLING --- */
+.liturgy-page-content { 
+    display: flex; 
+    flex-direction: column;
+    padding: 2rem 1rem;
+    gap: 1.5rem; 
+}
+
+#calendar-container {
+    width: 100%;
+    max-width: 950px;
+    margin: 0 auto;
+    background-color: whitesmoke;
+    padding: 1rem;
+    border-radius: 16px;
+    border: 5px solid gray;
+}
+        
+#details-panel { 
+    width: 100%;
+    max-width: 950px;
+    margin: 1rem auto 0;
+    background-color: #fdfaf3; 
+    border-top: 3px solid var(--gold-accent);
+    padding: 1.5rem;
+}
+
+/* --- CALENDAR ELEMENT STYLING --- */
+:root { 
+    --fc-border-color: #e5e5e5;
+    --fc-today-bg-color: rgba(255, 196, 0, 0.15); 
+}
+
+.fc .fc-toolbar-title { 
+    font-family: var(--font-info); 
+    color: var(--deep-blue); 
+    font-size: 1rem; 
+}
+
+.fc .fc-button {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    box-shadow: none !important;
+}
+
+.fc-event-main { 
+    font-size: 0.6rem;
+    padding: 2px 5px;
+    color: white !important;
+    font-weight: 400;
+}
+
+/* --- READING CARD STYLES --- */
+.reading-card { margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+.reading-title { color: var(--royal-violet); font-family: var(--font-info); }
+.reading-body { font-family: var(--font-serif); line-height: 1.7; font-size: 0.8rem; }
 
 
-/* Scoped styles for the liturgy page */
-.liturgy-info-card {
-	background-color: #fdfaf3;
-	border-left: 5px solid var(--liturgical-color, var(--gold-accent));
-	padding: 1.5rem;
-	margin-bottom: 2rem;
-	border-radius: 0 8px 8px 0;
-	box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+/* --- NEW: CUSTOM BOOTSTRAP TOOLTIP STYLES --- */
+.tooltip {
+    /* Make the tooltip pointer events pass-through so it doesn't interfere with other hovers */
+    pointer-events: none;
 }
-.liturgy-info-card h2 {
-	font-family: var(--font-info);
-	color: var(--deep-blue);
-	margin-top: 0;
-	margin-bottom: 0.5rem;
-	font-size: 1.6rem;
+
+.tooltip-inner {
+    background-color: var(--deep-blue); /* Use a theme color */
+    color: #fff;
+    border: 1px solid var(--gold-accent); /* Add a theme accent border */
+    padding: 0; /* Remove default padding, our inner div will handle it */
+    max-width: 300px; /* Prevent tooltip from being too wide */
+    text-align: left;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    border-radius: 6px;
 }
-.liturgy-info-card .liturgy-meta {
-	font-family: var(--font-play);
-	color: var(--earth-brown);
-	font-size: 0.9rem;
-	font-weight: bold;
+
+/* Styles for the custom HTML content inside the tooltip */
+.liturgy-tooltip {
+    padding: 0.5rem 0.8rem;
 }
-.reading-card {
-	margin-bottom: 2.5rem;
-	padding-bottom: 2rem;
-	border-bottom: 1px solid #e0e0e0;
+
+.liturgy-tooltip p {
+    margin: 0;
+    padding: 0.1rem 0;
 }
-.reading-card:last-child {
-	border-bottom: none;
+
+.liturgy-tooltip .tooltip-title {
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    color: var(--light-gold); /* Use another theme color for the title */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 0.3rem;
 }
-.reading-title {
-	color: var(--royal-violet);
-	font-family: var(--font-info);
-	font-weight: 700;
-	margin-bottom: 0.25rem;
+
+.liturgy-tooltip .tooltip-detail {
+    font-size: 0.75rem;
 }
-.reading-reference {
-	font-family: var(--font-sans);
-	font-style: italic;
-	color: #666;
-	display: block;
-	margin-bottom: 1rem;
-}
-.reading-body p {
-	font-family: var(--font-serif);
-	line-height: 1.8;
-	font-size: 1.1rem;
-	margin-bottom: 1rem;
-}
-.psalm-response {
-	font-weight: bold;
-	font-style: italic;
-	color: var(--earth-brown);
-	margin-left: 2rem;
-	margin-bottom: 1rem;
+
+.tooltip-detail strong {
+    color: rgba(255, 255, 255, 0.7);
 }

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, current_app, jsonify, request
 from datetime import date, datetime
+from app.dol_db.models import LiturgicalDay
 
 # Import helpers from lit_utils
 from app.dol_liturgy.lit_utils import (
@@ -18,7 +19,6 @@ liturgy_bp = Blueprint(
     static_folder='static'
 )
 
-
 @liturgy_bp.route('/liturgy')
 def liturgy():
     today = date.today()
@@ -27,24 +27,44 @@ def liturgy():
     locale = request.args.get("locale", DEFAULTS["locale"])
     nation = request.args.get("nation", "US")
     diocese = request.args.get("diocese")
+    
+    region_key = diocese or nation or 'GR'
 
-    api_url = litcal_url(nation=nation if not diocese else None,
-                         diocese=diocese,
-                         year=year)
+    # --- 1. Check the database first ---
+    current_app.logger.info(f"Checking DB for calendar: Year={year}, Region={region_key}")
+    
+    db_calendar = LiturgicalDay.query.filter_by(year=year, region=region_key).order_by(LiturgicalDay.date).all()
 
-    current_app.logger.info(f"Fetching liturgy calendar: {api_url} with locale {locale}")
+    if db_calendar:
+        current_app.logger.info(f"Found {len(db_calendar)} entries in DB. Rendering from DB.")
+        # The to_dict() method returns the original full data for each day
+        calendar_data = {"litcal": [day.to_dict() for day in db_calendar]}
+    else:
+        # --- 2. Fallback to API if not in DB ---
+        current_app.logger.warning(f"Calendar for {year} [{region_key}] not found in DB. Fetching from API.")
+        api_url = litcal_url(nation=nation if not diocese else None,
+                             diocese=diocese,
+                             year=year)
 
-    calendar_data, err = safe_fetch(
-        api_url,
-        params={"locale": locale},
-        ttl=DEFAULTS["calendar_ttl"],
-        cache_key=f"LITCAL::{nation or diocese or 'GR'}::{year}::{locale}",
-        timeout=20,
-    )
+        current_app.logger.info(f"Fetching liturgy calendar: {api_url} with locale {locale}")
 
-    if calendar_data is None:
-        current_app.logger.error(f"Calendar fetch failed: {err}")
-        calendar_data = {"error": "Could not connect to the liturgy service.", "detail": err}
+        api_response, err = safe_fetch(
+            api_url,
+            params={"locale": locale},
+            ttl=DEFAULTS["calendar_ttl"],
+            cache_key=f"LITCAL::{region_key}::{year}::{locale}",
+            timeout=20,
+        )
+
+        if api_response is None:
+            current_app.logger.error(f"Calendar fetch failed: {err}")
+            calendar_data = {"error": "Could not connect to the liturgy service.", "detail": err}
+        else:
+            calendar_data = api_response
+            # OPTIONAL: You could trigger the save-to-db logic here, but it's better
+            # to do it via the CLI for reliability and separation of concerns.
+            # An admin can be notified to run the command.
+            current_app.logger.info(f"Successfully fetched from API. Please run the 'flask liturgy:fetch-calendar {year} --nation {nation}' command to persist this data.")
 
     return render_template(
         'liturgy.html',

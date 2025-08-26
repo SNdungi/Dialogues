@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const promptEl = document.getElementById('contribute-prompt');
         const imageContainer = document.getElementById('featured-image-container');
         const resourceList = document.getElementById('resource-list');
+        const categoryContainer = document.getElementById('discourse-category-container');
 
         // Update simple text elements if they exist
         if (titleEl) titleEl.textContent = discourse.title || 'N/A';
@@ -199,6 +200,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update HTML content
         if (bodyEl) bodyEl.innerHTML = discourse.body || '<p>Content not available.</p>';
+
+        if (categoryContainer) {
+            // Clear it first
+            categoryContainer.innerHTML = ''; 
+
+            if (discourse.category_name && discourse.subcategory_name) {
+                const newCategorySpan = document.createElement('span');
+                newCategorySpan.className = 'discourse-category';
+                newCategorySpan.id = 'discourse-category-display'; // Re-assign ID
+                newCategorySpan.textContent = `${discourse.category_name} > ${discourse.subcategory_name}`;
+                categoryContainer.appendChild(newCategorySpan);
+            }
+        }
 
         // Update featured image
         if (imageContainer) {
@@ -218,16 +232,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (discourse.resources && discourse.resources.length > 0) {
                 discourse.resources.forEach(resource => {
                     const li = document.createElement('li');
-                    const typeInitial = resource.type ? resource.type[0] : '?';
-                    const typeClass = resource.type ? resource.type.toLowerCase().replace(/\s+/g, '-') : 'unknown';
-                    const iconClass = (resource.type === 'Scripture') ? 'fa-book-bible' : 'fa-link';
 
+                    // 1. Get the values from the updated API response
+                    const typeValue = resource.type_value || 'Unknown'; // e.g., 'Academic Paper'
+                    const typeName = resource.type_name || 'OTHER';     // e.g., 'ACADEMIC_PAPER'
+
+                    // 2. Recreate the slug logic from the Jinja template
+                    const resourceSlug = typeName.toLowerCase().replace(/_/g, '-');
+
+                    // 3. Recreate the icon logic
+                    const iconClass = (typeName === 'SCRIPTURE') ? 'fa-book-bible' : 'fa-link';
+                    
+                    // 4. Build the correct innerHTML with the inline style
                     li.innerHTML = `
-                        <span class="resource-type ${typeClass}">${typeInitial}</span>
+                        <span class="resource-type" style="--resource-bg-color: var(--color-resource-${resourceSlug});">
+                            ${typeValue[0]}
+                        </span>
                         <strong>${resource.name}:</strong> 
                         <a href="${resource.link}" target="_blank" rel="noopener noreferrer">
                             <i class="fas ${iconClass}" aria-hidden="true"></i>
                         </a>`;
+
                     resourceList.appendChild(li);
                 });
             } else {

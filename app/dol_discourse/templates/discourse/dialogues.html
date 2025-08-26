@@ -48,11 +48,13 @@
             <section id="discourse-section">
                 <div class="discourse-meta">
                     <span id="discourse-date">{{ initial_content.date_posted.strftime('%B %d, %Y') }}</span>
-                    {% if initial_content.subcategory and initial_content.subcategory.category %}
-                        <span class="discourse-category">
-                            {{ initial_content.subcategory.category.name }} > {{ initial_content.subcategory.name }}
-                        </span>
-                    {% endif %}
+                    <div id="discourse-category-container">
+                        {% if initial_content.subcategory and initial_content.subcategory.category %}
+                            <span class="discourse-category">
+                                {{ initial_content.subcategory.category.name }} > {{ initial_content.subcategory.name }}
+                            </span>
+                        {% endif %}
+                    </div>
                     <span id="discourse-ref">Reference: {{ initial_content.reference }}</span>
                 </div>
                 
@@ -67,6 +69,17 @@
                 <div id="discourse-body">
                     {{ initial_content.body | safe }}
                 </div>
+                <div class="discourse-meta-footer">
+                    <!-- CHANGE 1: Add ID to the author name span for JS targeting -->
+                    <span id="discourse-author-name"> 
+                        <strong>Author: </strong> {{ initial_content.author.name }} {{ initial_content.author.other_names }}
+                    </span>
+
+                    <!-- CHANGE 2: Add data attributes to the button to trigger the modal -->
+                    <button id="about-author-btn" class="btn btn-sm btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#authorDetailModal">
+                         About Author
+                    </button>
+                </div>
             </section>
 
             <section id="resources-section">
@@ -74,7 +87,10 @@
                 <ul id="resource-list">
                     {% for resource in initial_content.resources %}
                     <li>
-                        <span class="resource-type {{ resource.type.value | lower | replace(' ', '-') }}">{{ resource.type.value[0] }}</span>
+                        {% set resource_slug = resource.type.name | lower | replace('_', '-') %}
+                        <span class="resource-type" style="--resource-bg-color: var(--color-resource-{{ resource_slug }});">
+                            {{ resource.type.value[0] }}
+                        </span>
                         <strong>{{ resource.name }}:</strong> 
                         {% if resource.link %}
                             <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer">                                
@@ -103,11 +119,18 @@
             </section>
 
             <section id="comments-section" class="mt-4">
-                <div class="d-grid">
-                    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#comments-collapse-wrapper" aria-expanded="false" aria-controls="comments-collapse-wrapper" id="view-comments-btn">
-                        View Contributions ({{ initial_content.comments|length }})
-                    </button>
+                <div class="d-flex justify-content-center">
+                <button class="btn btn-secondary btn-sm rounded-pill px-3" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#comments-collapse-wrapper" 
+                        aria-expanded="false" 
+                        aria-controls="comments-collapse-wrapper" 
+                        id="view-comments-btn">
+                    View Contributions ({{ initial_content.comments|length }})
+                </button>
                 </div>
+
                 <div class="collapse" id="comments-collapse-wrapper">
                     <div class="card card-body mt-2" id="comment-list-container">
                         {% for comment in initial_content.comments | sort(attribute='date_commented') %}
@@ -152,6 +175,11 @@
             </section>
         {% endif %}
     </div>
+        {% if initial_content %}
+        {% with author=initial_content.author %}
+            {% include '_author.html' %}
+        {% endwith %}
+    {% endif %}
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -184,12 +212,26 @@
             const promptEl = document.getElementById('contribute-prompt');
             const imageContainer = document.getElementById('featured-image-container');
             const resourceList = document.getElementById('resource-list');
+            const categoryContainer = document.getElementById('discourse-category-container');
 
             if (titleEl) titleEl.textContent = discourse.title || 'N/A';
             if (dateEl) dateEl.textContent = discourse.date_posted || '';
             if (refEl) refEl.textContent = discourse.reference ? `Reference: ${discourse.reference}` : '';
             if (promptEl) promptEl.textContent = `Share your thoughts on '${discourse.title || 'this topic'}'.`;
             if (bodyEl) bodyEl.innerHTML = discourse.body || '<p>Content not available.</p>';
+
+            if (categoryContainer) {
+                // Clear it first
+                categoryContainer.innerHTML = ''; 
+
+                if (discourse.category_name && discourse.subcategory_name) {
+                    const newCategorySpan = document.createElement('span');
+                    newCategorySpan.className = 'discourse-category';
+                    newCategorySpan.id = 'discourse-category-display'; // Re-assign ID
+                    newCategorySpan.textContent = `${discourse.category_name} > ${discourse.subcategory_name}`;
+                    categoryContainer.appendChild(newCategorySpan);
+                }
+            }
             
             if (imageContainer) {
                 imageContainer.innerHTML = '';
@@ -206,15 +248,27 @@
                 if (discourse.resources && discourse.resources.length > 0) {
                     discourse.resources.forEach(resource => {
                         const li = document.createElement('li');
-                        const typeInitial = resource.type ? resource.type[0] : '?';
-                        const typeClass = resource.type ? resource.type.toLowerCase().replace(/\s+/g, '-') : 'unknown';
-                        const iconClass = (resource.type === 'Scripture') ? 'fa-book-bible' : 'fa-link';
+
+                        // 1. Get the values from the updated API response
+                        const typeValue = resource.type_value || 'Unknown'; // e.g., 'Academic Paper'
+                        const typeName = resource.type_name || 'OTHER';     // e.g., 'ACADEMIC_PAPER'
+
+                        // 2. Recreate the slug logic from the Jinja template
+                        const resourceSlug = typeName.toLowerCase().replace(/_/g, '-');
+
+                        // 3. Recreate the icon logic
+                        const iconClass = (typeName === 'SCRIPTURE') ? 'fa-book-bible' : 'fa-link';
+                        
+                        // 4. Build the correct innerHTML with the inline style
                         li.innerHTML = `
-                            <span class="resource-type ${typeClass}">${typeInitial}</span>
+                            <span class="resource-type" style="--resource-bg-color: var(--color-resource-${resourceSlug});">
+                                ${typeValue[0]}
+                            </span>
                             <strong>${resource.name}:</strong> 
                             <a href="${resource.link}" target="_blank" rel="noopener noreferrer">
                                 <i class="fas ${iconClass}" aria-hidden="true"></i>
                             </a>`;
+
                         resourceList.appendChild(li);
                     });
                 } else {
@@ -244,6 +298,22 @@
                 } else {
                     commentListContainer.innerHTML = '<p class="text-center text-muted m-2">Be the first to contribute!</p>';
                 }
+            }
+                        // NEW: Update the author name in the footer
+            const authorNameEl = document.getElementById('discourse-author-name');
+            if (authorNameEl && discourse.author) {
+                authorNameEl.innerHTML = `<strong>Author: </strong> ${discourse.author.name} ${discourse.author.other_names}`;
+            }
+
+            // NEW: Update the content of the author modal
+            if (discourse.author) {
+                document.getElementById('modal-author-name').textContent = `${discourse.author.name} ${discourse.author.other_names}`;
+                document.getElementById('modal-author-org').textContent = discourse.author.organization_name || 'Not Provided';
+                document.getElementById('modal-author-email').textContent = discourse.author.email || 'Not Provided';
+                document.getElementById('modal-author-contact').textContent = discourse.author.contact || 'Not Provided';
+                document.getElementById('modal-author-education').textContent = discourse.author.education || 'Information not available.';
+                document.getElementById('modal-author-career').textContent = discourse.author.career || 'Information not available.';
+                document.getElementById('modal-author-website').textContent = discourse.author.website || 'Information not available.';
             }
         }
 

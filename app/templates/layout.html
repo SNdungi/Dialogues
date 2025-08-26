@@ -15,6 +15,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+      :root {    
+        {% for slug, color in resource_theme_colors.items() %}
+          --color-resource-{{ slug }}: {{ color }};
+        {% endfor %}
+      }
+    </style>
     {% block head_extensions %}{% endblock %}
 </head>
 <body>
@@ -29,11 +36,29 @@
                     </a>
                 </div>
                 <div class="header-accent-dots" id="logo-dropdown-trigger"></div>
-                <!-- The actual dropdown menu, hidden by default -->
-                <div class="dropdown-menu" id="logo-dropdown-menu">
+                <div class="nav-item dropdown-menu" id="logo-dropdown-menu">
+                {% if current_user.is_authenticated %}
+                        <ul>
+                            <!-- THIS IS THE NEW LINK -->
+                            <li><a class="dropdown-item" href="{{ url_for('main.profile_page') }}">
+                                <i class="fas fa-user-edit me-2"></i>My Profile
+                            </a></li>
+
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-cog me-2"></i>Settings
+                            </a></li>
+                            <!-- Your existing logout link -->
+                            <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a></li>
+                        </ul>
+                    
+                {% else %}
                     <ul>
-                        <li><a href="#" data-modal-target="image-modal">Upload Image</a></li>
+                        <li><a href="{{ url_for('main.login_page') }}" class="nav-link">Login</a></li>
+                        <li><a href="{{ url_for('main.registration_page') }}" class="nav-link">Register</a></li>
                     </ul>
+                {% endif %}
                 </div>
             </div>
 

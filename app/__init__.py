@@ -10,7 +10,7 @@ from flask_login import LoginManager
 from flask_jwt_extended import JWTManager
 from sqlalchemy.orm import joinedload
 from dotenv import load_dotenv # --- 1. IMPORT load_dotenv ---
-
+from config import config
 # --- Load environment variables from .env file ---
 load_dotenv()
 
@@ -25,6 +25,8 @@ from .dol_db.admin import setup_admin
 login_manager = LoginManager()
 login_manager.login_view = 'main.login_page'
 login_manager.login_message_category = 'info'
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 def create_app():
     """The application factory function."""
@@ -52,6 +54,9 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
+    app.config['BIBLE_DATABASES_PATH'] = os.path.join(BASE_DIR,'instance')
+    
     
     # --- END OF CHANGES ---
 
@@ -69,7 +74,12 @@ def create_app():
     setup_admin(app)
     login_manager.init_app(app)
 
-    # ... (the rest of your file remains exactly the same) ...
+    try:
+
+        app.config['RESOURCE_THEME_COLORS'] = config.GlOBAL_CONFIG.get('resource_theme', {})
+    except FileNotFoundError:
+        app.config['RESOURCE_THETHEME_COLORS'] = {} # Default to empty if file not found
+        print("WARNING: config.toml not found. Resource colors will not be loaded.")
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -78,6 +88,13 @@ def create_app():
         except OperationalError as e:
             app.logger.warning(f"Could not connect to DB to load user: {e}")
             return None # Tell Flask-Login no user could be loaded
+        
+    @app.context_processor
+    def inject_theme_colors():
+        """Makes the resource theme colors available to all templates."""
+        return dict(
+            resource_theme_colors=app.config.get('RESOURCE_THEME_COLORS', {})
+        )
     
     @app.context_processor
     def inject_global_data():
@@ -160,6 +177,8 @@ def create_app():
     from .dol_discourse.disc_routes import discourse_bp  
     from .dol_academic.acad_routes import academic_bp
     from .dol_liturgy.lit_routes import liturgy_bp
+    from .dol_bible.bible_routes import bible_bp
+    app.register_blueprint(bible_bp)
     app.register_blueprint(liturgy_bp)
     app.register_blueprint(routes.bp)
     app.register_blueprint(discourse_bp)

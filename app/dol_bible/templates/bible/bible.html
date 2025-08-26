@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Word - Dialogues of Light</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bible.css') }}">
+    <link rel="stylesheet" href="{{ url_for('bible.static', filename='bible.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             translations.forEach(t => {
                 const option = document.createElement('option');
                 option.value = t.abbreviation;
-                option.textContent = t.name;
+                option.textContent = t.abbreviation;
                 translationSelect.appendChild(option);
             });
         } catch (error) {

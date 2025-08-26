@@ -1,0 +1,69 @@
+<!-- /project_folder/app/templates/_author_modal.html -->
+
+<!-- Bootstrap 5 Modal -->
+<div class="modal fade" id="authorDetailModal" tabindex="-1" aria-labelledby="authorDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content author-modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="authorDetailModalLabel">About the Author</h5>
+                <!-- Use a white close button for dark backgrounds -->
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body author-modal-body">
+
+                <!-- ===== UPPER SECTION ===== -->
+                <div class="author-upper-section">
+                    <div class="author-photo-placeholder">
+                        <!-- Replace the icon with an img tag -->
+                         {% if author.profile_picture %}
+                        <img id="modal-author-photo"
+                             src="{{ url_for('static', filename='images/profile_pics/' + author.profile_picture) }}"
+                             alt="Photo of {{ author.name }}">
+                        {% else %}
+                        <i class="fas fa-user-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="author-info">
+                        <h3 id="modal-author-name">{{ author.name }} {{ author.other_names }}</h3>
+                        <p>
+                            <strong><i class="fas fa-building me-2"></i> Organization:</strong> 
+                            <span id="modal-author-org">{{ author.organization_name or 'Not Provided' }}</span>
+                        </p>
+                        <p>
+                            <strong><i class="fas fa-envelope me-2"></i> Email:</strong> 
+                            <span id="modal-author-email">{{ author.email or 'Not Provided' }}</span>
+                        </p>
+                        <p>
+                            <strong><i class="fas fa-phone me-2"></i> Contact:</strong> 
+                            <span id="modal-author-contact">{{ author.contact or 'Not Provided' }}</span>
+                        </p>
+                        <p>
+                            <strong><i class="fas fa-globe me-2"></i> Website: </strong> 
+                            <span id="modal-author-website">
+                                {% if author.website %}
+                                    <a href="{{ author.website }}" target="_blank" rel="noopener noreferrer"> {{ author.website }}</a>
+                                {% else %}
+                                    Not Provided
+                                {% endif %}
+                            </span>
+                        </p>
+
+                    </div>
+                </div>
+
+                <!-- ===== LOWER SECTION ===== -->
+                <div class="author-lower-section">
+                    <div>
+                        <h4>Education</h4>
+                        <p id="modal-author-education">{{ author.education or 'Information not available.' }}</p>
+                    </div>
+                    <div>
+                        <h4>Career & Vocation</h4>
+                        <p id="modal-author-career">{{ author.career or 'Information not available.' }}</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

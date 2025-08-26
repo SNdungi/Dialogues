@@ -19,3 +19,10 @@ volumes:
   dialogues-db-data:
 
 #docker-compose up -d
+#docker exec -it dialogues-mysql mysql -u root -p
+
+# SHOW TABLES;
+# DESCRIBE liturgical_days;
+# SELECT * FROM liturgical_days LIMIT 10;
+# SELECT COUNT(*) FROM liturgical_days WHERE year = 2024 AND region = 'US';
+# SELECT date, name, grade_name, liturgical_season FROM liturgical_days WHERE date = '2024-12-25';

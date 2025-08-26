@@ -135,24 +135,28 @@ a:hover {
 .dropdown-menu {
     display: none;
     position: absolute;
-    top: 100%;
-    left: 0;
+    top: 1%;
+    left: 100%;
     width: 100%;
-    background-color: var(--royal-violet);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    z-index: 1000;
     border-top: 1px solid var(--gold-accent);
+    background-color: var(--papyrus-color);
+    color: var(--royal-violet);
+    z-index: 1000;
+
 }
-.dropdown-menu.visible { display: block; }
-.dropdown-menu ul { list-style: none; padding: 0.5rem 0; }
+.dropdown-menu.visible { display: block;padding: 0;margin: 0; }
+.dropdown-menu ul { list-style: none; padding: 0;margin: 0; }
 .dropdown-menu li a {
     display: block;
     padding: 0.75rem 1.5rem;
-    color: var(--light-text);
+    color: var(--off-white); 
+    font-size: 0.8rem; 
+    border-top: 1px solid rgba(92, 92, 92, 0.5)
 }
+
 .dropdown-menu li a:hover {
-    background-color: rgba(0,0,0,0.2);
-    color: var(--gold-accent);
+     background-color: var(--gold-accent);
+    color: var(--royal-violet);
 }
 
 /* Main Topic List */
@@ -202,39 +206,59 @@ a:hover {
 /*=============================================
  4. SUB-NAVIGATION PANEL (SLIDE-OUT) 
  ============================================= */
-.sub-nav {
+
+/* --- FIX 1: Add z-index to the parent to establish a stacking context --- */
+.sub-nav, .discourse-nav {
     position: fixed;
     top: 0;
-    left: 240px;
-    width: 200px;
     height: 100vh;
-
     background-color: var(--papyrus-color);
     color: var(--royal-violet);
-    z-index: 100;
+    
+    /* --- FIX 2: Set a controlled z-index --- */
+    /* This is high, but lower than Bootstrap's modal defaults. */
+    z-index: 1030; 
+
+    /* --- FIX 3: THE CRITICAL CHANGE --- */
+    /* When not visible, ensure it's truly gone and unclickable */
     transform: translateX(-100%);
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s;
+    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s 0.4s; /* Delay hiding visibility */
     box-shadow: 5px 0 15px rgba(0,0,0,0.3);
 }
 
-.sub-nav.visible {
+.sub-nav {
+    left: 240px;
+    width: 200px;
+}
+
+.discourse-nav {
+    left: 438px;
+    width: 320px;
+    background-color: var(--earth-brown);
+    color: var(--light-text);
+    border-left: 5px solid var(--gold-accent);
+    border-radius: 0 10px 10px 0;
+}
+
+/* When visible, bring it to the front and make it clickable */
+.sub-nav.visible, .discourse-nav.visible {
     transform: translateX(0);
     opacity: 1;
     visibility: visible;
+    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s 0s; /* Show visibility immediately */
 }
 
-.sub-nav-header {
+.sub-nav-header, .discourse-nav-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
     background-color: rgba(0,0,0,0.4);
-   
 }
 
-.sub-nav-header h3 {
+.sub-nav-header h3, .discourse-nav-header h3 {
     color: var(--gold-accent);
     margin: 0;
     font-size: 1rem;
@@ -249,57 +273,15 @@ a:hover {
     line-height: 1;
 }
 
-#sub-nav-list { list-style-type: none; padding: 1rem 0;  }
-#sub-nav-list a { display: block; padding: 0.7rem 1rem; color: var(--off-white); font-size: 0.8rem; border-bottom: 1px solid rgba(92, 92, 92, 0.5) }
+#sub-nav-list, #discourse-nav-list { list-style-type: none; padding: 1rem 0;  }
+#sub-nav-list a, #discourse-nav-list a { display: block; padding: 0.7rem 1rem; color: var(--off-white); font-size: 0.8rem; border-bottom: 1px solid rgba(92, 92, 92, 0.5) }
+
 #sub-nav-list a:hover,
 #sub-nav-list a.active {
     background-color: var(--gold-accent);
     color: var(--royal-violet);
 }
 
-/* --- 4. SUB-NAVIGATION PANEL (SLIDE-OUT) --- */
-
-.discourse-nav {
-    position: fixed;
-    top: 0;
-    margin:0 2px;
-    left: 438px; /* main-nav (240px) + sub-nav (280px) */
-    width: 320px; /* Make it a bit wider for titles */
-    height: 100vh;
-    background-color: var(--earth-brown); /* A different color from the theme */
-    color: var(--light-text);
-    z-index: 99; /* Slightly lower z-index than sub-nav */
-    transform: translateX(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
-    border-left: 5px solid var(--gold-accent); /* Accent border for distinction */
-    border-radius: 0 10px 10px 0; /* Rounded corners on the right */
-}
-
-.discourse-nav.visible {
-    transform: translateX(0);
-    opacity: 1;
-    visibility: visible;
-}
-
-.discourse-nav-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background-color: rgba(0,0,0,0.2);
-}
-
-.discourse-nav-header h3 {
-    color: var(--gold-accent);
-    margin: 0;
-    font-size: 1rem;
-}
-
-#discourse-nav-list { list-style-type: none; padding: 1rem 0; }
-#discourse-nav-list a { display: block; padding: 0.75rem 1rem; color: var(--off-white);; font-size: 0.8rem; border-bottom: 1px solid rgba(92, 92, 92, 0.5)  }
 #discourse-nav-list a:hover,
 #discourse-nav-list a.active {
     background-color: var(--gold-accent);
@@ -370,6 +352,15 @@ a:hover {
     border-bottom: 1px dashed #ccc;
     padding-bottom: 0.5rem;
 }
+.discourse-meta-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 1rem;
+    border-top: 1px dashed #ccc;
+    padding-top: 0.5rem;
+}
 
 .discourse-body p {
     font-family: var(--font-info);
@@ -396,33 +387,23 @@ a:hover {
     align-items: center;
 }
 
-/* This is the new style for the colored circle */
-.resource-type {
-    /* Sizing and Shape */
-    width: 28px;
-    height: 28px;
-    border-radius: 50%; /* This makes it a perfect circle */
-    margin-right: 12px;
-    flex-shrink: 0; /* Prevents the circle from shrinking if text is long */
-    
-    /* Text and Centering */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--earth-brown);
-    text-transform: uppercase;
-    
-    /* A subtle shadow to lift it off the page */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
 
-/* Color definitions for each type */
-.resource-type.verse { background-color: var(--luminous-green); }
-.resource-type.scholar { background-color: var(--soft-pink); }
-.resource-type.journal { background-color: var(--gold-accent); } /* New */
-.resource-type.book { background-color: var(--serene-blue); } /* New */
+.resource-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-right: 8px;
+    
+    /* Default background and text color */
+    background-color: #e9ecef; 
+    color: #495057;
+
+    /* Here is the magic: each specific type will override this variable */
+    background-color: var(--resource-bg-color);
+    color: var(--resource-text-color, #333); /* Use a default text color */
+}
 
 
 #contribute-section textarea, .contribute-section textarea {
@@ -439,6 +420,154 @@ a:hover {
 #contribute-section button:hover, .contribute-section button:hover {
     background-color: var(--royal-violet);
 }
+
+
+/* ==========================================================================
+   Author Detail Modal Styles
+   ========================================================================== */
+
+/* --- Suspended "Glass" Backdrop --- */
+.modal-backdrop {
+    background-color: rgba(10, 10, 10, 0.5) !important; 
+    -webkit-backdrop-filter: blur(5px) !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+/* --- Ensure Modal is Always on Top --- */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+.modal {
+    z-index: 1050 !important;
+    height: auto;
+    min-width: 600px;
+}
+
+/* --- NEW: Control the dialog width --- */
+#authorDetailModal .modal-dialog {
+    max-width: 800px;      /* Set the maximum width as requested */
+    width: auto;           /* Allow the modal to shrink to fit smaller content */
+    margin: 0 auto;  /* Keep Bootstrap's centering behavior */
+}
+
+/* --- Override Bootstrap's default white container --- */
+#authorDetailModal .modal-content {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+#authorDetailModal .modal-body {
+    background-color: #181818;
+    color: #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 2rem;
+}
+#authorDetailModal .modal-header {
+    background-color: #181818;
+    color: #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    
+}
+#authorDetailModal .modal-title {
+    color: var(--gold-accent, #d4af37);
+    font-weight: 300;
+    font-size: 0.9rem;
+}
+
+/* --- Upper Section Layout --- */
+.author-upper-section {
+    display: flex;
+    /* Vertically align the center of the text with the center of the photo */
+    align-items: center; 
+    gap: 2rem;
+    padding-bottom: 1.5rem;
+}
+
+
+.author-photo-placeholder {
+    flex: 0 0 35%; 
+    max-width: 200px; /
+}
+
+#modal-author-photo, .author-photo-placeholder .fa-user-circle {
+    display: block;
+    width: 100%;                  /* Fill the container's width */
+    aspect-ratio: 1 / 1;          /* Force the element to be a perfect square */
+    border-radius: 50%;           /* Make the square a circle */
+    object-fit: cover;            /* Crop the image to fit, preventing distortion */
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+/* Style for the fallback icon */
+.author-photo-placeholder .fa-user-circle {
+    font-size: 100%; /* Icon size will be based on the container size */
+    height: 100%;
+    color: rgba(255, 255, 255, 0.3);
+    border: none; /* The icon doesn't need a border */
+}
+
+
+/* 3. Define the proportions for the text info container */
+.author-info {
+    /* Allow this element to grow and fill the remaining space */
+    flex: 1; 
+}
+
+.author-info h3 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.author-info p {
+    margin-bottom: 0.5rem;
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+
+.author-info p strong {
+    color: #e9ecef;
+    font-weight: 500;
+}
+
+.author-info a {
+    color: var(--luminous-green); 
+    font-weight: 300;
+
+    transition: color 0.2s ease;
+}
+
+.author-info a:hover {
+    color: var(--serene-blue); /* A brighter white on hover */
+    text-decoration-style: solid;
+    text-decoration: underline;
+
+}
+
+/* --- Lower Section Layout --- */
+.author-lower-section {
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    gap: 2rem;
+}
+
+.author-lower-section h4 {
+    color: var(--gold-accent, #d4af37);
+    font-weight: 400;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.author-lower-section p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #ced4da;
+}
+
 
 
 
@@ -751,3 +880,4 @@ a:hover {
     border-radius: 8px;
     margin-bottom: 1.5rem;
 }
+

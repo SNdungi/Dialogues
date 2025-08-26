@@ -291,7 +291,8 @@ def get_discourse_details(discourse_id):
     try:
         discourse = DiscourseBlog.query.options(
             joinedload(DiscourseBlog.resources),
-            joinedload(DiscourseBlog.comments).joinedload(DiscourseComment.commenter) # Eagerly load comments and authors
+            joinedload(DiscourseBlog.comments).joinedload(DiscourseComment.commenter),
+            joinedload(DiscourseBlog.subcategory).joinedload(SubCategory.category)# Eagerly load comments and authors
         ).get(discourse_id)
 
         if not discourse:
@@ -308,10 +309,13 @@ def get_discourse_details(discourse_id):
                 "body": discourse.body,
                 "featured_image_url": url_for('static', filename=f'uploads/discourse_images/{discourse.featured_image}') if discourse.featured_image else None,
                 "date_posted": discourse.date_posted.strftime('%B %d, %Y'),
-                "reference": discourse.reference,
+                "reference": discourse.reference,                
+                "category_name": discourse.subcategory.category.name if discourse.subcategory and discourse.subcategory.category else None,
+                "subcategory_name": discourse.subcategory.name if discourse.subcategory else None,
                 "resources": [
                     {
-                        "type": resource.type.value,
+                        "type_value": resource.type.value,
+                        "type_name": resource.type.name,
                         "name": resource.name,
                         "link": resource.link
                     } for resource in discourse.resources

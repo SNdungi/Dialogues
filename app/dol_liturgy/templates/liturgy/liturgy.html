@@ -3,70 +3,10 @@
 {% block title %}Liturgical Calendar{% endblock %}
 
 {% block head_extensions %}
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+   
+    <link rel="stylesheet" href="{{ url_for('liturgy_bp.static', filename='liturgy.css') }}">
+     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     
-    <style>
-        /* --- LAYOUT & FRAME STYLING --- */
-
-        .liturgy-page-content { 
-            display: flex; 
-            flex-direction: column;
-            padding: 2rem 1rem; /* Add vertical padding to frame the content */
-            gap: 1.5rem; 
-        }
-
-        /* The new container style for the "frame on a wall" look */
-        #calendar-container {
-            width: 100%;
-            max-width: 950px;
-            margin: 0 auto;
-            background-color: whitesmoke;
-            padding: 1rem;
-            border-radius: 16px;
-            border: 5px solid gray;
-        }
-                
-
-        #details-panel { 
-                    width: 100%;            /* <-- ADDED */
-                    max-width: 950px;
-                    margin: 1rem auto 0;
-                    background-color: #fdfaf3; 
-                    border-top: 3px solid var(--gold-accent);
-                    padding: 1.5rem;
-                }
-        /* --- CALENDAR ELEMENT STYLING --- */
-
-        :root { 
-            --fc-border-color: #e5e5e5; /* Lighter border color for inside the calendar */
-            --fc-today-bg-color: rgba(255, 196, 0, 0.15); 
-        }
-
-        .fc .fc-toolbar-title { 
-            font-family: var(--font-info); 
-            color: var(--deep-blue); 
-            font-size: 1rem; 
-        }
-
-
-        .fc .fc-button {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.6rem;
-            box-shadow: none !important;
-        }
-
-        .fc-event-main { 
-            font-size: 0.6rem; /* <-- REDUCED */
-            padding: 2px 5px;
-            color: white !important;
-            font-weight: 400;
-        }
-
-        /* --- (Reading card styles are unchanged) --- */
-        .reading-card { margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
-        .reading-title { color: var(--royal-violet); font-family: var(--font-info); }
-        .reading-body { font-family: var(--font-serif); line-height: 1.7; font-size: 0.8rem; }
-    </style>
 {% endblock %}
 
 {% block content %}
@@ -87,21 +27,27 @@
     </div>
 
 <script>
+    // This line is correct and does not need to change.
     const CALENDAR_DATA = {{ calendar_data | tojson }};
 </script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        if (!CALENDAR_DATA || !document.getElementById('calendar')) { /* ... */ }
+        if (!CALENDAR_DATA || !document.getElementById('calendar')) {
+            console.error("Calendar data or element not found.");
+            return;
+        }
+
         const calendarEl = document.getElementById('calendar');
         const detailsTitleEl = document.getElementById('details-title');
         const detailsContentEl = document.getElementById('details-content');
-        async function fetchAndRenderDetails(dateStr, eventTitle) { /* ... */ }
-        function renderReadings(readings, dateStr, eventTitle) { /* ... */ }
-        function formatEvents(litcalData) { /* ... */ }
-        
-        
+
+        // <!-- NEW: FLATTEN THE DATA STRUCTURE AT THE START -->
+        // This is the key change. We convert the list-of-lists into a single flat list.
+        // The .flat() method is modern JavaScript for exactly this purpose.
+        const ALL_EVENTS = CALENDAR_DATA.litcal ? CALENDAR_DATA.litcal.flat() : [];
+
         async function fetchAndRenderDetails(dateStr, eventTitle) {
             detailsTitleEl.textContent = eventTitle || 'Loading...';
             detailsContentEl.innerHTML = '<p>Fetching today\'s readings...</p>';
@@ -110,43 +56,97 @@
                 const response = await fetch(apiUrl);
                 if (!response.ok) { throw new Error(`Our server failed with status ${response.status}`); }
                 const data = await response.json();
-                if (data.status === 'success' && data.readings) { renderReadings(data.readings, dateStr, eventTitle); } else { throw new Error(data.message || 'Invalid data from our server.'); }
-            } catch (error) { console.error('Error fetching day details from our backend:', error); detailsTitleEl.textContent = 'Error'; detailsContentEl.innerHTML = '<p>Could not retrieve the readings.</p>'; }
+                if (data.status === 'success' && data.readings) { 
+                    renderReadings(data.readings, dateStr, eventTitle); 
+                } else { 
+                    throw new Error(data.message || 'Invalid data from our server.'); 
+                }
+            } catch (error) { 
+                console.error('Error fetching day details from our backend:', error); 
+                detailsTitleEl.textContent = 'Error'; 
+                detailsContentEl.innerHTML = '<p>Could not retrieve the readings.</p>'; 
+            }
         }
+
         function renderReadings(readings, dateStr, eventTitle) {
             detailsTitleEl.textContent = eventTitle;
             let contentHtml = '';
-            if (readings.length > 0) { readings.forEach(reading => { contentHtml += `<div class="reading-card"><h5 class="reading-title">${reading.title}</h5><div class="reading-body"><p>${reading.body.replace(/\n/g, '</p><p>')}</p></div></div>`; });
-            } else { contentHtml += '<p>The readings for this day are not available.</p>'; }
+            if (readings.length > 0) { 
+                readings.forEach(reading => { 
+                    contentHtml += `<div class="reading-card"><h5 class="reading-title">${reading.title}</h5><div class="reading-body"><p>${reading.body.replace(/\n/g, '</p><p>')}</p></div></div>`; 
+                });
+            } else { 
+                contentHtml += '<p>The readings for this day are not available.</p>'; 
+            }
             detailsContentEl.innerHTML = contentHtml;
         }
-        function formatEvents(litcalData) {
-            if (!litcalData || !litcalData.litcal) return [];
-            return litcalData.litcal.filter(e => e.name).map(e => {
+
+         // --- CHANGE 1: Modify formatEvents to include original data for the tooltip ---
+        function formatEvents(allEvents) {
+            if (!allEvents) return [];
+            return allEvents.filter(e => e.name).map(e => {
                 const d = new Date(e.date * 1000);
-                const c = { "white": "#6c757d", "red": "#dc3545", "green": "#198754", "violet": "#6f42c1", "rose": "#d63384", "black": "#343a40" };
+                const colorMap = { "white": "#6c757d", "red": "#dc3545", "green": "#198754", "violet": "#6f42c1", "rose": "#d63384", "black": "#343a40" };
                 let color = '#0d6efd';
-                if (e.color && e.color.length > 0) { color = c[e.color[0].toLowerCase()] || color; }
-                return { title: e.name, start: d.toISOString().split('T')[0], allDay: true, backgroundColor: color, borderColor: color };
+                if (e.color && e.color.length > 0) { 
+                    color = colorMap[e.color[0].toLowerCase()] || color; 
+                }
+                return { 
+                    title: e.name, 
+                    start: d.toISOString().split('T')[0], 
+                    allDay: true, 
+                    backgroundColor: color, 
+                    borderColor: color,
+                    // Pass the original event object in extendedProps
+                    extendedProps: {
+                        fullEvent: e
+                    }
+                };
             });
         }
 
-
-        // --- Initialize FullCalendar with the new responsive options ---
         const calendar = new FullCalendar.Calendar(calendarEl, {
             themeSystem: 'bootstrap5',
             initialView: 'dayGridMonth',
             headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listYear' },
             eventDisplay: 'block', 
-            
-            // --- JAVASCRIPT CHANGES ---
             height: 'auto',          
             dayMaxEvents: true,      
+            events: formatEvents(ALL_EVENTS),
+            
+            // --- CHANGE 2: Add the eventDidMount callback to create tooltips ---
+            eventDidMount: function(info) {
+                const eventData = info.event.extendedProps.fullEvent;
+                if (!eventData) return;
 
-            events: formatEvents(CALENDAR_DATA),
+                // Build the HTML content for the tooltip
+                const tooltipContent = `
+                    <div class="liturgy-tooltip">
+                        <p class="tooltip-title">${eventData.name}</p>
+                        <p class="tooltip-detail"><strong>Grade:</strong> ${eventData.grade_lcl}</p>
+                        <p class="tooltip-detail"><strong>Season:</strong> ${eventData.liturgical_season_lcl}</p>
+                    </div>
+                `;
+
+                // Initialize a Bootstrap Tooltip on the event's DOM element
+                new bootstrap.Tooltip(info.el, {
+                    title: tooltipContent,
+                    placement: 'top',
+                    trigger: 'hover',
+                    html: true, // This is crucial to allow HTML content
+                    container: 'body' // Prevents tooltip from being trapped inside calendar elements
+                });
+            },
+
             dateClick: function(info) {
-                const eventOnDay = CALENDAR_DATA.litcal.find(e => new Date(e.date * 1000).toISOString().split('T')[0] === info.dateStr);
-                const title = eventOnDay ? eventOnDay.name : `Readings for ${info.dateStr}`;
+                // --- CHANGE: Search the flattened ALL_EVENTS array ---
+                // We find the primary event (highest grade) for the clicked day.
+                const eventsOnDay = ALL_EVENTS.filter(e => new Date(e.date * 1000).toISOString().split('T')[0] === info.dateStr);
+                let title = `Readings for ${info.dateStr}`;
+                if (eventsOnDay.length > 0) {
+                    const primaryEvent = eventsOnDay.reduce((prev, current) => (prev.grade > current.grade) ? prev : current);
+                    title = primaryEvent.name;
+                }
                 fetchAndRenderDetails(info.dateStr, title);
             },
             eventClick: function(info) {
