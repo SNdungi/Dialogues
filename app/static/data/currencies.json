@@ -1,0 +1,12 @@
+{
+  "KES": {
+    "symbol": "Ksh",
+    "name": "Kenyan Shilling",
+    "amounts": [500, 1000, 2500, 5000, 10000, 50000]
+  },
+  "USD": {
+    "symbol": "$",
+    "name": "US Dollar",
+    "amounts": [10, 25, 50, 100, 500, 1000]
+  }
+}

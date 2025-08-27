@@ -111,7 +111,8 @@
             <section id="contribute-section">
                 <h4>Join this Discourse</h4>
                 <p id="contribute-prompt">Share your thoughts on '{{ initial_content.title }}'.</p>
-                <textarea id="comment-textarea" placeholder="Contribute your perspective..."></textarea>
+                <textarea id="comment-textarea" placeholder="Contribute your perspective..." maxlength="1000"></textarea>
+                <small id="char-counter" class="text-muted mb-2">0 / 1000</small>
                 <div class="d-flex justify-content-between align-items-center mt-2">
                     <button id="submit-comment-btn" class="btn btn-sm btn-primary">Submit Contribution</button>
                     <small id="comment-status-msg" class="text-muted"></small>
@@ -182,6 +183,15 @@
     {% endif %}
 
     <script>
+        const textarea = document.getElementById("comment-textarea");
+        const counter = document.getElementById("char-counter");
+
+        textarea.addEventListener("input", () => {
+            counter.textContent = `${textarea.value.length} / 1000`;
+        });
+    </script>
+
+    <script>
     document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('discourse-content-wrapper');
         if (!container) return;
@@ -197,6 +207,7 @@
         const commentListContainer = document.getElementById('comment-list-container');
         
         const navigationState = { currentId: null, prevId: null, nextId: null };
+        
 
         // --- 2. CORE FUNCTIONS ---
 

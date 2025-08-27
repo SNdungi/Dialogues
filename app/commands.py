@@ -3,10 +3,12 @@
 import click
 from flask.cli import with_appcontext
 # Corrected import path based on your __init__.py
-from .dol_db.models import db, Category, SubCategory, LiturgicalDay
+from .dol_db.models import db, Category, SubCategory, LiturgicalDay, CharityCategory, CharityCategoryDef,Charity,Role,RoleType,user_roles,charity_category_association
 from .dol_db.dbops import seed_roles
 from datetime import datetime
 from .dol_liturgy.lit_utils import litcal_url, safe_fetch
+from config import config
+
 
 # --- THIS IS THE ONLY IMPORT YOU NEED ---
 from config import config
@@ -111,10 +113,115 @@ def fetch_calendar(year, nation, diocese):
 
     db.session.commit()
     click.secho(f"Successfully processed and saved {new_entries} liturgical days for {year} [{region_key}].", fg='green')
+    
+@click.command(name='seed-charity-categories')
+@with_appcontext
+def seed_charity_categories():
+    # Check if categories already exist
+    if CharityCategoryDef.query.first():
+        click.echo("Charity categories already seeded.")
+        return
+        
+    for category_enum in CharityCategory:
+        try:
+            existing_cat = CharityCategoryDef.query.filter_by(name=category_enum).first()
+            if existing_cat:
+                continue
+        except Exception as e:
+            click.secho(f"Error checking existing category {category_enum}: {e}", fg='red')
+            continue
+        new_cat = CharityCategoryDef(name=category_enum)
+        db.session.add(new_cat)
+    db.session.commit()
+    click.echo("Successfully seeded charity categories.")
 
+
+
+@click.command(name='seed-from-toml')
+@with_appcontext
+def seed_from_toml():
+    """Seeds the database from a specified TOML file."""
+    click.echo(f"Loading seed data toml...")
+    
+    try:
+       
+        data = config.GLOBAL_CONFIG
+    except Exception as e:
+        click.secho(f"Error reading TOML file: {e}", fg='red')
+        return
+
+    # --- Seed Roles ---
+    if 'roles' in data:
+        click.echo("--- Seeding Roles ---")
+        
+        # --- FIX: Delete children (associations) before parents (roles) ---
+        db.session.execute(user_roles.delete())
+        Role.query.delete()
+        
+        for role_data in data['roles']:
+            role = Role(
+                name=RoleType[role_data['name']],
+                description=role_data.get('description', '')
+            )
+            db.session.add(role)
+        db.session.commit()
+        click.secho("Roles seeded successfully.", fg='green')
+
+    # --- Seed Charity Categories ---
+    if 'charity_categories' in data:
+        click.echo("--- Seeding Charity Categories ---")
+
+        # --- FIX: Delete children (associations) before parents (categories) ---
+        # Note: This is a bit redundant if we delete all charities below,
+        # but it's good practice to be explicit.
+        db.session.execute(charity_category_association.delete())
+        CharityCategoryDef.query.delete()
+        
+        for cat_data in data['charity_categories']:
+            category = CharityCategoryDef(name=CharityCategory[cat_data['name']])
+            db.session.add(category)
+        db.session.commit()
+        click.secho("Charity categories seeded successfully.", fg='green')
+
+    # --- Seed Charities ---
+    if 'charities' in data:
+        click.echo("--- Seeding Charities ---")
+        
+        # Deleting all charities will also delete their associations
+        # due to the backref/relationship setup, but clearing first is safest.
+        db.session.execute(charity_category_association.delete())
+        Charity.query.delete()
+        
+        category_map = {cat.name.name: cat for cat in CharityCategoryDef.query.all()}
+        
+        for charity_data in data['charities']:
+            charity = Charity(
+                name=charity_data['name'],
+                contact=charity_data.get('contact'),
+                email=charity_data.get('email'),
+                website=charity_data.get('website'),
+                location=charity_data.get('location'),
+                description=charity_data.get('description', 'No description provided.'),
+                logo_image=charity_data.get('logo_image', 'default_charity.webp'),
+                is_vetted=charity_data.get('is_vetted', False)
+            )
+            
+            for cat_name in charity_data.get('categories', []):
+                if cat_name in category_map:
+                    charity.categories.append(category_map[cat_name])
+                else:
+                    click.secho(f"Warning: Category '{cat_name}' not found for charity '{charity.name}'.", fg='yellow')
+
+            db.session.add(charity)
+        db.session.commit()
+        click.secho("Charities seeded successfully.", fg='green')
+    else:
+        click.echo("No charities found in the seed data.")  
+        
         
 def init_app(app):
     """Register CLI commands with the Flask app."""
     app.cli.add_command(seed_db_command)
-    
     app.cli.add_command(fetch_calendar)
+    app.cli.add_command(seed_charity_categories)
+    app.cli.add_command(seed_from_toml)

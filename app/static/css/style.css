@@ -408,14 +408,14 @@ a:hover {
 
 #contribute-section textarea, .contribute-section textarea {
     width: 100%; min-height: 120px; padding: 10px;
-    border: 1px solid #ccc; border-radius: 4px; margin-bottom: 1rem;
+    border: 1px solid #ccc; border-radius: 4px; 
     font-family: var(--font-sans);
 }
 #contribute-section button, .contribute-section button {
     background-color: var(--deep-blue); color: white; border: none;
     padding: 10px 20px; border-radius: 4px; cursor: pointer;
     font-size: 0.8rem; transition: background-color 0.3s;
-    border-radius:50px;
+    border-radius:50px; margin-top: 0.8rem;
 }
 #contribute-section button:hover, .contribute-section button:hover {
     background-color: var(--royal-violet);

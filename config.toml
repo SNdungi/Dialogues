@@ -53,13 +53,6 @@
     "Engaging Other Beliefs"
   ]
 
-# EXAMPLE: Here's how you could add other data without conflict
-[roles]
-  # This data will be ignored by the category seeder.
-  definitions = [
-    { name = "Admin", description = "Full system access" },
-    { name = "Editor", description = "Can publish and edit discourses" }
-  ]
 
 [resource_theme]
 repository      = "#D6EAF8"  # Light Blue
@@ -105,3 +98,195 @@ VulgSistine = "Sistine Vulgate"
 Webster = "Webster's Bible Translation"
 Wulfila = "Gothic Bible (Wulfila)"
 Wycliffe = "Wycliffe Bible"
+
+# ==========================================================================
+# Seed Data for Dialogues of Light Application
+# ==========================================================================
+
+# --- User Roles ---
+# These correspond to the RoleType enum in models.py
+[[roles]]
+name = "ADMIN"
+description = "Full administrative access to the site."
+
+[[roles]]
+name = "EDITOR"
+description = "Can publish, edit, and approve content from writers."
+
+[[roles]]
+name = "WRITER"
+description = "Can create and submit content for review."
+
+[[roles]]
+name = "READER"
+description = "Standard user, can comment and interact."
+
+
+# --- Charity Categories ---
+# These correspond to the CharityCategory enum in models.py
+# The 'name' must be an exact match to the enum member name (e.g., 'CHILDREN').
+[[charity_categories]]
+name = "CHILDREN"
+
+[[charity_categories]]
+name = "WELFARE"
+
+[[charity_categories]]
+name = "EDUCATION"
+
+[[charity_categories]]
+name = "HEALTH"
+
+[[charity_categories]]
+name = "FOOD"
+
+[[charity_categories]]
+name = "WAR"
+
+[[charity_categories]]
+name = "FAITH"
+
+[[charity_categories]]
+name = "DISASTER"
+
+
+# --- Charities for Seeding ---
+# Each charity has a list of categories that reference the names above.
+# The seeding script will look up the correct category ID based on the name.
+
+# ==========================================================================
+# Charities for Seeding (Expanded List)
+# ==========================================================================
+
+[[charities]]
+name = "Catholic Relief Services"
+contact = "+1-877-435-7277"
+email = "info@crs.org"
+website = "https://www.crs.org/"
+location = "Baltimore, MD, USA"
+description = "Providing humanitarian aid and fostering sustainable development in communities worldwide. Focuses on emergency response and long-term solutions."
+logo_image = "crs-logo.webp"
+is_vetted = true
+categories = ["WELFARE", "DISASTER", "FOOD", "HEALTH"]
+
+[[charities]]
+name = "St. Jude Children's Research Hospital"
+contact = "+1-800-822-6344"
+email = "donors@stjude.org"
+website = "https://www.stjude.org/"
+location = "Memphis, TN, USA"
+description = "Leading the way the world understands, treats and defeats childhood cancer and other life-threatening diseases."
+logo_image = "st-jude-logo.webp"
+is_vetted = true
+categories = ["HEALTH", "CHILDREN"]
+
+[[charities]]
+name = "Aid to the Church in Need"
+contact = "+1-800-628-6333"
+email = "info@churchinneed.org"
+website = "https://www.churchinneed.org/"
+location = "Königstein, Germany (International)"
+description = "A Pontifical Foundation of the Catholic Church, supporting the faithful wherever they are persecuted, oppressed or in pastoral need."
+logo_image = "acn-logo.webp"
+is_vetted = true
+categories = ["FAITH", "WAR", "WELFARE"]
+
+[[charities]]
+name = "Caritas Internationalis"
+contact = "Contact via website"
+email = "caritas.internationalis@caritas.va"
+website = "https://www.caritas.org/"
+location = "Vatican City"
+description = "A confederation of 165 Catholic relief, development and social service organisations operating in over 200 countries and territories."
+logo_image = "caritas-logo.webp"
+is_vetted = true
+categories = ["DISASTER", "FOOD", "WELFARE", "HEALTH"]
+
+[[charities]]
+name = "Catholic Charities USA"
+contact = "+1-703-549-1390"
+email = "info@catholiccharitiesusa.org"
+website = "https://www.catholiccharitiesusa.org/"
+location = "Alexandria, VA, USA"
+description = "A national network of Catholic charities dedicated to reducing poverty, supporting families, and building communities in the United States."
+logo_image = "ccusa-logo.webp"
+is_vetted = true
+categories = ["WELFARE", "FOOD", "DISASTER"]
+
+[[charities]]
+name = "Cross Catholic Outreach"
+contact = "+1-800-914-2420"
+email = "info@crosscatholic.org"
+website = "https://crosscatholic.org/"
+location = "Boca Raton, FL, USA"
+description = "Mobilizing the global Church to transform the poor and their communities materially and spiritually for the glory of Jesus Christ."
+logo_image = "cco-logo.webp"
+is_vetted = true
+categories = ["FOOD", "EDUCATION", "HEALTH", "CHILDREN"]
+
+[[charities]]
+name = "The Pontifical Mission Societies"
+contact = "+1-212-947-2230"
+email = "info@propfaith.org"
+website = "https://www.missio.org/"
+location = "New York, NY, USA"
+description = "Supports more than 1,100 mission dioceses in Asia, Africa, the Pacific Islands, and parts of Latin America and Europe."
+logo_image = "missio-logo.webp"
+is_vetted = true
+categories = ["FAITH", "WELFARE", "EDUCATION"]
+
+[[charities]]
+name = "Jesuit Refugee Service"
+contact = "+1-202-629-5940"
+email = "communications@jrs.net"
+website = "https://www.jrsusa.org/"
+location = "Washington, D.C., USA"
+description = "An international Catholic organization with a mission to accompany, serve, and advocate on behalf of refugees and other forcibly displaced persons."
+logo_image = "jrs-logo.webp"
+is_vetted = true
+categories = ["WAR", "WELFARE", "EDUCATION", "DISASTER"]
+
+[[charities]]
+name = "Mary's Meals"
+contact = "+1-800-385-4983"
+email = "info@marysmeals.org"
+website = "https://www.marysmealsusa.org/"
+location = "Bloomfield, NJ, USA"
+description = "Provides life-changing meals to some of the world’s poorest children every day they attend school."
+logo_image = "marys-meals-logo.webp"
+is_vetted = true
+categories = ["FOOD", "CHILDREN", "EDUCATION"]
+
+[[charities]]
+name = "Covenant House"
+contact = "+1-212-613-0300"
+email = "info@covenanthouse.org"
+website = "https://www.covenanthouse.org/"
+location = "New York, NY, USA"
+description = "Provides housing and supportive services to youth facing homelessness. Helps young people transform their lives and put them on a path to independence."
+logo_image = "covenant-house-logo.webp"
+is_vetted = true
+categories = ["WELFARE", "CHILDREN"]
+
+[[charities]]
+name = "Doctors Without Borders"
+contact = "+1-212-679-6800"
+email = "donations@newyork.msf.org"
+website = "https://www.doctorswithoutborders.org/"
+location = "New York, NY, USA"
+description = "An independent international medical humanitarian organization that provides aid in nearly 60 countries to people whose survival is threatened by violence, neglect, or catastrophe."
+logo_image = "msf-logo.webp"
+is_vetted = true
+categories = ["HEALTH", "WAR", "DISASTER"]
+
+[[charities]]
+name = "Unvetted Local Initiative"
+contact = "Local Contact"
+email = "unvetted@example.org"
+website = ""
+location = "Your City, Your Country"
+description = "An example of a local, unvetted charity for testing purposes. This should not appear in the main list by default."
+logo_image = "default_charity.webp"
+is_vetted = false
+categories = ["EDUCATION", "FAITH"]
+

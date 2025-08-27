@@ -26,7 +26,7 @@ def bible_home():
     return render_template('bible.html', default_passage="John 3:16")
 
 # A simple mapping for full translation names
-TRANSLATION_NAMES = config.GlOBAL_CONFIG.get('bible_translations', {})
+TRANSLATION_NAMES = config.GLOBAL_CONFIG.get('bible_translations', {})
 
 def get_bible_db(version_abbr):
     """Gets a connection to a specific Bible version's SQLite database."""

@@ -5,6 +5,7 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
 
@@ -53,10 +54,30 @@ class LiturgyType(enum.Enum):
     WORD = 'Word'
     PRAYER = 'Prayer'
 
+
+
+class CharityCategory(enum.Enum):
+    CHILDREN = 'Children'
+    WELFARE = 'Welfare'
+    EDUCATION = 'Education'
+    HEALTH = 'Health'
+    FOOD = 'Food'
+    WAR = 'War Relief'
+    FAITH = 'Faith-Based'
+    DISASTER = 'Disaster Relief'
+    ENVIRONMENT = 'Environment'
+    ANIMALS = 'Animals'
+    OTHER = 'Other'
+    
 # --- Association Table for Many-to-Many User-Role relationship ---
 user_roles = db.Table('user_roles',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True)
+)
+
+charity_category_association = db.Table('charity_category_association',
+    db.Column('charity_id', db.Integer, db.ForeignKey('charities.id'), primary_key=True),
+    db.Column('category_id', db.Integer, db.ForeignKey('charity_categories.id'), primary_key=True)
 )
 
 # --- Main Models ---
@@ -168,6 +189,12 @@ class DiscourseComment(db.Model):
     ip_address = db.Column(db.String(45)) # For audit trail
     commenter = db.relationship('User', back_populates='comments')
     discourse = db.relationship('DiscourseBlog', back_populates='comments')
+    
+    @validates('body')
+    def validate_body(self, key, value):
+        if len(value) > 1000:
+            raise ValueError("Comment cannot exceed 1000 characters.")
+        return value
 
     def __repr__(self):
         return f'<Comment {self.id} on Discourse {self.discourse_id}>'
@@ -261,3 +288,52 @@ class LiturgicalDay(db.Model):
         """Helper to convert the object to a dict, using the original full_data."""
         # The data is already stored as a dict/list, so just return it.
         return self.full_data
+    
+
+class CharityCategoryDef(db.Model):
+    __tablename__ = 'charity_categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Enum(CharityCategory), unique=True, nullable=False)
+    
+    def __repr__(self):
+        return f'<CharityCategoryDef {self.name.value}>'
+
+class Charity(db.Model):
+    __tablename__ = 'charities'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    name = db.Column(db.String(200), nullable=False, index=True)
+    contact = db.Column(db.String(150), nullable=True)
+    email = db.Column(db.String(120), unique=True, nullable=True)
+    website = db.Column(db.String(512), nullable=True)
+    location = db.Column(db.String(200), nullable=True) # e.g., "Nairobi, Kenya"
+    description = db.Column(db.Text, nullable=False)
+    logo_image = db.Column(db.String(255), nullable=True, default='default_charity.webp')
+    is_vetted = db.Column(db.Boolean, default=False, nullable=False)
+    
+    # Many-to-Many relationship with CharityCategoryDef
+    categories = db.relationship(
+        'CharityCategoryDef', 
+        secondary=charity_category_association,
+        lazy='subquery', # Eagerly loads categories with the main query
+        backref=db.backref('charities', lazy=True)
+    )
+
+    def to_dict(self):
+        """Serializes the object to a dictionary for API/JSON use."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'contact': self.contact,
+            'email': self.email,
+            'website': self.website,
+            'location': self.location,
+            'description': self.description,
+            'logo_image': self.logo_image,
+            'is_vetted': self.is_vetted,
+            # Convert enum objects to simple strings for JSON
+            'categories': [category.name.value for category in self.categories]
+        }
+
+    def __repr__(self):
+        return f'<Charity {self.name}>'

@@ -1,35 +1,25 @@
 import toml
 import os
+import pprint
 
 class _ConfigLoader:
-	"""
-	This class is the central point for loading ALL configuration and data
-	from TOML files at the project root. It loads everything ONCE when the
-	application starts.
-	"""
-	# --- CLASS VARIABLES TO HOLD THE LOADED DATA ---
-	GlOBAL_CONFIG = {}
+    """Load ALL configuration from TOML files once at startup."""
 
-	def __init__(self):
-		"""
-		The constructor is run only once. It finds and loads all TOML files.
-		"""
-		# The project root is where this config.py file lives.
-		project_root = os.path.dirname(os.path.abspath(__file__))
-		
-		# --- Define paths to ALL files this module will manage ---
-		settings_path = os.path.join(project_root, 'config.toml')
-		
+    GLOBAL_CONFIG = {}
 
-		# --- Load Site Settings (config.toml) ---
-		try:
-			with open(settings_path, 'r', encoding='utf-8') as f:
-					# Load the data directly into the class variable
-					self.__class__.GlOBAL_CONFIG = toml.load(f)
-			print(f"Site settings loaded successfully from: {settings_path}")
-		except FileNotFoundError:
-			print(f"WARNING: Site configuration file 'config.toml' not found.")
-		except Exception as e:
-			print(f"ERROR loading site settings: {e}")
+    def __init__(self):
+        project_root = os.path.dirname(os.path.abspath(__file__))
+        settings_path = os.path.join(project_root, 'config.toml')
+
+        try:
+            # ✅ Pass the filename, not file object, not dict
+            self.__class__.GLOBAL_CONFIG = toml.load(settings_path)
+            print(f"Site settings loaded successfully from: {settings_path}")
+        except FileNotFoundError:
+            print("WARNING: Site configuration file 'config.toml' not found.")
+        except Exception as e:
+            print(f"ERROR loading site settings: {e}")
 
 config = _ConfigLoader()
+
+

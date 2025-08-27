@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Management - Dialogues of Light</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/setup.css') }}">
+</head>
+<body>
+
+    <!-- Slim Sidebar for Tools -->
+    <nav class="setup-sidebar">
+        <div class="sidebar-logo">
+            <i class="fas fa-cogs"></i>
+        </div>
+        <ul>
+            <li class="active"><a href="#image-uploader-section" title="Image Management"><i class="fas fa-images"></i></a></li>
+            <li><a href="#user-management-section" title="User Management"><i class="fas fa-users"></i></a></li>
+            <li><a href="#db-management-section" title="Database Tools"><i class="fas fa-database"></i></a></li>
+            <li><a href="#content-management-section" title="Content Tools"><i class="fas fa-file-alt"></i></a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('discourse.dialogues') }}" title="Exit Setup"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="setup-main">
+        <!-- Large Tilted Background Panel -->
+        <div class="background-panel"></div>
+
+        <!-- Overlapping Content Cards -->
+        <div class="content-grid">
+            
+            <!-- Card 1: Image Uploader -->
+            <div class="setup-card" id="image-uploader-section">
+                <div class="card-header">
+                    <h3><i class="fas fa-images"></i> Image Management</h3>
+                    <p>Upload, convert, and manage site images.</p>
+                </div>
+                <div class="card-body">
+                    <form id="image-form" class="setup-form" enctype="multipart/form-data">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="image-file">Select Image File</label>
+                                <input type="file" id="image-file" name="image_file" accept="image/*" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="image-filename">Assign Filename (no extension)</label>
+                                <input type="text" id="image-filename" name="filename" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label>Image Preview</label>
+                                <div class="image-preview-container">
+                                    <img id="image-preview" src="#" alt="Image Preview" style="display:none;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-footer">
+                            <button type="submit" class="btn-submit">Upload & Convert to WebP</button>
+                        </div>
+                        <p id="image-status" class="status-message"></p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Card 2: User Management -->
+            <div class="setup-card" id="user-management-section">
+                <div class="card-header">
+                    <h3><i class="fas fa-users"></i> User Management</h3>
+                    <p>Bulk import, export, or manage user roles.</p>
+                </div>
+                <div class="card-body">
+                    <form class="setup-form">
+                         <div class="form-row">
+                            <div class="form-group">
+                                <label for="user-csv">Upload User CSV</label>
+                                <input type="file" id="user-csv" name="user_csv" accept=".csv">
+                            </div>
+                             <div class="form-group">
+                                <label for="user-role">Assign Role on Import</label>
+                                <select id="user-role" name="user_role">
+                                    <option>Reader</option>
+                                    <option>Writer</option>
+                                    <option>Editor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-footer">
+                             <button type="button" class="btn-submit btn-secondary">Export All Users</button>
+                             <button type="submit" class="btn-submit">Bulk Import Users</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Card 3: Database Management -->
+            <div class="setup-card" id="db-management-section">
+                <div class="card-header">
+                    <h3><i class="fas fa-database"></i> Database Tools</h3>
+                    <p>Upload Bible versions or other database files.</p>
+                </div>
+                 <div class="card-body">
+                    <form class="setup-form">
+                         <div class="form-row">
+                            <div class="form-group">
+                                <label for="db-sqlite">Upload Bible DB (SQLite)</label>
+                                <input type="file" id="db-sqlite" name="db_sqlite" accept=".sqlite,.db">
+                            </div>
+                             <div class="form-group">
+                                <label for="db-version">Bible Version Name</label>
+                                <input type="text" id="db-version" name="db_version" placeholder="e.g., KJV, NABRE">
+                            </div>
+                        </div>
+                        <div class="form-footer">
+                             <button type="submit" class="btn-submit">Upload Database</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+// JavaScript for Image Preview and Form Submission would go here.
+// This is the same logic from your profile.html image uploader.
+document.addEventListener('DOMContentLoaded', () => {
+    // Image uploader logic
+    const imageForm = document.getElementById('image-form');
+    const imageFile = document.getElementById('image-file');
+    const imagePreview = document.getElementById('image-preview');
+    const imageStatus = document.getElementById('image-status');
+
+    imageFile.addEventListener('change', () => {
+        const file = imageFile.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    imageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        imageStatus.textContent = 'Uploading...';
+        imageStatus.className = 'status-message';
+        
+        const formData = new FormData(imageForm);
+        // You might want a dedicated subfolder for generic uploads
+        formData.append('subfolder', 'uploads'); 
+
+        try {
+            const response = await fetch("{{ url_for('main.upload_image') }}", {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                imageStatus.textContent = result.message;
+                imageStatus.classList.add('success');
+                imageForm.reset();
+                imagePreview.style.display = 'none';
+            } else {
+                imageStatus.textContent = result.message;
+                imageStatus.classList.add('error');
+            }
+        } catch (error) {
+            imageStatus.textContent = 'A network error occurred.';
+            imageStatus.classList.add('error');
+        }
+    });
+
+    // Smooth scrolling for sidebar links
+    document.querySelectorAll('.setup-sidebar a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            if (this.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

@@ -76,7 +76,7 @@ def create_app():
 
     try:
 
-        app.config['RESOURCE_THEME_COLORS'] = config.GlOBAL_CONFIG.get('resource_theme', {})
+        app.config['RESOURCE_THEME_COLORS'] = config.GLOBAL_CONFIG.get('resource_theme', {})
     except FileNotFoundError:
         app.config['RESOURCE_THETHEME_COLORS'] = {} # Default to empty if file not found
         print("WARNING: config.toml not found. Resource colors will not be loaded.")
@@ -178,6 +178,8 @@ def create_app():
     from .dol_academic.acad_routes import academic_bp
     from .dol_liturgy.lit_routes import liturgy_bp
     from .dol_bible.bible_routes import bible_bp
+    from .dol_charity.charity_routes import charity_bp 
+    app.register_blueprint(charity_bp) 
     app.register_blueprint(bible_bp)
     app.register_blueprint(liturgy_bp)
     app.register_blueprint(routes.bp)

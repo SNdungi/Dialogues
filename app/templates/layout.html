@@ -44,7 +44,7 @@
                                 <i class="fas fa-user-edit me-2"></i>My Profile
                             </a></li>
 
-                            <li><a class="dropdown-item" href="#">
+                            <li><a class="dropdown-item" href="{{ url_for('main.setup_page') }}">
                                 <i class="fas fa-cog me-2"></i>Settings
                             </a></li>
                             <!-- Your existing logout link -->
@@ -110,8 +110,8 @@
                     <li><a href="{{ url_for('liturgy_bp.liturgy') }}" ><i class="fas fa-bible"></i>Liturgy</a></li>
                     <li><a href="{{ url_for('academic.theology') }}" ><i class="fas fa-graduation-cap"></i>Academy</a></li>  
                     <li><a href="#"><i class="fas fa-book-open"></i> Repositories</a></li>
-                    <li><a href="#"><i class="fas fa-hand-holding-heart"></i> Charities</a></li>
-                    <li><a href="#"><i class="fas fa-puzzle-piece"></i> Leisure</a></li>
+                    <li><a href="{{ url_for('charity_bp.charity_home') }}"><i class="fas fa-hand-holding-heart"></i> Charities</a></li>
+                    <li><a href="#"><i class="fas fa-puzzle-piece"></i> Family & Leisure</a></li>
                     
                 </ul>
             </div>
@@ -141,7 +141,7 @@
                 </div>
         </aside>
     </div>
-<!-- NEW: Sophisticated Overlay Footer -->
+
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-column">

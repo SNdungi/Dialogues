@@ -9,14 +9,18 @@
 </head>
 <body class="auth-page" style="background-image: url({{ url_for('static', filename='images/3.webp') }});">
 
-    <!-- The transparent sidebar -->
-    <div class="sidebar">
-            <div class="header-accent-dots">
-                <a href="{{ url_for('main.splash') }}" class="home-link" title="Back to Welcome Page"></a>
-            </div>
-        <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
-        <a href="{{ url_for('main.splash') }}" class="tag-item tag-purple">Home</a>
+<div class="sidebar">
+    <div class="header-accent-dots">
+        <a href="{{ url_for('main.logout') }}" title="Logout" aria-label="Logout"></a>
     </div>
+    <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
+    <a href="{{ url_for('liturgy_bp.liturgy') }}" class="tag-item tag-purple">Liturgy</a>
+    <a href="{{ url_for('academic.theology') }}" class="tag-item tag-green">Academy</a>  
+    <a href="{{ url_for('charity_bp.charity_home') }}" class="tag-item tag-blue">Charity</a>
+    <a href="#" class="tag-item tag-pink">About</a>
+    <a href="#" class="tag-item tag-orange">Contact</a>
+</div>
+
 
 <main class="auth-page-content" style="padding-top: 2rem;">
     <div class="auth-container">

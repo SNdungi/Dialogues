@@ -32,9 +32,8 @@ body.auth-page {
     box-sizing: border-box;
 }
 
-/* --- Transparent Sidebar --- */
-.sidebar {
-    position: fixed;
+  .sidebar {
+    position: absolute;
     top: 0;
     left: 0;
     width: 10%;
@@ -42,8 +41,9 @@ body.auth-page {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    z-index: 10;
-}
+    z-index: 1000;
+    font-family: 'Play', serif;
+  }
 
 .sidebar .header-accent-dots {
   height: 30px;

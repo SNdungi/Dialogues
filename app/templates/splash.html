@@ -29,7 +29,7 @@
     <a href="{{ url_for('discourse.dialogues') }}" class="tag-item tag-yellow">Dialogues</a>
     <a href="{{ url_for('liturgy_bp.liturgy') }}" class="tag-item tag-purple">Liturgy</a>
     <a href="{{ url_for('academic.theology') }}" class="tag-item tag-green">Academy</a>  
-    <a href="#" class="tag-item tag-blue">Charity</a>
+    <a href="{{ url_for('charity_bp.charity_home') }}" class="tag-item tag-blue">Charity</a>
     <a href="#" class="tag-item tag-pink">About</a>
     <a href="#" class="tag-item tag-orange">Contact</a>
 </div>
@@ -107,8 +107,8 @@
             <ul>
                 <li><a href="#">Affiliated Schools</a></li>
                 <li><a href="#">Partner Organisations</a></li>
-                <li><a href="#">Supported Charities</a></li>
-                <li><a href="#">Media Affiliates</a></li>
+                <li><a "{{ url_for('charity_bp.charity_home') }}" >Supported Charities</a></li>
+                <li><a href="#">Media Affiliates</a></li> <!-- strathmor, siste schools, cuea, tangaza -->
             </ul>
         </div>
     </div>

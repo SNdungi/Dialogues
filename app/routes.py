@@ -39,9 +39,19 @@ def splash():
     """Renders the new elegant, art-forward landing page."""
     return render_template('splash.html')
 
+@bp.route('/setup')
+@login_required # IMPORTANT: Always protect admin pages
+def setup_page():
+    """Renders the new database management and setup page."""
+    # Add a check here to ensure only Admin users can access it
+    # if not current_user.has_role('Admin'):
+    #     flash('You do not have permission to access this page.', 'danger')
+    #     return redirect(url_for('discourse.dialogues'))
+        
+    return render_template('setup.html')
 
 # === MODIFIED ROUTE: UPLOAD IMAGE ===
-@bp.route('/upload-image', methods=['POST'])
+@bp.route('/upload-image', methods=['POST', 'GET'])
 @login_required # Good practice to protect this endpoint
 def upload_image():
     if 'image_file' not in request.files:
