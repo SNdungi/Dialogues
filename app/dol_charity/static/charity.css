@@ -348,209 +348,196 @@ a:hover {
 .btn-donate { width: 100%; padding: 1rem; background-color: var(--gold-accent); color: var(--bg-dark); border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
 
 /* ======================================================= */
-
 /* --- RIGHT PANEL: CHARITIES --- */
-
 /* ======================================================= */
 
 .charities-panel {
     margin-top: 3rem;
     margin-bottom: 6rem;
-    flex: 1 1 60%;
     background-color: transparent;
+    
+    /* --- CRITICAL FIX 1: Make the panel a layout context for its children --- */
+    display: flex;
+    flex-direction: column;
+    /* This ensures the panel itself doesn't overflow its grid area */
+    overflow: hidden;
 }
 
 .charities-search-panel {
     padding: 4rem 1rem 2rem 4rem;
-    z-index: 5; 
-    width: 100%;
-    height: 35%;
     background-color: var(--papyrus-color); 
-    border-top-left-radius: 250px; /* A large value for a smooth curve */
-    border-bottom-left-radius: 250px; /* A large value for a smooth curve */
+    border-top-left-radius: 250px;
+    border-bottom-left-radius: 250px;
     z-index: 1; 
+    /* --- CRITICAL FIX 2: Prevent this panel from shrinking --- */
+    flex-shrink: 0;
 }
-/* ===== START OF NEW STYLES ===== */
 
 .charity-panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
+    /* REMOVED border-bottom and extra margins, they are not needed here */
 }
 
-.charity-search-wrapper {
-    position: relative;
-}
-
-.charity-search-input {
-    background-color: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 20px; /* Pill shape */
-    color: #fff;
-    padding: 0.4rem 2.5rem 0.4rem 1rem; /* Padding for text and icon */
-    font-size: 0.9rem;
-    width: 250px; /* Adjust width as needed */
-    transition: all 0.3s ease;
-}
-
-.charity-search-input::placeholder {
-    color: #aaa;
-}
-
-.charity-search-input:focus {
-    outline: none;
-    background-color: rgba(0,0,0,0.4);
-    border-color: var(--gold-accent);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.5);
-}
-
-.search-icon {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #d1d1d1;
-    pointer-events: none; /* Make icon non-clickable */
-}
+/* ... (search wrapper, input, icon styles are unchanged and correct) ... */
+.charity-search-wrapper { position: relative; }
+.charity-search-input { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; color: #fff; padding: 0.4rem 2.5rem 0.4rem 1rem; font-size: 0.9rem; width: 250px; }
+.charity-search-input::placeholder { color: #dfdfdf; }
+.charity-search-input:focus { outline: none; background-color: rgba(0,0,0,0.4); border-color: var(--gold-accent); box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.5); }
+.search-icon-btn { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); color: #aaa; border: none; background: none; cursor: pointer; }
 
 .charities-panel h4 {
-   
-    padding-bottom: 0.5rem;
+    padding-bottom: 0; /* Remove padding */
     color: var(--royal-violet);
     font-family: var(--font-info);
     font-size: 1.5rem;
     line-height: 1.2;
-    margin-bottom: 2rem;
+    margin-bottom: 0; /* Remove margin */
 }
 .charity-subheading {
     font-size: 0.9rem;
     color: var(--dark-text);
+    margin-top: 1rem; /* Adjust spacing */
     margin-bottom: 1.5rem;
 }
 
-/* ===== START OF NEW STYLES ===== */
 .charity-filters {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
 }
+/* ... (filter pill styles are unchanged and correct) ... */
+.filter-pill { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); color: #ccc; border-radius: 20px; padding: 0.2rem 0.5rem; font-size: 0.5rem; text-transform: uppercase; cursor: pointer; }
+.filter-pill:hover { background-color: rgba(0,0,0,0.4); color: #fff; }
+.filter-pill.active { background-color: var(--gold-accent); border-color: var(--gold-accent); color: var(--bg-dark); font-weight: bold; }
 
-.filter-pill {
-    background-color: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #ccc;
-    border-radius: 20px;
-    padding: 0.2rem 0.5rem;
-    font-size: 0.5rem;
-    font-weight: 300;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
 
-.filter-pill:hover {
-    background-color: rgba(0,0,0,0.4);
-    color: #fff;
-}
-
-.filter-pill.active {
-    background-color: var(--gold-accent);
-    border-color: var(--gold-accent);
-    color: var(--bg-dark);
-    font-weight: bold;
-}
-/* --- NEW: Charity Grid & Card Styles --- */
+/* --- Charity Grid & Card Styles (with the fix applied) --- */
 .charities-list {
-    flex-grow: 1; /* Allow the grid to take up available space */
+    /* --- CRITICAL FIX 3: Define how the grid area should behave --- */
+    flex-grow: 1; /* This tells the list to take all available vertical space */
+    overflow-y: auto; /* And to scroll if its content is too tall */
+    min-height: 0; /* A flexbox hack to make scrolling work reliably in all browsers */
+
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 columns */
-    gap: 1rem;
-    min-height: 0; /* Important flexbox fix for scrollable children */
-    margin: 1rem 1rem 0 1rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1rem; /* Add some padding around the cards */
 }
 
+/* The card itself is now styled to be visible */
 .charity-card {
-    display: none; /* Hide all cards by default; JS will show the correct ones */
-    flex-direction: column; /* Stack content vertically */
-    justify-content: space-between; /* Push content to top and bottom */
-    background-color: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.2);
+    display: flex; /* Changed from none, JS will handle filtering by adding a 'hidden' class now */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: var(--off-white);
+    border: 1px solid #e5e5e5;
     border-radius: 12px;
     padding: 1rem;
     text-decoration: none;
-    aspect-ratio: 1 / 1; /* Make the card a perfect square */
+    aspect-ratio: 1 / 1;
     transition: all 0.2s ease;
 }
 .charity-card:hover {
     transform: translateY(-5px);
-    background-color: rgba(0,0,0,0.4);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 .charity-card.selected {
     border-color: var(--gold-accent);
-    box-shadow: 0 0 0 2px var(--gold-accent);
-    background: rgba(40,30,0,0.4);
+    box-shadow: 0 0 0 3px var(--gold-accent);
 }
 
 .charity-logo {
-    font-size: 2rem;
-    color: var(--soft-pink);
-    margin: 0 auto 0.5rem; /* Center the logo */
+
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: rgba(167, 167, 167, 0.5); /* Use a theme color for the background */
+    flex-shrink: 0;
+    margin-bottom: 0.75rem;
+    overflow: hidden; /* Hide any part of the image that might overflow */
 }
 
+.charity-logo img {
+    /* Make the image fill the container, but allow cropping */
+    width: 100%;
+    height: 100%;
+    object-fit: contain; 
+}
+
+.charity-logo i {
+    /* Style the fallback icon */
+    font-size: 2.5rem;
+    color: var(--royal-violet);
+}
+
+.charity-info { margin-bottom: auto; }
+
 .charity-title {
-    font-size: 0.9rem; /* Compact font */
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #fff;
-    text-align: center;
+    color: var(--dark-text);
     line-height: 1.2;
     margin: 0;
 }
 
 .charity-contact-info {
-    font-size: 0.7rem; /* Very small font */
-    color: #bbb;
-    text-align: center;
+    display: flex;
+    flex-direction: column; /* Stack the pill and contact text vertically */
+    align-items: center;
+    gap: 0.5rem; /* Space between pill and text */
+    font-size: 0.7rem;
+    color: #555;
     line-height: 1.4;
-}
-.charity-contact-info a {
-    color: var(--serene-blue);
-    display: block; /* Make link take its own line */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* Add ... for long links */
+    margin-top: 0.5rem; /* Add some space above the contact info */
 }
 
-/* --- NEW: Pagination Styles --- */
+.donate-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: var(--deep-blue);
+    color: #fff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px; /* Pill shape */
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+.donate-pill:hover {
+    background-color: var(--royal-violet);
+    color: #fff;
+}
+.donate-pill i {
+    font-size: 0.6rem;
+}
+
+.contact-text {
+    color: #555;
+}
+
+/* --- Pagination Styles --- */
 .charity-pagination {
     flex-shrink: 0; /* Prevent pagination from shrinking */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    padding-top: 1.5rem;
-    margin-top: auto; /* Push to the bottom of the flex container */
+    padding: 1.5rem 1rem 0; /* Add padding to separate it from the grid */
 }
-.pagination-btn {
-    background-color: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #ccc;
-    border-radius: 6px;
-    width: 35px;
-    height: 35px;
-    cursor: pointer;
-}
-.pagination-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-.page-info {
-    font-size: 0.9rem;
-    color: #ccc;
-}
+
+/* ... (pagination Bootstrap styles are unchanged and correct) ... */
+.pagination { margin: 0; justify-content: center; }
+.pagination .page-item .page-link { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); color: #ccc; margin: 0 2px; border-radius: 6px; }
+.pagination .page-item.active .page-link { background-color: var(--gold-accent); border-color: var(--gold-accent); color: var(--bg-dark); font-weight: bold; }
+.pagination .page-item.disabled .page-link { background-color: transparent; border-color: rgba(255,255,255,0.1); color: #666; }
+.pagination .page-item .page-link:hover { background-color: rgba(0,0,0,0.4); }
+
+.no-results-message { grid-column: 1 / -1; text-align: center; color: var(--dark-text); padding: 2rem; }
 
 /* --- 4. RESPONSIVE --- */
 @media (max-width: 1400px) {

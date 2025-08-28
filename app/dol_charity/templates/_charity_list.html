@@ -1,0 +1,26 @@
+{% for charity in charities %}
+    <div class="charity-card">
+        <div class="charity-logo">
+            {% if charity.logo_image and charity.logo_image != 'default_charity.webp' %}
+                <img src="{{ url_for('static', filename='images/charity_logos/' + charity.logo_image) }}" alt="{{ charity.name }} Logo">
+            {% else %}
+                <i class="fas fa-church"></i> <!-- Fallback Icon -->
+            {% endif %}
+        </div>
+        <div class="charity-info">
+             <h5 class="charity-title">{{ charity.name }}</h5>
+        </div>
+        <div class="charity-contact-info">
+            {% if charity.website %}
+                <!-- The "Donate" button is now a proper link -->
+                <a href="{{ charity.website }}" target="_blank" rel="noopener noreferrer" class="donate-pill">
+                    <i class="fas fa-external-link-alt"></i> Website
+                </a>
+            {% endif %}
+            <!-- The contact info is always displayed -->
+            <span class="contact-text">{{ charity.contact or 'Contact not provided' }}</span>
+        </div>
+    </div>
+{% else %}
+    <p class="no-results-message">No charities found matching your criteria.</p>
+{% endfor %}

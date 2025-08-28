@@ -1,0 +1,284 @@
+/* ==========================================================================
+   Charity Registration Form Styles
+   ========================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Montez&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Play:wght@400;700&family=Style+Script&display=swap");
+/* --- 1. CORE PAGE LAYOUT --- */
+:root {
+    /* Re-using variables from your main theme */
+    --gold-accent: #ffc400;
+    --papyrus-color: #c9b383;
+    --baige-accent: rgb(252, 242, 223);
+    --dark-text: #2c2c2c;
+    --luminous-green: #d6ff0a;
+    --font-info: 'Playfair Display', serif;
+    --font-sans: 'Lato', sans-serif;
+    --font-style: 'Montez', cursive;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--baige-accent);
+}
+
+.header-accent-dots {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  height: 30px;
+  width: 30px;
+  background-image: radial-gradient(var(--gold-accent, #fffb00) 35%, transparent 35%);
+  background-size: 6px 6px;
+  clip-path: polygon(
+    100% 0%,   /* top right */
+    0% 50%,    /* middle left (arrow tip) */
+    100% 100%  /* bottom right */
+  );
+}
+
+.header-accent-dots a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.form-page-grid {
+    display: grid;
+    grid-template-columns: 50% 50%; /* Image panel takes more space */
+    min-height: 100vh;
+}
+
+.image-panel {
+    background-size: cover;
+    background-position: center;
+}
+
+.form-panel {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align form to the top */
+    padding: 3rem 2rem;
+    overflow-y: auto; /* Allow the form itself to scroll if needed */
+}
+
+.form-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* --- 2. FORM HEADER --- */
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.form-logo {
+    display: inline-flex;       /* inline-flex makes it grow only as wide as its content */
+    justify-content: center;    
+    margin-bottom: 1rem;
+    color: var(--luminous-green);
+    background-color: var(--dark-text);
+    font-family: var(--font-style);
+    padding: 1rem 1.5rem;       /* keep padding */
+    width: fit-content;         /* ensures width adapts to content */
+    max-width: 100%;            /* safety for responsiveness */
+}
+.form-logo a {
+    color: var(--luminous-green);
+    text-decoration: none;
+    font-size: 1.5rem;
+}
+
+.form-header h3 {
+    font-family: var(--font-info);
+    color: var(--dark-text);
+    font-size: 1.8rem;
+}
+.form-header p {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* --- 3. FORM SECTIONS & GROUPS --- */
+.charity-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Default to 2 columns */
+    gap: 1rem;
+}
+
+.logo-section {
+    grid-template-columns: 2fr 1fr; /* Give more space to the input */
+    align-items: flex-end;
+	 gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+	 margin: 0.5rem ;
+}
+.form-group.full-width {
+    grid-column: 1 / -1; /* Make an item span all columns */
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 0.3rem;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--papyrus-color);
+    box-shadow: 0 0 0 3px rgba(201, 179, 131, 0.3);
+}
+.form-group textarea {
+    resize: vertical;
+}
+
+/* --- 4. LOGO PREVIEW & CATEGORIES --- */
+
+/* ===== START OF NEW & REVISED STYLES ===== */
+.logo-input-hidden {
+    display: none; /* Hide the default, ugly file input */
+}
+
+.custom-file-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    padding: 0.2rem; /* Small padding to contain the button */
+    width: 100%;
+}
+
+.btn-choose-file {
+    /* Style it to look like the button in the reference */
+    background-color: #f0f0f0;
+    border: 1px solid #bbb;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+.btn-choose-file:hover {
+    background-color: #e5e5e5;
+}
+
+.file-name-display {
+    padding-left: 0.75rem;
+    font-size: 0.9rem;
+    color: #555;
+    /* Prevent long filenames from breaking layout */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logo-preview-container {
+    width: 100%;
+    max-width: 120px; /* Give it a max-width */
+    margin-left: auto; /* Push it to the right of its grid cell */
+    aspect-ratio: 1 / 1;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+#logo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#logo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #aaa;
+}
+#logo-placeholder i { font-size: 2rem; }
+#logo-placeholder small { font-size: 0.7rem; }
+/* ===== END OF NEW & REVISED STYLES ===== */
+
+.category-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+}
+
+.checkbox-group {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	border-radius: 20px;
+	padding: 0.2rem 0.5rem;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background-color: rgba(252, 169, 74, 0.4);
+	border: 1px solid rgba(255,255,255,0.2);
+}
+.checkbox-group input { width: auto; }
+.checkbox-group label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+.checkbox-group:hover {
+    background-color: var(--gold-accent);
+    color: #575757;
+}
+
+/* --- 5. FOOTER & FLASH MESSAGES --- */
+.form-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+.btn-submit {
+    background-color: var(--papyrus-color);
+    color: var(--dark-text);
+    border: none;
+    padding: 1.5rem 2rem;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-submit:hover {
+    background-color: var(--gold-accent);
+}
+.flash-message {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+.flash-message.success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}

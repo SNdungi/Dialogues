@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register a Charity - Dialogues of Light</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montez&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Play:wght@400;700&family=Style+Script&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('charity_bp.static', filename='charity_form.css') }}">
+</head>
+<body>
+
+    <div class="form-page-grid">
+        <!-- LEFT PANEL: Image -->
+        <div class="image-panel" style="background-image: url({{ url_for('static', filename='images/uploads/charity_.webp') }});">
+            <!-- You can add overlay text here if desired -->
+            <div class="header-accent-dots">
+                <a href="{{ url_for('charity_bp.charity_home') }}" title="Home" aria-label="Home"></a>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Form -->
+        <div class="form-panel">
+            <div class="form-container">
+                <div class="form-header">
+                    <div class="form-logo">
+                        <a href="{{ url_for('main.splash') }}">
+                            Dialogues of Light
+                        </a>
+                    </div>
+                    <p>Join our mission by registering a charity organization for vetting and support.</p>
+                </div>
+                
+                <!-- Display Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('charity_bp.register_charity') }}" enctype="multipart/form-data" class="charity-form">
+                    
+                    <div class="form-section">
+                        <div class="form-group full-width">
+                            <label for="name">Organization Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact">Primary Contact (Phone/Person)</label>
+                            <input type="text" id="contact" name="contact">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Public Email</label>
+                            <input type="email" id="email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="website">Website URL</label>
+                            <input type="url" id="website" name="website" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location (City, Country)</label>
+                            <input type="text" id="location" name="location">
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-section">
+                        <div class="form-group full-width">
+                            <label for="description">Mission & Description (Max 500 chars)</label>
+                            <textarea id="description" name="description" rows="4" maxlength="500" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group full-width">
+                        <label>Select Categories (Choose all that apply)</label>
+                        <div class="category-grid">
+                            {% for category in categories %}
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="cat-{{ category.id }}" name="categories" value="{{ category.id }}">
+                                <label for="cat-{{ category.id }}">{{ category.name.value }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section logo-section">
+                         <div class="form-group">
+                            <label for="logo_image">Organization Logo</label>
+                            <input type="file" id="logo_image" name="logo_image" accept="image/*" class="logo-input">
+                        </div>
+                        <div class="logo-preview-container">
+                            <img id="logo-preview" src="#" alt="Logo Preview" style="display:none;">
+                            <span id="logo-placeholder">
+                                <i class="fas fa-image"></i>
+                                <small>Preview</small>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <button type="submit" class="btn-submit">Submit for Review</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const logoInput = document.getElementById('logo_image');
+    const logoPreview = document.getElementById('logo-preview');
+    const logoPlaceholder = document.getElementById('logo-placeholder');
+
+    logoInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                logoPreview.src = e.target.result;
+                logoPreview.style.display = 'block';
+                logoPlaceholder.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+</body>
+</html>
