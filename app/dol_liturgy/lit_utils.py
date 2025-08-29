@@ -148,7 +148,14 @@ def safe_fetch(
 # -------------------------
 # URL helpers for LitCal
 # -------------------------
-def litcal_url(*, nation: str | None = None, diocese: str | None = None, year: int | None = None) -> str:
+from typing import Optional
+
+def litcal_url(
+    *,
+    nation: Optional[str] = None,
+    diocese: Optional[str] = None,
+    year: Optional[int] = None
+) -> str:
     """
     Compose the LitCal path:
       - General Roman: /calendar[/YEAR]
