@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import importlib.metadata
 
-from catholic_mass_readings import constants, models
-from catholic_mass_readings.usccb import USCCB
+from . import constants, models
+from .usccb import USCCB
 
 # set the version number within the package using importlib
 try:
