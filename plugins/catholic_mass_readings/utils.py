@@ -5,9 +5,9 @@ from __future__ import annotations
 import datetime
 import logging
 import re
-from collections import defaultdict
+from collections import defaultDict
 from functools import lru_cache # Changed from @cache to lru_cache for Python 3.8
-from typing import TYPE_CHECKING, Final, cast, Any # Added Any
+from typing import TYPE_CHECKING, Final, cast, Dict # Added Any
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -23,7 +23,7 @@ _ABBREVIATED_BOOK_PATTERN: Final[re.Pattern] = re.compile(r"([0-9]?\s?[A-Z][a-z]
 _BOOK_LINK_PATTERN: Final[re.Pattern] = re.compile(r"bible\/([^\/]+)")
 _ROMAN_NUMERAL_PATTERN: Final[re.Pattern] = re.compile(r"\s?([IVXLCDM]+)$", re.IGNORECASE)
 _NUMERAL_PATTERN: Final[re.Pattern] = re.compile(r"\s?([0-9]+)$", re.IGNORECASE)
-_ROMAN_VALUES: Final[dict[str, int]] = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+_ROMAN_VALUES: Final[Dict[str, int]] = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 _URL_PATTERN: Final[re.Pattern] = re.compile(r"readings\/(?P<DATE>\d{6})-?(?P<TYPE>[A-Z]*)\.cfm$", re.IGNORECASE)
 
 
@@ -34,7 +34,7 @@ def find_iter(parent: Tag, *, name: str | None = None, class_: str | None = None
         container = container.find_next(name=name, class_=class_)
 
 
-def get_book_from_verse(link: str, text: str) -> dict[str, str] | None:
+def get_book_from_verse(link: str, text: str) -> Dict[str, str] | None:
     """Searches for the book based on the link and text"""
     book = lookup_book(_get_book_name_from_link(link))
     if book:
@@ -160,7 +160,7 @@ def _get_book_abbreviations_from_text(text: str) -> Iterable[str]:
     return (m.group(1) for m in _ABBREVIATED_BOOK_PATTERN.finditer(text))
 
 
-def lookup_book(key: str | None) -> dict[str, str] | None:
+def lookup_book(key: str | None) -> Dict[str, str] | None:
     """
     Looks up a book based on the key.
 
@@ -224,22 +224,22 @@ def parse_url(url: str) -> tuple[datetime.date, str] | None:
 
 
 @lru_cache # Changed from @cache to lru_cache for Python 3.8
-def _get_old_testament_book_lookup() -> dict[str, dict[str, str]]:
-    """Returns a dict for looking up by both short and long abbreviations in the Old Testament books."""
+def _get_old_testament_book_lookup() -> Dict[str, Dict[str, str]]:
+    """Returns a Dict for looking up by both short and long abbreviations in the Old Testament books."""
     return _get_testament_book_lookup(constants.OLD_TESTAMENT_BOOKS)
 
 
 @lru_cache # Changed from @cache to lru_cache for Python 3.8
-def _get_new_testament_book_lookup() -> dict[str, dict[str, str]]:
-    """Returns a dict for looking up by both short and long abbreviations in the New Testament books."""
+def _get_new_testament_book_lookup() -> Dict[str, Dict[str, str]]:
+    """Returns a Dict for looking up by both short and long abbreviations in the New Testament books."""
     return _get_testament_book_lookup(constants.NEW_TESTAMENT_BOOKS)
 
 
 def _get_testament_book_lookup(
-    books: list[dict[str, str]],
-) -> dict[str, dict[str, str]]:
-    lookup: dict[str, dict[str, str]] = {}
-    abbrev_lookup: dict[str, list[dict[str, str]]] = defaultdict(list)
+    books: list[Dict[str, str]],
+) -> Dict[str, Dict[str, str]]:
+    lookup: Dict[str, Dict[str, str]] = {}
+    abbrev_lookup: Dict[str, list[Dict[str, str]]] = defaultDict(list)
     for book in books:
         name = book["name"].casefold()
         long_abbreviation = book["long_abbreviation"].casefold()

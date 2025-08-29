@@ -2,7 +2,7 @@
 
 import datetime
 import re
-from typing import Final, Any # Import Any
+from typing import Final, Dict, List
 
 import pytz
 
@@ -35,14 +35,14 @@ SECTION_HEADER_FIRST_READING: Final[str] = "First Reading"
 SECTION_HEADER_SECOND_READING: Final[str] = "Second Reading"
 SECTION_HEADER_THIRD_READING: Final[str] = "Third Reading"
 SECTION_HEADER_FORTH_READING: Final[str] = "Forth Reading"
-SECTION_HEADER_READINGS: Final[dict[int, str]] = {
+SECTION_HEADER_READINGS: Final[Dict[int, str]] = {
     1: SECTION_HEADER_FIRST_READING,
     2: SECTION_HEADER_SECOND_READING,
     3: SECTION_HEADER_THIRD_READING,
     4: SECTION_HEADER_FORTH_READING,
 }
 
-OLD_TESTAMENT_BOOKS: Final[list[dict[str, str]]] = [
+OLD_TESTAMENT_BOOKS: Final[list[Dict[str, str]]] = [
     {"short_abbreviation": "Gn", "long_abbreviation": "Gen", "name": "Genesis", "title": "Book of Genesis"},
     {"short_abbreviation": "Ex", "long_abbreviation": "Exod", "name": "Exodus", "title": "Book of Exodus"},
     {"short_abbreviation": "Lv", "long_abbreviation": "Lev", "name": "Leviticus", "title": "Book of Leviticus"},
@@ -141,7 +141,7 @@ OLD_TESTAMENT_BOOKS: Final[list[dict[str, str]]] = [
     {"short_abbreviation": "Ml", "long_abbreviation": "Mal", "name": "Malachi", "title": "Book of the Prophet Malachi"},
 ]
 
-NEW_TESTAMENT_BOOKS: Final[list[dict[str, str]]] = [
+NEW_TESTAMENT_BOOKS: Final[list[Dict[str, str]]] = [
     {
         "short_abbreviation": "Mt",
         "long_abbreviation": "Matt",
