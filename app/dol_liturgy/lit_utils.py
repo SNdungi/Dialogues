@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 import asyncio
 import datetime
 from plugins.catholic_mass_readings import USCCB,models
+from typing import Optional
 
 
 """
@@ -65,12 +66,12 @@ def safe_fetch(
     url: str,
     *,
     method: str = "GET",
-    params: dict | None = None,
-    headers: dict | None = None,
-    json: dict | None = None,
-    timeout: int | float | None = None,
-    ttl: int | None = None,
-    cache_key: str | None = None,
+    params: Optional[dict] = None,
+    headers: Optional[dict] = None,
+    json: Optional[dict] = None,
+    timeout: Optional[float] = None,
+    ttl: Optional[int] = None,
+    cache_key: Optional[str] = None,
 ):
     """
     Robust fetch with:
