@@ -4,9 +4,7 @@ import requests, time
 from urllib.parse import urlencode
 import asyncio
 import datetime
-from catholic_mass_readings import USCCB, models # Ensure models is imported
-
-
+from plugins.catholic_mass_readings import USCCB,models
 
 
 """
