@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
     from bs4.element import Tag
 
-from catholic_mass_readings import constants
+from . import constants
 
 logger = logging.getLogger(__name__)
 

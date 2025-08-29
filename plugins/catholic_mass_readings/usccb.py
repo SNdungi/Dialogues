@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from curl_cffi import requests
 from typing_extensions import Self
 
-from catholic_mass_readings import constants, models, utils
+from . import constants, models, utils
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
