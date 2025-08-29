@@ -1,11 +1,13 @@
+
+
 from __future__ import annotations
 
 import datetime
 import logging
 import re
 from collections import defaultdict
-from functools import cache
-from typing import TYPE_CHECKING, Final, cast
+from functools import lru_cache # Changed from @cache to lru_cache for Python 3.8
+from typing import TYPE_CHECKING, Final, cast, Any # Added Any
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -16,6 +18,7 @@ from . import constants
 
 logger = logging.getLogger(__name__)
 
+# Change re.Pattern[str] to re.Pattern or Any
 _ABBREVIATED_BOOK_PATTERN: Final[re.Pattern] = re.compile(r"([0-9]?\s?[A-Z][a-z]*):?")
 _BOOK_LINK_PATTERN: Final[re.Pattern] = re.compile(r"bible\/([^\/]+)")
 _ROMAN_NUMERAL_PATTERN: Final[re.Pattern] = re.compile(r"\s?([IVXLCDM]+)$", re.IGNORECASE)
@@ -220,13 +223,13 @@ def parse_url(url: str) -> tuple[datetime.date, str] | None:
     return dt, type_
 
 
-@cache
+@lru_cache # Changed from @cache to lru_cache for Python 3.8
 def _get_old_testament_book_lookup() -> dict[str, dict[str, str]]:
     """Returns a dict for looking up by both short and long abbreviations in the Old Testament books."""
     return _get_testament_book_lookup(constants.OLD_TESTAMENT_BOOKS)
 
 
-@cache
+@lru_cache # Changed from @cache to lru_cache for Python 3.8
 def _get_new_testament_book_lookup() -> dict[str, dict[str, str]]:
     """Returns a dict for looking up by both short and long abbreviations in the New Testament books."""
     return _get_testament_book_lookup(constants.NEW_TESTAMENT_BOOKS)

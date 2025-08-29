@@ -1,8 +1,11 @@
+
+
 from __future__ import annotations
 
 import datetime
 from enum import Enum, EnumMeta, IntEnum, auto, unique
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+# Import Union for Python 3.8 compatibility
+from typing import TYPE_CHECKING, Any, NamedTuple, cast, Union 
 
 from . import constants, utils
 
@@ -11,14 +14,14 @@ if TYPE_CHECKING:
 
 
 class _CaseInsensitiveEnumMeta(EnumMeta):
-    def __call__(cls, value: str, *args: Any, **kwargs: Any):  # type: ignore # noqa: ANN401 ANN204 PGH003
+    def __call__(cls, value: str, *args: Any, **kwargs: Any) -> Enum:  # type: ignore
         try:
             return super().__call__(value, *args, **kwargs)
         except ValueError:
             items = cast("Iterable[Enum]", cls)
             for item in items:
                 if item.name.casefold() == value.casefold():
-                    return cast("type[Enum]", item)
+                    return cast("Enum", item)
             raise
 
 
@@ -201,7 +204,7 @@ class Reading(NamedTuple):
 
         return constants.READING_TITLE_FMT.format(TITLE=book_title)
 
-    def format(self, parent: Section) -> str:
+    def format(self, parent: "Section") -> str:
         """
         Returns a formatted representation of the Reading
 
@@ -216,7 +219,7 @@ class Reading(NamedTuple):
 
         return f"{parent.display_header}: {self.header}\n\n{self.text}"
 
-    def with_text(self, text: str) -> Reading:
+    def with_text(self, text: str) -> "Reading":
         """Replaces the text with the new text returning a new instance."""
         return Reading(self.verses, text)
 
@@ -264,7 +267,7 @@ class Section(NamedTuple):
 
         return ""
 
-    def add_alternative(self, reading: Reading | Iterable[Reading]) -> Section:
+    def add_alternative(self, reading: Union[Reading, Iterable[Reading]]) -> "Section": # Changed to Union
         """Returns a new Section that appends the other alternative Reading"""
         readings = [*self.readings]
         if isinstance(reading, Reading):
@@ -284,7 +287,8 @@ class Section(NamedTuple):
 
 class Mass(NamedTuple):
     date: datetime.date | None
-    type_: MassType | str | None
+    # Changed to Union for Python 3.8
+    type_: Union[MassType, str, None] 
     url: str
     title: str
     sections: list[Section]
