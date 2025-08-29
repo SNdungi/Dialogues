@@ -11,7 +11,7 @@ wheels/
 
 # Python
 *.pyc
-instance/
+
 
 # Environment files
 .env
