@@ -1,0 +1,26 @@
+<div class="modal fade action-modal" id="mentorshipModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-user-graduate"></i> Mentorship Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-intro">Submit a request for mentorship from {{ author.name }}. Please provide a clear and concise summary of your goals.</p>
+        <form class="formal-form">
+            <div class="form-group">
+                <label for="mentorship-topic">Topic / Area of Focus</label>
+                <input type="text" id="mentorship-topic" placeholder="e.g., Patristic Theology, Liturgical Studies">
+            </div>
+            <div class="form-group">
+                <label for="mentorship-goals">Your Goals & Objectives</label>
+                <textarea id="mentorship-goals" rows="6"></textarea>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer d-flex justify-content-end">
+          <button type="button" class="btn-submit-action">Submit Request</button>
+      </div>
+    </div>
+  </div>
+</div>

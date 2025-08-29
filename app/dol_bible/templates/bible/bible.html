@@ -17,11 +17,11 @@
             </div>
             <div class="search-controls">
                 <form id="bible-search-form">
-                    <div class="search-input-wrapper">
+                    <div class="search-input-wrapper with-suggestions">
                         <i class="fas fa-book-bible"></i>
-                        <input type="text" id="passage-input" placeholder="e.g., John 3:16 or Genesis" required>
+                        <input type="text" id="passage-input" placeholder="e.g., John 3:16 or Genesis" required autocomplete="off">
+                        <div id="suggestions-container" class="suggestions-container"></div>
                     </div>
-                    <!-- This select will now be populated dynamically by JavaScript -->
                     <select id="translation-select" title="Select Bible Version"></select>
                     <button type="submit" title="Search"><i class="fas fa-search"></i></button>
                 </form>
@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let BIBLE_METADATA = {};
     let BIBLE_BOOK_ORDER = [];
     let currentChapterState = { version: null, book: null, chapter: null };
+    let debounceTimer;
 
     // =========================================================================
     // 2. DOM ELEMENT REFERENCES
@@ -82,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextChapterBtn = document.getElementById('next-chapter-btn');
     const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
+    const suggestionsContainer = document.getElementById('suggestions-container');
     
     // =========================================================================
     // 3. INITIALIZATION
@@ -90,18 +92,54 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initializeReader() {
         setupTheme();
         await populateTranslations();
-        
         const defaultVersion = translationSelect.value;
         if (defaultVersion) {
             await loadBibleMetadata(defaultVersion);
         }
-        
         searchForm.addEventListener('submit', handleSearch);
+        passageInput.addEventListener('input', handleLiveSearch);
+        // Hide suggestions when clicking away
+        document.addEventListener('click', (e) => {
+            if (!passageInput.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
         prevChapterBtn.addEventListener('click', () => navigateChapter('prev'));
         nextChapterBtn.addEventListener('click', () => navigateChapter('next'));
         translationSelect.addEventListener('change', handleTranslationChange);
-        
         checkForUrlQuery();
+    }
+
+    // --- NEW: Function to display suggestions ---
+    function showSuggestions(query) {
+        if (!query || BIBLE_BOOK_ORDER.length === 0) {
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+
+        const lowerQuery = query.toLowerCase();
+        // Filter the book list to find matches
+        const matches = BIBLE_BOOK_ORDER.filter(book => book.toLowerCase().startsWith(lowerQuery)).slice(0, 7); // Show max 7 suggestions
+
+        if (matches.length === 0) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+
+        suggestionsContainer.innerHTML = matches.map(book => `<div class="suggestion-item" data-book="${book}">${book}</div>`).join('');
+        suggestionsContainer.style.display = 'block';
+
+        // Add click listeners to the new suggestion items
+        document.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', () => {
+                passageInput.value = item.dataset.book + ' '; // Add space for chapter number
+                suggestionsContainer.style.display = 'none';
+                passageInput.focus();
+                // Optional: Automatically search for the first chapter
+                // handleSearch();
+            });
+        });
     }
 
     async function populateTranslations() {
@@ -138,124 +176,89 @@ document.addEventListener('DOMContentLoaded', function() {
     // 4. PARSER & API LOGIC
     // =========================================================================
 
-    /**
-     * Parses a user's query into a structured object for our API.
-     * @param {string} userInput The raw text from the search box.
-     * @returns {object|null} An object { book, chapter, verse } or null if invalid.
-     */
-    function parseReference(userInput) {
-        const normalizedInput = userInput.trim().toLowerCase();
-        
-        for (let i = BIBLE_BOOK_ORDER.length - 1; i >= 0; i--) {
-            const bookName = BIBLE_BOOK_ORDER[i];
-            const normalizedBookName = bookName.toLowerCase();
+    async function handleSearch(event) {
+        if (event) event.preventDefault();
+        const query = passageInput.value.trim();
+        const version = translationSelect.value;
+        if (!query) return;
 
-            if (normalizedInput.startsWith(normalizedBookName)) {
-                const referencePart = userInput.substring(bookName.length).trim();
-                const match = referencePart.match(/(\d+)(?:\s*:\s*(\d+))?/);
-
-                let chapter = 1;
-                let verse = null;
-
-                if (match) {
-                    chapter = parseInt(match[1], 10);
-                    if (match[2]) {
-                        verse = parseInt(match[2], 10);
-                    }
-                }
-                
-                return { book: bookName, chapter, verse };
-            }
-        }
-        return null;
-    }
-
-    async function fetchBiblePassage(reference, version) {
-        const { book, chapter, verse } = reference;
-        // Construct the URL using our Flask blueprint endpoint
-        const apiUrl = `{{ url_for('bible.get_chapter', version='__V__', book='__B__', chapter=0) }}`
-            .replace('__V__', version)
-            .replace('__B__', book)
-            .replace('/0', `/${chapter}`);
-        
         setStatus('loading', 'Loading scripture...');
 
         try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Passage not found.');
-            }
+            const response = await fetch(`{{ url_for('bible.intelligent_search') }}?q=${encodeURIComponent(query)}&t=${version}`);
             const data = await response.json();
-            displayResults(data, verse);
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Passage not found.');
+            }
+            displayResults(data);
         } catch (error) {
             console.error('API Fetch Error:', error);
-            setStatus('error', `Error: ${error.message}.`);
+            setStatus('error', `Error: ${error.message}`);
         }
     }
 
-    // =========================================================================
-    // 5. EVENT HANDLERS
-    // =========================================================================
+    function handleLiveSearch() {
+        clearTimeout(debounceTimer);
+        const query = passageInput.value.trim();
+        showSuggestions(query);
+        debounceTimer = setTimeout(() => {
+            // This could be enhanced to show suggestions, but for now we'll just search on Enter
+            // performFullTextSuggestion(query);
+        }, 300);
+    }
     
-    function handleSearch(event) {
-        if (event) event.preventDefault();
-        const query = passageInput.value;
-        if (!query.trim()) return;
-        const parsedRef = parseReference(query);
-
-        if (parsedRef) {
-            fetchBiblePassage(parsedRef, translationSelect.value);
-        } else {
-            setStatus('error', `Could not recognize the book "${query}". Please check spelling.`);
-        }
-    }
-
     async function handleTranslationChange() {
-        const newVersion = translationSelect.value;
-        await loadBibleMetadata(newVersion);
-        // If a book is currently displayed, reload it with the new version
+        await loadBibleMetadata(translationSelect.value);
         if (currentChapterState.book) {
-            fetchBiblePassage(currentChapterState, newVersion);
+            const query = `${currentChapterState.book} ${currentChapterState.chapter}`;
+            passageInput.value = query;
+            handleSearch();
         }
     }
-
+    
     function navigateChapter(direction) {
         const { version, book, chapter } = currentChapterState;
+        if (!book || !BIBLE_BOOK_ORDER.length) return;
+
         const currentIndex = BIBLE_BOOK_ORDER.indexOf(book);
         const totalChapters = BIBLE_METADATA[book];
-        let newReference;
+        let newBook = book;
+        let newChapter = chapter;
 
         if (direction === 'next') {
             if (chapter < totalChapters) {
-                newReference = { book, chapter: chapter + 1 };
-            } else {
-                const nextBook = BIBLE_BOOK_ORDER[(currentIndex + 1) % BIBLE_BOOK_ORDER.length];
-                newReference = { book: nextBook, chapter: 1 };
+                newChapter++;
+            } else if (currentIndex < BIBLE_BOOK_ORDER.length - 1) {
+                newBook = BIBLE_BOOK_ORDER[currentIndex + 1];
+                newChapter = 1;
             }
         } else { // 'prev'
             if (chapter > 1) {
-                newReference = { book, chapter: chapter - 1 };
-            } else {
-                const prevBook = BIBLE_BOOK_ORDER[(currentIndex - 1 + BIBLE_BOOK_ORDER.length) % BIBLE_BOOK_ORDER.length];
-                newReference = { book: prevBook, chapter: BIBLE_METADATA[prevBook] };
+                newChapter--;
+            } else if (currentIndex > 0) {
+                newBook = BIBLE_BOOK_ORDER[currentIndex - 1];
+                newChapter = BIBLE_METADATA[newBook];
             }
         }
-        passageInput.value = `${newReference.book} ${newReference.chapter}`;
-        fetchBiblePassage(newReference, version);
+        passageInput.value = `${newBook} ${newChapter}`;
+        handleSearch();
     }
-    
-    // ... [ The existing displayResults, updateNavigationControls, setStatus, setupTheme, and checkForUrlQuery functions remain largely the same, with minor tweaks ] ...
 
-    function displayResults(data, targetVerse) {
+    function displayResults(data) {
         setStatus('clear');
         scriptureWrapper.innerHTML = '';
+        
+        if (!data.verses || data.verses.length === 0) {
+            setStatus('error', 'No results found.');
+            return;
+        }
 
-        // Update state with data from our API
+        const firstVerse = data.verses[0];
         currentChapterState = {
             version: data.translation_abbreviation,
-            book: data.reference.split(' ')[0],
-            chapter: parseInt(data.reference.split(' ')[1], 10)
+            book: firstVerse.name,
+            chapter: firstVerse.chapter
         };
 
         const referenceHeader = document.createElement('h2');
@@ -277,11 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const verseText = document.createTextNode(` ${verse.text.trim()} `);
             verseContainer.appendChild(verseNumber);
             verseContainer.appendChild(verseText);
-            
-            if (targetVerse && verse.verse === targetVerse) {
-                verseContainer.classList.add('highlighted-verse');
-                verseContainer.id = 'target-verse-highlight';
-            }
             paragraph.appendChild(verseContainer);
         });
         
@@ -291,13 +289,6 @@ document.addEventListener('DOMContentLoaded', function() {
         scriptureWrapper.appendChild(scriptureText);
 
         updateNavigationControls();
-
-        const highlightedElement = document.getElementById('target-verse-highlight');
-        if (highlightedElement) {
-            setTimeout(() => {
-                highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 100);
-        }
     }
     
     function updateNavigationControls() {

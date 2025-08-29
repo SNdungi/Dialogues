@@ -1,0 +1,24 @@
+<div class="modal fade action-modal" id="lecturesModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-chalkboard-teacher"></i> Upcoming Lectures</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-intro">A list of scheduled public and private lectures by {{ author.name }}.</p>
+        <!-- This would be populated by a loop from the database in a real app -->
+        <div class="lecture-item">
+            <div class="lecture-date">Oct 25, 2024</div>
+            <div class="lecture-title">The Eschatological Imagination in Early Christianity</div>
+            <div class="lecture-location">Online Webinar (Private)</div>
+        </div>
+        <div class="lecture-item">
+            <div class="lecture-date">Nov 12, 2024</div>
+            <div class="lecture-title">Sacramental Realism in the Digital Age</div>
+            <div class="lecture-location">St. Thomas University (Public)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

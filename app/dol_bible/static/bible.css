@@ -295,3 +295,55 @@ body {
 .footer-bottom a:hover {
     text-decoration: underline;
 }
+
+
+
+/* =========================================================
+
+            SUGGESTION DROPDOWN STYLES
+
+=========================================================== */
+.search-input-wrapper.with-suggestions {
+    position: relative; /* Make this the anchor for the dropdown */
+}
+
+.suggestions-container {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%; /* Position it right below the input */
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    z-index: 1000;
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+/* Styles for day mode */
+.day-mode .suggestions-container {
+    background-color: #333;
+    border-color: #555;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+}
+/* Styles for day mode */
+.day-mode .suggestion-item {
+    color: #f0f0f0;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+/* Styles for day mode */
+.day-mode .suggestion-item:hover {
+    background-color: #444;
+}
+

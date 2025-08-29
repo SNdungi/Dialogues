@@ -1,8 +1,9 @@
-import sqlite3
+
 import os
-from flask import Blueprint, jsonify, current_app, g, render_template
+from flask import Blueprint, jsonify, current_app, g, render_template,request
 from datetime import datetime
 from config import config
+from .bible_utils import get_bible_db, parse_query, fetch_from_db
 
 bible_bp = Blueprint('bible', __name__,
                     url_prefix='/bible',
@@ -28,22 +29,7 @@ def bible_home():
 # A simple mapping for full translation names
 TRANSLATION_NAMES = config.GLOBAL_CONFIG.get('bible_translations', {})
 
-def get_bible_db(version_abbr):
-    """Gets a connection to a specific Bible version's SQLite database."""
-    db_conn_key = f'bible_db_{version_abbr}'
-    if db_conn_key not in g:
-        db_path = os.path.join(
-            current_app.config['BIBLE_DATABASES_PATH'], 
-            f'{version_abbr.upper()}.db'
-        )
-        if not os.path.exists(db_path):
-            return None
-        
-        conn = sqlite3.connect(f'file:{db_path}?mode=ro', uri=True) # Connect in read-only mode
-        conn.row_factory = sqlite3.Row
-        g.setdefault(db_conn_key, conn)
-    
-    return g.get(db_conn_key)
+
 
 @bible_bp.teardown_app_request
 def teardown_bible_dbs(exception):
@@ -115,40 +101,47 @@ def get_metadata(version):
     
     return jsonify(metadata)
 
-# === REVISED ENDPOINT: Get a chapter, now with full translation name ===
-@bible_bp.route('/api/<string:version>/<string:book>/<int:chapter>')
-def get_chapter(version, book, chapter):
+@bible_bp.route('/api/intelligent_search')
+def intelligent_search():
     """
-    API endpoint to fetch an entire chapter of a book.
+    The new primary search endpoint that uses the parsing engine.
     """
-    conn = get_bible_db(version)
-    if conn is None:
-        return jsonify({"error": f"Translation '{version}' not found."}), 404
+    query = request.args.get('q', '').strip()
+    version = request.args.get('t', 'kjv').lower()
 
-    cursor = conn.cursor()
+    if not query:
+        return jsonify({"error": "A search query is required."}), 400
+
+    # 1. Parse the user's query into a structured object
+    search_obj = parse_query(query)
+
+    # 2. Fetch the results from the database using the parsed object
+    results, error = fetch_from_db(version, search_obj)
     
-    books_table = f"{version}_books"
-    verses_table = f"{version}_verses"
+    if error:
+        return jsonify({"error": error}), 500
+    if not results:
+        return jsonify({"error": "No results found for your query."}), 404
 
-    query = f"""
-        SELECT verse, text FROM {verses_table}
-        WHERE book_id = (SELECT id FROM {books_table} WHERE name = ?)
-        AND chapter = ?
-        ORDER BY verse ASC;
-    """
-    
-    # Capitalize book name for matching, e.g., 'john' -> 'John'
-    cursor.execute(query, (book.capitalize(), chapter))
-    verses = cursor.fetchall()
-
-    if not verses:
-        return jsonify({"error": "Chapter or book not found."}), 404
-
-    results = [dict(row) for row in verses]
-    
-    return jsonify({
+    # 3. Format the results and metadata for the frontend
+    response_data = {
         "translation_abbreviation": version.upper(),
         "translation_name": TRANSLATION_NAMES.get(version.upper(), version.upper()),
-        "reference": f"{book.capitalize()} {chapter}",
-        "verses": results
-    })
+        "search_type": search_obj['type'],
+        "verses": [dict(row) for row in results]
+    }
+    
+    # Add a canonical reference for display
+    if search_obj['type'] != 'text':
+        ref = search_obj['book']
+        if search_obj.get('chapter'):
+            ref += f" {search_obj['chapter']}"
+        if search_obj.get('verse_start'):
+            ref += f":{search_obj['verse_start']}"
+            if search_obj.get('verse_end'):
+                ref += f"-{search_obj['verse_end']}"
+        response_data['reference'] = ref
+    else:
+        response_data['reference'] = f'Text search for "{query}"'
+
+    return jsonify(response_data)

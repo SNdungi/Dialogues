@@ -4,11 +4,14 @@ import os
 from flask import Blueprint, render_template, current_app, request, jsonify, url_for, abort
 from datetime import datetime
 from app.dol_db.models import db, DiscourseBlog, User, Category, SubCategory, Resource, ResourceMedium,ResourceType, DiscourseComment
+from .disc_utils import search_discourses
 from sqlalchemy.orm import joinedload
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from PIL import Image
 import json
+from flask_paginate import Pagination, get_page_parameter
+from sqlalchemy import func, or_
 
 
 # 1. Define the Blueprint correctly (removed url_defaults)
@@ -464,3 +467,89 @@ def get_navigation_links(discourse_id):
     except Exception as e:
         current_app.logger.error(f"API Error fetching navigation for discourse {discourse_id}: {e}", exc_info=True)
         return jsonify({"status": "error", "message": "An internal server error occurred"}), 500
+    
+# ================================================================
+# NEW: API ENDPOINT FOR LIVE DISCOURSE SEARCH
+# ================================================================
+@discourse_bp.route('/api/search')
+@login_required # Or remove if you want search for non-logged-in users
+def api_search_discourses():
+    """
+    API endpoint for live, as-you-type search for discourses.
+    Returns a list of matching discourse titles and IDs.
+    """
+    query = request.args.get('q', '').strip()
+    
+    # Use our new abstraction to get the results
+    results = search_discourses(query, limit=7)
+    
+    # Convert the results into a simple format for the dropdown
+    suggestions = [
+        {
+            "id": discourse.id,
+            "title": discourse.title,
+            # We can also pass the author for a richer display
+            "author": f"{discourse.author.name} {discourse.author.other_names}" 
+        }
+        for discourse in results
+    ]
+    
+    return jsonify(suggestions)
+@discourse_bp.route('/author/<int:user_id>')
+def dialogues_by_author(user_id):
+    """
+    Renders the dedicated profile page for a specific author,
+    showcasing their profile and a paginated list of publications.
+    """
+    author = User.query.get_or_404(user_id)
+    
+    # --- START OF PAGINATION LOGIC ---
+    
+    # 1. Get parameters from the URL
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    search_query = request.args.get('search', '').strip()
+
+    # 2. Build the base query for all approved discourses by this author
+    query = DiscourseBlog.query.filter_by(user_id=user_id, is_approved=True)
+
+    # 3. Apply search filter if present
+    if search_query:
+        search_term = f"%{search_query}%"
+        # Search in title, body, and category/subcategory names
+        query = query.join(SubCategory).join(Category).filter(
+            or_(
+                DiscourseBlog.title.ilike(search_term),
+                DiscourseBlog.body.ilike(search_term),
+                SubCategory.name.ilike(search_term),
+                Category.name.ilike(search_term)
+            )
+        )
+
+    # 4. Get the total count BEFORE pagination
+    total = query.count()
+    
+    # 5. Apply pagination slicing and ordering to the query
+    per_page = 12
+    offset = (page - 1) * per_page
+    discourses_for_page = query.order_by(DiscourseBlog.date_posted.desc()).limit(per_page).offset(offset).all()
+    
+    # 6. Set up the Pagination object
+    pagination = Pagination(page=page, total=total, per_page=per_page,
+                            css_framework='bootstrap5', record_name='discourses')
+
+    # --- END OF PAGINATION LOGIC ---
+
+    # Efficiently calculate the total number of comments on this author's works
+    total_comments = db.session.query(func.count(DiscourseComment.id))\
+                               .join(DiscourseBlog)\
+                               .filter(DiscourseBlog.user_id == user_id)\
+                               .scalar() or 0
+
+    return render_template(
+        'author_page.html',
+        author=author,
+        discourses=discourses_for_page, # Pass the paginated list
+        total_comments=total_comments,
+        pagination=pagination, # Pass the pagination object
+        search_query=search_query # Pass search query back to the template
+    )

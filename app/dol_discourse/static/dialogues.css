@@ -1,0 +1,479 @@
+/* ==========================================================================
+   Dialogues of Light - Refactored Stylesheet
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@700&family=Play:wght@400;700&family=Style+Script&display=swap');
+
+/* --- 1. ROOT & GENERAL RESET --- */
+:root {
+    /* Royal Colors */
+    --royal-violet: #6b156b;
+    --deep-blue: #221344;
+    --soft-pink: #f5ddf5;
+    --bg-dark: #131313;
+    --luminous-green: #d6ff0a;
+
+    /* Earth Colors */
+    --earth-brown: #5a3d2b;
+    --serene-blue: #7bf5ef;
+    --muted-red: #8c4343;
+
+    /* Accent & Text Colors */
+    --gold-accent: #ffc400;
+    --off-white: #fffcf6;
+    --papyrus-color: #c9b383;
+    --baige-accent: rgb(250, 239, 224);
+    --dark-text: #2c2c2c;
+    --light-text: #e0e0e0;
+
+    /* Font Stacks */
+    --font-serif: 'Merriweather', serif;
+    --font-sans: 'Lato', sans-serif;
+    --font-script: 'Style Script', cursive;
+    --font-ital: 'Newsreader', serif;
+    --font-info: 'Playfair Display', serif;
+    --font-play: 'Play', serif;
+    --font-style: 'Montez', cursive;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+
+    color: var(--dark-text);
+    line-height: 1.6;
+}
+
+h2, h3, h4 {
+    font-family: var(--font-info);
+    color: var(--royal-violet);
+    margin-bottom: 0.75em;
+    font-weight: 600;
+}
+ h4{
+    font-size: 14pt;
+ }
+
+a {
+    color: var(--deep-blue);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--gold-accent);
+}
+
+/* ==========================================================================
+   Author Profile Page Styles
+   ========================================================================== */
+
+/* --- 1. NEW STICKY HEADER --- */
+.author-actions-header {
+    /* Use the existing sticky-main-header styles as a base */
+    padding: 0.8rem 2rem; /* Make it more compact */
+    justify-content: center;
+    display: flex;
+}
+
+.action-nav {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    background-color: transparent;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--dark-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: var(--gold-accent);
+    border-color: var(--gold-accent);
+    color: var(--dark-text);
+}
+
+.action-btn i {
+    color: var(--royal-violet);
+}
+
+
+/* ==========================================================================
+   Author Page - Action Modals 
+   ========================================================================== */
+
+@keyframes slideDownFadeIn {
+    from {
+        opacity: 0;
+        /* The animation starts from a higher position */
+        transform: translateY(60px); 
+    }
+    to {
+        opacity: 1;
+        /* It animates down to its final position */
+        transform: translateY(65px); 
+    }
+}
+
+
+.modal.action-modal.show .modal-dialog {
+    animation: slideDownFadeIn 0.4s ease-out;
+    transform: translateY(65px); /* Set the final "hanging" position */
+}
+
+.modal.action-modal .modal-dialog {
+    max-height: 80vh;
+    width: 45%;            /* 70% of viewport width */
+    max-width: none;        /* remove Bootstrap's default max-width */
+    margin: auto; 
+    display: flex; /* This is correct for the dialog, not the modal overlay */
+    flex-direction: column;
+}
+
+.modal.action-modal .modal-content {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal.action-modal .modal-body {
+    overflow-y: auto; /* Enable vertical scrolling ONLY for the body */
+}
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.2) !important; /* 20% black */
+}
+
+
+/* Also disable Bootstrap’s default opacity */
+.modal-backdrop.show {
+    opacity: 0.8 !important;
+}
+
+/* ==========================================================================
+   Author Page - Formal Action Modal Styles
+   ========================================================================== */
+
+/* --- 1. General Modal Content Styling --- */
+.action-modal .modal-content {
+    border-radius: 0; /* No rounded corners for a formal look */
+    border: 1px solid #ddd;
+    background-color: var(--baige-accent);
+}
+
+.action-modal .modal-header {
+    background-color: var(--off-white);
+    border-bottom: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+}
+
+.action-modal .modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--deep-blue);
+}
+.action-modal .modal-title i {
+    color: var(--royal-violet);
+    margin-right: 0.5rem;
+}
+
+.action-modal .modal-body {
+    padding: 1.5rem;
+}
+
+/* --- 2. Compact Form Group Styling --- */
+.formal-form .form-group {
+    margin-bottom: 1rem;
+}
+.formal-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.formal-form .form-group label {
+    font-size: 0.7rem; /* Tiny labels */
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 0.25rem;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.formal-form .form-group input,
+.formal-form .form-group textarea,
+.formal-form .form-group select {
+    width: 100%;
+    padding: 0.5rem 0.75rem; /* Compact padding */
+    border: 1px solid #ccc;
+    border-radius: 0; /* Sharp corners */
+    font-size: 0.9rem;
+    background-color: #fff;
+}
+.formal-form .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* --- 3. Specific Component Styles --- */
+.modal-intro {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+    border-left: 3px solid var(--papyrus-color);
+    padding-left: 1rem;
+}
+
+.file-input-group {
+    border: 1px dashed #ccc;
+    padding: 1rem;
+    text-align: center;
+    background-color: var(--off-white);
+}
+
+.lecture-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+.lecture-item:last-child {
+    border-bottom: none;
+}
+.lecture-date {
+    font-weight: 600;
+    color: var(--dark-text);
+}
+.lecture-title {
+    font-size: 0.9rem;
+    color: #555;
+}
+.lecture-location {
+    font-size: 0.8rem;
+    color: #777;
+    font-style: italic;
+}
+
+.modal-footer {
+    border-top: 1px solid #ddd;
+    background-color: var(--off-white);
+    padding: 0.75rem 1rem;
+}
+.btn-submit-action {
+    background-color: var(--deep-blue);
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.btn-submit-action:hover {
+    background-color: var(--royal-violet);
+}
+
+
+/* --- 2. CORE PAGE LAYOUT  --- */
+.author-page-grid {
+    display: grid;
+    /* Changed from 3 columns to 2 */
+    grid-template-columns: 320px 1fr; 
+    gap: 2rem;
+    padding: 2rem;
+    align-items: flex-start;
+    background-color: var(--baige-accent);
+}
+
+/* --- 3. LEFT PANEL: PROFILE (Updated for new sticky context) --- */
+.author-profile-panel {
+    position: sticky;
+    /* Calculate top position based on the height of your main header + this new header */
+    /* Adjust '80px' based on your actual header heights */
+    top: 80px; 
+}
+
+.author-card, .stats-card {
+    background: var(--off-white);
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.author-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    overflow: hidden;
+    border: 4px solid #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.author-photo img { width: 100%; height: 100%; object-fit: cover; }
+.author-name { font-size: 1.5rem; margin-bottom: 0.25rem; color: var(--dark-text); }
+.author-organization { font-size: 0.9rem; color: #666; margin-bottom: 1.5rem; }
+.author-contact-info { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.8rem; }
+.author-contact-info a { color: var(--deep-blue); }
+.author-contact-info a i { margin-right: 0.3rem; }
+.author-details { text-align: left; border-top: 1px solid #eee; padding-top: 1.5rem; }
+.detail-item { margin-bottom: 1rem; }
+.detail-item h4 { font-size: 0.8rem; color: var(--royal-violet); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.3rem; }
+.detail-item p { font-size: 0.9rem; color: #555; line-height: 1.5; }
+
+/* --- 4. STATS CARD (Now in Left Panel) --- */
+.stats-card {
+    background: var(--papyrus-color);
+}
+.stats-card h4 { color: var(--dark-text); font-size: 1rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.75rem; }
+.stat-item { display: flex; justify-content: space-between; align-items: baseline; padding: 0.75rem 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.stat-value { font-size: 1.5rem; font-weight: 700; color: var(--deep-blue); }
+.stat-label { font-size: 0.8rem; color: var(--earth-brown); }
+
+/* --- 5. RIGHT PANEL (Previously Center): PUBLICATIONS --- */
+.author-publications-panel {
+    background: var(--off-white);
+    border: 1px solid #ddd;
+    border-radius: 12px;
+}
+/* ... (All publications styles for header, search, and list items are correct and unchanged) ... */
+.publications-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #eee; }
+.publications-header h3 { margin: 0; font-size: 1.2rem; }
+.search-wrapper { position: relative; }
+.search-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #999; }
+#publication-search { border: 1px solid #ccc; border-radius: 20px; padding: 0.5rem 1rem 0.5rem 2rem; font-size: 0.8rem; width: 250px; }
+.publications-list { padding: 0.5rem; }
+.publication-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #f0f0f0; text-decoration: none; transition: background-color 0.2s ease; }
+.publication-item:last-child { border-bottom: none; }
+.publication-item:hover { background-color: var(--baige-accent); }
+.publication-title { font-size: 1rem; font-weight: 500; color: var(--deep-blue); margin: 0; }
+.publication-category { font-size: 0.75rem; color: #777; margin: 0.2rem 0 0; }
+.item-meta { display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; color: #888; flex-shrink: 0; }
+/* ======================================
+ 6. SEARCH SUGGESTIONS DROPDOWN 
+ ========================================== */
+
+.search-suggestions-container {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--baige-accent);
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 1050; /* High z-index to appear over other content */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #bdbdbd;
+}
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+.suggestion-item:hover {
+    background-color: #f7f7f7;
+}
+.suggestion-title {
+    font-weight: 500;
+    color: var(--dark-text);
+}
+.suggestion-author {
+    font-size: 0.8rem;
+    color: #666;
+    display: block;
+}
+
+.search-input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid #000;
+    border-left: none;
+    border-right: none;
+    outline: none;
+    min-width: 300px;
+    font-size: 11px;
+}
+
+.search-button {
+    background: #000;
+    color: #FFCC00;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+/* /project_folder/app/dol_discourse/static/css/dialogues.css */
+
+/* ... (All existing styles are unchanged) ... */
+
+/* --- Add these styles at the end of the Author Profile Page section --- */
+.search-icon-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.no-publications {
+    padding: 2rem;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+}
+
+.publication-pagination {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+}
+
+/* --- Flask-Paginate Bootstrap 5 Styling --- */
+.pagination {
+    margin: 0;
+}
+.pagination .page-item .page-link {
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    color: var(--dark-text);
+    margin: 0 2px;
+    border-radius: 6px;
+}
+.pagination .page-item.active .page-link {
+    background-color: var(--gold-accent);
+    border-color: var(--gold-accent);
+    color: var(--dark-text);
+    font-weight: bold;
+}
+.pagination .page-item.disabled .page-link {
+    background-color: #f9f9f9;
+    border-color: #eee;
+    color: #aaa;
+}
+.pagination .page-item .page-link:hover {
+    background-color: var(--baige-accent);
+}
