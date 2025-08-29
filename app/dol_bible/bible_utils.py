@@ -6,16 +6,7 @@ from app.dol_db.models import db  # Assuming a models.py in this blueprint or ac
 import sqlite3
 from flask import current_app, g
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-instance_folder = os.path.join(BASE_DIR,"..",'instance')
 
-
-# Get all .db files in the instance folder
-db_files = [f for f in os.listdir(instance_folder) if f.endswith(".db")]
-
-print("Database files found:")
-for db in db_files:
-   print(db)
    
 def get_bible_db(version_abbr):
     """Gets a connection to a specific Bible version's SQLite database."""
@@ -35,9 +26,6 @@ def get_bible_db(version_abbr):
     return g.get(db_conn_key)
    
    
-
-# This is the heart of the alias system. It's pre-computed for speed.
-# In a real app, this would be generated from the database once on startup.
 BOOK_ALIASES = {
     'genesis': 'Genesis', 'gen': 'Genesis', 'gn': 'Genesis',
     'exodus': 'Exodus', 'exo': 'Exodus', 'ex': 'Exodus',
@@ -144,10 +132,6 @@ def parse_query(query_string):
             if match:
                 g = match.groups()
                 chapter_num = int(g[0])
-                # Special handling for single-chapter books where "Jude 15" means chapter 1, verse 15.
-                # We do this by checking if the alias was JUST the book name (no numbers after).
-                # This is tricky, so we'll let the next pattern handle it more cleanly.
-                # This pattern is now ONLY for full chapters like "John 11" or "Psalms 150".
                 return {'type': 'reference', 'book': book_name, 'chapter': chapter_num, 'verse_start': None, 'verse_end': None}
             
             # Priority 4: Single-chapter book verse (e.g., "Jude 15") or ambiguous space-separated C:V ("John 1 15")
