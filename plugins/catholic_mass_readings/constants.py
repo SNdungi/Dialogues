@@ -42,7 +42,7 @@ SECTION_HEADER_READINGS: Final[Dict[int, str]] = {
     4: SECTION_HEADER_FORTH_READING,
 }
 
-OLD_TESTAMENT_BOOKS: Final[list[Dict[str, str]]] = [
+OLD_TESTAMENT_BOOKS: Final[List[Dict[str, str]]] = [
     {"short_abbreviation": "Gn", "long_abbreviation": "Gen", "name": "Genesis", "title": "Book of Genesis"},
     {"short_abbreviation": "Ex", "long_abbreviation": "Exod", "name": "Exodus", "title": "Book of Exodus"},
     {"short_abbreviation": "Lv", "long_abbreviation": "Lev", "name": "Leviticus", "title": "Book of Leviticus"},
@@ -141,7 +141,7 @@ OLD_TESTAMENT_BOOKS: Final[list[Dict[str, str]]] = [
     {"short_abbreviation": "Ml", "long_abbreviation": "Mal", "name": "Malachi", "title": "Book of the Prophet Malachi"},
 ]
 
-NEW_TESTAMENT_BOOKS: Final[list[Dict[str, str]]] = [
+NEW_TESTAMENT_BOOKS: Final[List[Dict[str, str]]] = [
     {
         "short_abbreviation": "Mt",
         "long_abbreviation": "Matt",

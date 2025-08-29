@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime
 import logging
 import re
-from collections import defaultDict
+from collections import defaultdict
 from functools import lru_cache # Changed from @cache to lru_cache for Python 3.8
 from typing import TYPE_CHECKING, Final, cast, Dict # Added Any
 
@@ -239,7 +239,7 @@ def _get_testament_book_lookup(
     books: list[Dict[str, str]],
 ) -> Dict[str, Dict[str, str]]:
     lookup: Dict[str, Dict[str, str]] = {}
-    abbrev_lookup: Dict[str, list[Dict[str, str]]] = defaultDict(list)
+    abbrev_lookup: Dict[str, list[Dict[str, str]]] = defaultdict(list)
     for book in books:
         name = book["name"].casefold()
         long_abbreviation = book["long_abbreviation"].casefold()
