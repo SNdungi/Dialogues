@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             translations.forEach(t => {
                 const option = document.createElement('option');
                 option.value = t.abbreviation;
-                option.textContent = t.abbreviation;
+                option.textContent = t.name;
                 translationSelect.appendChild(option);
             });
         } catch (error) {
