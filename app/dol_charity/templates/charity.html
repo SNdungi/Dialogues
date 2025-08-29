@@ -4,143 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Support Our Mission - Dialogues of Light</title>
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CRITICAL: Bootstrap CSS Link -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Your custom stylesheet -->
     <link rel="stylesheet" href="{{ url_for('charity_bp.static', filename='charity.css') }}">
 </head>
-<body>
-<div class="cover-image-bg" style="background-image: url({{ url_for('static', filename='images/1.webp') }});">
-    <div class="site-grid">
-        <div class="sidebar">
-            <div class="header-accent-dots">
-                <a href="{{ url_for('main.splash') }}" title="Home" aria-label="Home"></a>
-            </div>
+<body style="background-image: url({{ url_for('static', filename='images/1.webp') }});">
+<div class="site-grid">
+    <div class="sidebar">
+        <div class="header-accent-dots">
+            <a href="{{ url_for('main.splash') }}" title="Home" aria-label="Home"></a>
         </div>
 
-        <div class="charity-page-container">
-            <section class="donation-panel m-5">
-                <h2 class="donation-header">Help us extend our <span class="highlight-text">resources</span> to <span class="highlight-text">millions</span> each month.</h2>
-                
-                <div class="donation-card">
-                    <div class="donation-card-header d-flex justify-content-between align-items-center">
-                        <button id="back-btn" class="back-button">&larr;</button>
-                        <div class="card-logo"><i class="fa-regular fa-heart fs-4"></i></div>
-                        <div class="currency-toggle d-flex">
-                            <button id="kes-btn" class="currency-btn shadow me-2" data-currency="KES">
-                                <img src="{{ url_for('static', filename='images/uploads/kenya-flag.webp') }}" alt="KES" width="30" height="28">
-                            </button>
-                            <button id="usd-btn" class="currency-btn shadow active" data-currency="USD">
-                                <img src="{{ url_for('static', filename='images/uploads/us-flag.webp') }}" alt="USD" width="30" height="28">
-                            </button>
-                        </div>
-                    </div>
+    </div>
 
-                    <div id="donation-steps-container">
-                        <!-- =================== STEP 1: AMOUNT =================== -->
-                        <div class="donation-step active-step" id="step-1">
-                            <div class="frequency-tabs">
-                                <button class="frequency-btn active" data-frequency="One Time">One Time</button>
-                                <button class="frequency-btn" data-frequency="Monthly">Monthly</button>
-                                <button class="frequency-btn" data-frequency="Quarterly">Quarterly</button>
-                                <button class="frequency-btn" data-frequency="Yearly">Yearly</button>
-                            </div>
-                            
-                            <!-- This container will be populated by JavaScript -->
-                            <div class="donation-amounts-grid"></div>
-                            
-                            <div class="custom-amount-section">
-                                <div class="input-with-currency">
-                                    <span id="currency-symbol">$</span>
-                                    <input type="number" id="custom-amount" placeholder="Enter custom amount">
-                                </div>
-                            </div>
-
-                            <button id="next-btn-1 mt-3" class="btn-donate">Donate — $50 One Time</button>
-                        </div>
-
-                        <!-- =================== STEP 2: INFORMATION =================== -->
-                        <div class="donation-step" id="step-2">
-                            <h3 class="step-header">Information</h3>
-                            <div class="donation-form-group"><select id="title"><option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Rev.</option><option>Rev.</option>Dr.</select></div>
-                            <div class="donation-form-group"><input type="text" placeholder="First Name" required></div>
-                            <div class="donation-form-group"><input type="text" placeholder="Last Name" required></div>
-                            <div class="donation-form-group"><input type="email" placeholder="Email" required></div>
-                            <div class="donation-form-group"><input type="tel" placeholder="Phone"></div>
-                            <div class="donation-form-group"><input type="text" placeholder="Street Address"></div>
-                            <div class="donation-form-group"><input type="text" placeholder="County/Province/State"></div>
-                            <div class="donation-form-group"><input type="text" placeholder="Zip / Postal Code"></div>
-                            <div class="donation-form-group"><select id="country">
-                                <option>United States</option>
-                                <option>Kenya</option>
-                                <option>Uganda</option>
-                                <option>Tanzania</option>
-                                <option>Nigeria</option>
-                                <option>South Sudan</option>
-                                <option>Ghana</option>
-                                <option>Ethiopia</option>
-                                <option>Rwanda</option>
-                                <option>Burundi</option>
-                                <option>Zambia</option>
-                                <option>Zimbabwe</option>
-                                <option>Malawi</option>
-                                <option>Mozambique</option>
-                                <option>Cameroon</option>
-                                <option>Botswana</option>
-                                <option>Namibia</option>
-                                <option>Lesotho</option>
-                                <option>Swaziland</option>
-                                <option>Egypt</option>
-                                <option>Canada</option>
-                                <option>United Kingdom</option>
-                                <option>Germany</option>
-                                <option>France</option>
-                                <option>Italy</option>
-                                <option>Spain</option>
-                                <option>Australia</option>
-                                <option>India</option>
-                                <option>China</option>
-                                <option>South Africa</option>
-                                <option>Other</option>
-                            </select></div>
-                            <div class="donation-form-group checkbox-group">
-                                <input type="checkbox" id="anonymous">
-                                <label for="anonymous">Make this an anonymous gift</label>
-                            </div>
-                            <button id="next-btn-2" class="btn-donate">Next</button>
-                        </div>
-
-                        <!-- =================== STEP 3: PAYMENT =================== -->
-                        <div class="donation-step" id="step-3">
-                            <h3 id="payment-summary" class="step-header">$50 / month</h3>
-                            <div class="payment-method-tabs">
-                                <button class="payment-method-btn active"><i class="fas fa-credit-card"></i> Card</button>
-                                <button class="payment-method-btn"><img src="{{ url_for('static', filename='images/uploads/mpesa.webp') }}" alt="M-Pesa" width="80" height="40"> Wallet</button>
-                            </div>
-                            <div class="donation-form-group"><input type="text" placeholder="Card number"></div>
-                            <div class="donation-form-group"><input type="text" placeholder="Expiration date (MM / YY)"></div>
-                            <div class="donation-form-group"><input type="text" placeholder="Security code (CVC)"></div>
-                            <div class="donation-form-group"><select id="payment-country"><option>United States</option><option>Kenya</option></select></div>
-                            <p style="font-size: 0.7rem; color: #888; text-align: center;">By providing your card information, you allow our ministry to charge your card for future payments in accordance with their terms.</p>
-                            <button id="submit-btn" class="btn-donate">Submit</button>
-                            <div class="or-divider">OR</div>
-                            <button class="btn-donate btn-paypal"><i class="fab fa-paypal"></i> PayPal</button>
-                        </div>
+    <div class="charity-page-container">
+        <section class="donation-panel m-5">
+            <h2 class="donation-header">Help us extend our <span class="highlight-text">resources</span> to <span class="highlight-text">millions</span> each month.</h2>
+            
+            <div class="donation-card">
+                <div class="donation-card-header d-flex justify-content-between align-items-center">
+                    <button id="back-btn" class="back-button">&larr;</button>
+                    <div class="card-logo"><i class="fa-regular fa-heart fs-4"></i></div>
+                    <div class="currency-toggle d-flex">
+                        <button id="kes-btn" class="currency-btn shadow me-2 active" data-currency="KES">
+                            <img src="{{ url_for('static', filename='images/uploads/kenya-flag.webp') }}" alt="KES" width="30" height="28">
+                        </button>
+                        <button id="usd-btn" class="currency-btn shadow" data-currency="USD">
+                            <img src="{{ url_for('static', filename='images/uploads/us-flag.webp') }}" alt="USD" width="30" height="28">
+                        </button>
                     </div>
                 </div>
-            </section>
-            <!-- =================== CHARITY SELECTION PANEL =================== -->
 
-            <section class="charities-panel">
+                <div id="donation-steps-container">
+                    <div class="donation-step active-step" id="step-1">
+                        <div class="frequency-tabs">
+                            <button class="frequency-btn active" data-frequency="One Time">One Time</button>
+                            <button class="frequency-btn" data-frequency="Monthly">Monthly</button>
+                            <button class="frequency-btn" data-frequency="Quarterly">Quarterly</button>
+                            <button class="frequency-btn" data-frequency="Yearly">Yearly</button>
+                        </div>
+                        
+                        <div class="donation-amounts-grid"></div>
+                        
+                        <div class="custom-amount-section">
+                            <div class="input-with-currency">
+                                <span id="currency-symbol">$</span>
+                                <input type="number" id="custom-amount" placeholder="Enter custom amount">
+                            </div>
+                        </div>
+                        <div class="donation-links">
+                            <a href="#" class="dedication-link">Dedicate in honor or in memory of someone</a>
+                        </div>
+                        <button id="next-btn-1" class="btn-donate">Donate — Ksh5,000 One Time</button>
+                    </div>
+
+                    <div class="donation-step" id="step-2">
+                        <h3 class="step-header">Information</h3>
+                        <div class="donation-form-group"><select id="title"><option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Rev.</option><option>Dr.</option></select></div>
+                        <div class="donation-form-group"><input type="text" placeholder="First Name" required></div>
+                        <div class="donation-form-group"><input type="text" placeholder="Last Name" required></div>
+                        <div class="donation-form-group"><input type="email" placeholder="Email" required></div>
+                        <div class="donation-form-group"><input type="tel" placeholder="Phone"></div>
+                        <div class="donation-form-group"><input type="text" placeholder="Street Address"></div>
+                        <div class="donation-form-group"><input type="text" placeholder="County/Province/State"></div>
+                        <div class="donation-form-group"><input type="text" placeholder="Zip / Postal Code"></div>
+                        <div class="donation-form-group"><select id="country"><option>Kenya</option><option>United States</option><option>Uganda</option><option>Tanzania</option><option>Nigeria</option><option>South Sudan</option><option>Ghana</option><option>Ethiopia</option><option>Rwanda</option><option>Burundi</option><option>Zambia</option><option>Zimbabwe</option><option>Malawi</option><option>Mozambique</option><option>Cameroon</option><option>Botswana</option><option>Namibia</option><option>Lesotho</option><option>Swaziland</option><option>Egypt</option><option>Canada</option><option>United Kingdom</option><option>Germany</option><option>France</option><option>Italy</option><option>Spain</option><option>Australia</option><option>India</option><option>China</option><option>South Africa</option><option>Other</option></select></div>
+                        <div class="donation-form-group checkbox-group">
+                            <input type="checkbox" id="anonymous">
+                            <label for="anonymous">Make this an anonymous gift</label>
+                        </div>
+                        <button id="next-btn-2" class="btn-donate">Next</button>
+                    </div>
+
+                    <div class="donation-step" id="step-3">
+                        <h3 id="payment-summary" class="step-header">$50 / month</h3>
+                        <div class="payment-method-tabs">
+                            <button class="payment-method-btn active"><i class="fas fa-credit-card"></i> Card</button>
+                            <button class="payment-method-btn"><img src="{{ url_for('static', filename='images/uploads/mpesa.webp') }}" alt="M-Pesa" width="80" height="40"> Wallet</button>
+                        </div>
+                        <div class="donation-form-group"><input type="text" placeholder="Card number"></div>
+                        <div class="donation-form-group"><input type="text" placeholder="Expiration date (MM / YY)"></div>
+                        <div class="donation-form-group"><input type="text" placeholder="Security code (CVC)"></div>
+                        <div class="donation-form-group"><select id="payment-country"><option>Kenya</option><option>United States</option></select></div>
+                        <p style="font-size: 0.7rem; color: #888; text-align: center;">By providing your card information, you allow our ministry to charge your card for future payments in accordance with their terms.</p>
+                        <button id="submit-btn" class="btn-donate">Submit</button>
+                        <div class="or-divider">OR</div>
+                        <button class="btn-donate btn-paypal"><i class="fab fa-paypal"></i> PayPal</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="charities-panel">
             <div class="charities-search-panel">
                 <div class="charity-panel-header">
                     <h4 class="mb-0">Choose a Charity</h4>
                     <div class="charity-search-wrapper">
-                        <!-- Removed form tag, JS will handle this -->
                         <input type="text" id="charity-search-input" class="charity-search-input" placeholder="Search charities..." value="{{ search_query or '' }}">
-                        <i class="fas fa-search search-icon"></i>
+                        <button type="submit" class="search-icon-btn"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 
@@ -156,26 +117,21 @@
                 </div>
             </div>
 
-            <!-- The content of these divs will now be dynamically updated -->
-<div class="charities-list" id="charities-list-container">
-    <!-- Include the corrected partial for the initial render -->
-    {% include '_charity_list.html' %}
+            <div class="charities-list" id="charities-list-container">
+                {% include '_charity_list.html' %}
+            </div>
+            <div class="charity-pagination" id="pagination-container">
+                {% include '_pagination.html' %}
+            </div>
+        </section>
+    </div>
 </div>
-                <div class="charity-pagination" id="pagination-container">
-                    {% include '_pagination.html' %}
-                </div>
-            </section>
-        </div>
-    </div>
-    <div class="register-btn-container">
-        <a href="{{ url_for('charity_bp.register_charity') }}" class="register-btn">
-            REGISTER A CHARITY
-        </a>
-    </div>
+
+<div class="register-btn-container">
+    <a href="{{ url_for('charity_bp.register_charity') }}" class="register-btn">REGISTER A CHARITY</a>
 </div>
 
 <footer class="site-footer">
-
     <div class="footer-container">
         <div class="footer-column">
             <h4>Quick Links</h4>
@@ -218,26 +174,23 @@
         <p class="tight-p">Temple of Divine Wisdom, Tabernacle of Divine Knowledge</p>
         <p class="tight-p">&</p>
         <p class="tight-p">Sunshine of heaven and earth.</p>
-
         <p>© {{ now().year }} </p>
     </div>
 </footer>
-<!-- ================================================================ -->
-<!-- JAVASCRIPT SECTION                                               -->
-<!-- ================================================================ -->
-<!-- /project_folder/app/dol_charity/templates/charity.html -->
 
 <script>
-    // Embed the currency data from the backend into a JavaScript variable
     const CURRENCY_DATA = {{ currency_data | tojson }};
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ========================================================================
-    // --- SECTION 1: DONATION PANEL LOGIC (This section is unchanged) ---
-    // ========================================================================
-    const donationState = { amount: 50, frequency: 'One Time', currency: 'USD', charityId: null };
+    const donationState = {
+        amount: 5000,
+        frequency: 'One Time',
+        currency: 'KES',
+        charityId: null
+    };
     let currentStep = 0;
+
     const backBtn = document.getElementById('back-btn');
     const steps = document.querySelectorAll('.donation-step');
     const nextBtn1 = document.getElementById('next-btn-1');
@@ -248,22 +201,110 @@ document.addEventListener('DOMContentLoaded', () => {
     const currencySymbolEl = document.getElementById('currency-symbol');
     const currencyToggleButtons = document.querySelectorAll('.currency-btn');
     const currencyToggleContainer = document.querySelector('.currency-toggle');
-    function renderAmountButtons() { /* ... */ }
-    function attachAmountButtonListeners() { /* ... */ }
-    function updateCtaButton() { /* ... */ }
-    function updatePaymentSummary() { /* ... */ }
-    function updateCurrencySymbol() { /* ... */ }
-    function goToStep(stepIndex) { /* ... */ }
-    currencyToggleButtons.forEach(btn => { btn.addEventListener('click', () => { /* ... */ }); });
+
+    function renderAmountButtons() {
+        amountGrid.innerHTML = '';
+        const currentCurrency = CURRENCY_DATA[donationState.currency];
+        if (!currentCurrency) return;
+        currentCurrency.amounts.forEach(amount => {
+            const button = document.createElement('button');
+            button.className = 'amount-btn';
+            button.dataset.amount = amount;
+            button.textContent = `${currentCurrency.symbol}${amount.toLocaleString()}`;
+            amountGrid.appendChild(button);
+        });
+        attachAmountButtonListeners();
+        let defaultActiveBtn = amountGrid.querySelector(`[data-amount="${donationState.amount}"]`);
+        if (!defaultActiveBtn) {
+            defaultActiveBtn = amountGrid.children[1];
+            if (defaultActiveBtn) {
+                donationState.amount = defaultActiveBtn.dataset.amount;
+            }
+        }
+        if (defaultActiveBtn) defaultActiveBtn.classList.add('active');
+    }
+
+    function attachAmountButtonListeners() {
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.amount-btn.active')?.classList.remove('active');
+                btn.classList.add('active');
+                donationState.amount = btn.dataset.amount;
+                customAmountInput.value = '';
+                updateCtaButton();
+            });
+        });
+    }
+
+    function updateCtaButton() {
+        const symbol = CURRENCY_DATA[donationState.currency]?.symbol || '$';
+        const amount = donationState.amount || 0;
+        nextBtn1.textContent = `Donate — ${symbol}${parseInt(amount).toLocaleString()} ${donationState.frequency}`;
+    }
+
+    function updatePaymentSummary() {
+        const symbol = CURRENCY_DATA[donationState.currency]?.symbol || '$';
+        const amount = donationState.amount || 0;
+        let frequencyText = donationState.frequency === 'One Time' ? '' : `/ ${donationState.frequency.toLowerCase().replace('ly', '')}`;
+        paymentSummary.textContent = `${symbol}${parseInt(amount).toLocaleString()} ${frequencyText}`;
+    }
+    
+    function updateCurrencySymbol() {
+        currencySymbolEl.textContent = CURRENCY_DATA[donationState.currency]?.symbol || '$';
+    }
+
+    function goToStep(stepIndex) {
+        steps.forEach(step => step.classList.remove('active-step'));
+        steps[stepIndex].classList.add('active-step');
+        backBtn.style.visibility = (stepIndex > 0) ? 'visible' : 'hidden';
+        currentStep = stepIndex;
+        if (stepIndex > 0) {
+            currencyToggleContainer.classList.add('locked');
+        } else {
+            currencyToggleContainer.classList.remove('locked');
+        }
+        if (currentStep === 2) { 
+            updatePaymentSummary(); 
+        }
+    }
+
+    currencyToggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelector('.currency-btn.active').classList.remove('active');
+            btn.classList.add('active');
+            donationState.currency = btn.dataset.currency;
+            const newDefaultAmount = CURRENCY_DATA[donationState.currency]?.amounts[1] || 50;
+            donationState.amount = newDefaultAmount;
+            renderAmountButtons();
+            updateCurrencySymbol();
+            updateCtaButton();
+        });
+    });
+
     backBtn.addEventListener('click', () => { if (currentStep > 0) goToStep(currentStep - 1); });
     nextBtn1.addEventListener('click', () => goToStep(1));
     nextBtn2.addEventListener('click', () => goToStep(2));
-    document.querySelectorAll('.frequency-btn').forEach(btn => { btn.addEventListener('click', () => { /* ... */ }); });
-    customAmountInput.addEventListener('input', (e) => { /* ... */ });
 
-    // ========================================================================
-    // --- SECTION 2: CHARITY PANEL LIVE SEARCH & FILTER LOGIC ---
-    // ========================================================================
+    document.querySelectorAll('.frequency-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelector('.frequency-btn.active').classList.remove('active');
+            btn.classList.add('active');
+            donationState.frequency = btn.dataset.frequency;
+            updateCtaButton();
+        });
+    });
+
+    customAmountInput.addEventListener('input', (e) => {
+        const value = e.target.value;
+        if (value && value > 0) {
+            document.querySelector('.amount-btn.active')?.classList.remove('active');
+            donationState.amount = value;
+        } else {
+            donationState.amount = 0;
+        }
+        updateCtaButton();
+    });
+
     const charityState = {
         activeFilter: '{{ active_filter }}',
         searchQuery: '{{ search_query }}',
@@ -300,15 +341,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     filterPills.forEach(pill => {
-        pill.addEventListener('click', () => {
-            document.querySelector('.filter-pill.active').classList.remove('active');
+        pill.addEventListener('click', (event) => {
+            event.preventDefault();
+            document.querySelector('.filter-pill.active')?.classList.remove('active');
             pill.classList.add('active');
             charityState.activeFilter = pill.dataset.filter;
             fetchCharityResults(1);
         });
     });
 
-    // --- CRITICAL FIX: Add a null check before adding the listener ---
     if (paginationContainer) {
         paginationContainer.addEventListener('click', (event) => {
             const link = event.target.closest('a.page-link');
@@ -323,24 +364,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // This listener can be outside the pagination check
-    // because charity cards always exist (or a "not found" message).
-    charityListContainer.addEventListener('click', (event) => {
-        const card = event.target.closest('.charity-card');
-        if (card) {
-            event.preventDefault();
-            document.querySelector('.charity-card.selected')?.classList.remove('selected');
-            card.classList.add('selected');
-            donationState.charityId = card.dataset.charityId;
-        }
-    });
+    if (charityListContainer) {
+        charityListContainer.addEventListener('click', (event) => {
+            const card = event.target.closest('.charity-card');
+            if (card) {
+                event.preventDefault();
+                document.querySelector('.charity-card.selected')?.classList.remove('selected');
+                card.classList.add('selected');
+                donationState.charityId = card.dataset.charityId;
+            }
+        });
+    }
 
-    // ========================================================================
-    // --- SECTION 3: INITIALIZATION ---
-    // ========================================================================
     renderAmountButtons();
+    updateCurrencySymbol();
     goToStep(0);
-    // REMOVED `applyFiltersAndPagination()` as it's no longer defined/needed.
 });
 </script>
 </body>

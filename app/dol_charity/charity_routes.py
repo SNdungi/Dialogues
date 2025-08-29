@@ -27,6 +27,7 @@ def load_app_json(filename):
     filepath = path.join(current_app.static_folder, 'data', filename)
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
+            current_app.logger.info(f"Loading JSON data from {filepath}")
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         current_app.logger.error(f"FATAL: Could not load or parse required config file: {filepath}")
@@ -56,6 +57,7 @@ def charity_home():
     )
     
     currency_data = load_app_json('currencies.json')
+    current_app.logger.info(f"[CHARITY] Loaded {len(currency_data)} currency entries.")
 
     return render_template(
         'charity.html', 
